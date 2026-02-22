@@ -177,7 +177,7 @@ class ReaderPageView: UIView {
             request = ImageRequest(
                 urlRequest: urlRequest,
                 processors: processors,
-                userInfo: [.contextKey: context ?? [:], .processesKey: usePageProcessor]
+                userInfo: [.contextKey: context, .processesKey: usePageProcessor]
             )
         }
 
