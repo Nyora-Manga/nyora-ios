@@ -158,7 +158,7 @@ extension MangaCollectionViewController {
     func updateDataSource() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, AidokuRunner.Manga>()
         snapshot.appendSections([.regular])
-        snapshot.appendItems(entries, toSection: .regular)
+        snapshot.appendItems(entries.unique(), toSection: .regular)
         dataSource.apply(snapshot)
     }
 
