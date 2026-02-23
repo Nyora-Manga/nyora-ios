@@ -465,21 +465,23 @@ extension MangaView.ViewModel {
                             mangaId: mangaKey,
                             context: context
                         )
-                        // add manga updates
-                        for chapter in newChapters
-                        where
+                        if !newChapters.isEmpty {
+                            // add manga updates
+                            for chapter in newChapters
+                            where
                             chapterLangFilter != nil ? chapter.lang == chapterLangFilter : true
                             && !chapterScanlatorFilter.isEmpty ? chapterScanlatorFilter.contains(chapter.scanlator ?? "") : true
-                        {
-                            CoreDataManager.shared.createMangaUpdate(
-                                sourceId: sourceKey,
-                                mangaId: mangaKey,
-                                chapterObject: chapter,
-                                context: context
-                            )
+                            {
+                                CoreDataManager.shared.createMangaUpdate(
+                                    sourceId: sourceKey,
+                                    mangaId: mangaKey,
+                                    chapterObject: chapter,
+                                    context: context
+                                )
+                            }
+                            libraryObject.lastChapter = chapters.compactMap { $0.dateUploaded }.max()
+                            libraryObject.lastUpdatedChapters = Date.now
                         }
-                        libraryObject.lastChapter = chapters.compactMap { $0.dateUploaded }.max()
-                        libraryObject.lastUpdatedChapters = Date.now
                     }
 
                     let now = Date.now
