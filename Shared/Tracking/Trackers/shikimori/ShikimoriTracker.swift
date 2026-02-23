@@ -72,7 +72,7 @@ private extension ShikimoriTracker {
         guard let result = await api.search(query: query, censored: !includeNsfw) else {
             return []
         }
-        return result.data.mangas.map {
+        return result.data?.mangas.map {
             TrackSearchItem(
                 id: $0.id,
                 title: $0.russian ?? $0.name,
@@ -80,7 +80,7 @@ private extension ShikimoriTracker {
                 type: getMediaType(typeString: $0.kind),
                 tracked: false
             )
-        }
+        } ?? []
     }
 
     func getMediaType(typeString: String) -> MediaType {

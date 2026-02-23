@@ -139,7 +139,7 @@ struct GraphQLVariableQuery<T: Codable>: Codable {
 }
 
 struct GraphQLResponse<T: Codable & Sendable>: Codable, Sendable {
-    var data: T
+    var data: T?
     var errors: [GraphQLError]?
 }
 

@@ -33,21 +33,21 @@ extension AniListApi {
                 variables: AniListSearchVars(search: query)
             )
         )
-        return response?.data.Page
+        return response?.data?.Page
     }
 
     func getMedia(id: Int) async -> Media? {
         let response: GraphQLResponse<AniListMediaStatusResponse>? = await request(
             GraphQLVariableQuery(query: AniListQueries.mediaQuery, variables: AniListMediaStatusVars(id: id))
         )
-        return response?.data.Media
+        return response?.data?.Media
     }
 
     func getMediaState(id: Int) async -> Media? {
         let response: GraphQLResponse<AniListMediaStatusResponse>? = await request(
             GraphQLVariableQuery(query: AniListQueries.mediaStatusQuery, variables: AniListMediaStatusVars(id: id))
         )
-        return response?.data.Media
+        return response?.data?.Media
     }
 
     @discardableResult
@@ -72,7 +72,7 @@ extension AniListApi {
         let response: GraphQLResponse<AniListViewerResponse>? = await request(
             GraphQLQuery(query: AniListQueries.viewerQuery)
         )
-        return response?.data.Viewer
+        return response?.data?.Viewer
     }
 
     private func request<T: Codable & Sendable, D: Encodable>(_ data: D) async -> GraphQLResponse<T>? {
@@ -85,7 +85,7 @@ extension AniListApi {
 
         let response: GraphQLResponse<T>? = try? await URLSession.shared.object(from: request)
         // check if token is invalid
-        if let response, let errors = response.errors, errors.contains(where: { $0.status == 400 }) {
+        if response.map({ $0.errors?.contains(where: { $0.status == 400 }) ?? false }) ?? true {
             // don't show the relogin alert if we're not logged in in the first place
             let isLoggedIn = UserDefaults.standard.string(forKey: "Tracker.anilist.token") != nil
             if isLoggedIn {
