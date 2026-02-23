@@ -495,17 +495,13 @@ extension MangaManager {
                     // update chapters
                     guard let chapters = newManga.chapters, !chapters.isEmpty else { return }
 
-                    let oldLockedCount = (mangaObject.chapters?.allObjects as? [ChapterObject])?.filter { $0.locked }.count ?? 0
-                    let newLockedCount = chapters.filter { $0.locked }.count
-
-                    let shouldUpdateChapters = mangaObject.chapters?.count != chapters.count || oldLockedCount != newLockedCount
-                    if shouldUpdateChapters {
-                        let newChapters = CoreDataManager.shared.setChapters(
-                            chapters,
-                            sourceId: manga.sourceId,
-                            mangaId: manga.id,
-                            context: context
-                        )
+                    let newChapters = CoreDataManager.shared.setChapters(
+                        chapters,
+                        sourceId: manga.sourceId,
+                        mangaId: manga.id,
+                        context: context
+                    )
+                    if !newChapters.isEmpty {
                         // add manga updates
                         let scanlatorFilter = mangaObject.scanlatorFilter ?? []
                         for chapter in newChapters
@@ -524,7 +520,7 @@ extension MangaManager {
                         libraryObject.lastUpdatedChapters = Date.now
                     }
 
-                    if updateMetadata || shouldUpdateChapters {
+                    if updateMetadata || !newChapters.isEmpty {
                         libraryObject.lastUpdated = Date.now
                         try? context.save()
                     }
