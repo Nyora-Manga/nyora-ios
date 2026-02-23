@@ -529,6 +529,7 @@
 "EXPORT" = "Export";
 "RESTORE" = "Restore";
 "CREATE_BACKUP" = "Create Backup";
+"IMPORT_BACKUP" = "Import Backup";
 "LIBRARY_ENTRIES" = "Library Entries";
 "SENSITIVE_SETTINGS" = "Sensitive Settings";
 "NAME" = "Name";
