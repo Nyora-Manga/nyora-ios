@@ -387,6 +387,7 @@
 "LOGIN_BASIC_TEXT" = "Any credentials entered will be given directly to the source. Do not log in to any source you do not trust.";
 "LOGIN_WEBVIEW_WARNING" = "Log in via web view?";
 "LOGIN_WEBVIEW_WARNING_TEXT" = "All cookies set in the presented web view will be given to the source. Do not log in to any source you do not trust.";
+"REFRESH_LOGIN" = "Refresh Login";
 
 // Settings
 "SETTINGS" = "Settings";

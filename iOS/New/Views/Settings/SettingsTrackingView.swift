@@ -89,6 +89,17 @@ struct SettingsTrackingView: View {
                             }
                         }
                     }
+                    .contextMenu {
+                        if tracker.isLoggedIn {
+                            Button {
+                                Task {
+                                    await login(to: tracker)
+                                }
+                            } label: {
+                                Label(NSLocalizedString("REFRESH_LOGIN"), systemImage: "arrow.clockwise")
+                            }
+                        }
+                    }
                 }
             }
         }
