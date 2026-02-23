@@ -137,7 +137,7 @@ final class BangumiTracker: OAuthTracker {
         let oauth = await api.getAccessToken(authCode: code)
         if let oauth = oauth {
             token = oauth.accessToken
-            UserDefaults.standard.set(try? JSONEncoder().encode(oauth), forKey: "Token.\(id).oauth")
+            UserDefaults.standard.set(try? JSONEncoder().encode(oauth), forKey: "Tracker.\(id).oauth")
         }
     }
 }

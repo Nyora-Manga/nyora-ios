@@ -213,7 +213,7 @@ final class AniListTracker: OAuthTracker {
         )
 
         token = oauth.accessToken
-        UserDefaults.standard.set(try? JSONEncoder().encode(oauth), forKey: "Token.\(id).oauth")
+        UserDefaults.standard.set(try? JSONEncoder().encode(oauth), forKey: "Tracker.\(id).oauth")
     }
 }
 

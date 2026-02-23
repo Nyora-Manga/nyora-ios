@@ -102,7 +102,7 @@ extension OAuthClient {
 //    }
 
     func loadTokens() {
-        if let data = UserDefaults.standard.data(forKey: "Token.\(id).oauth") {
+        if let data = UserDefaults.standard.data(forKey: "Tracker.\(id).oauth") {
             tokens = (try? JSONDecoder().decode(OAuthResponse.self, from: data)) ?? OAuthResponse()
         } else {
             tokens = OAuthResponse()
@@ -110,7 +110,7 @@ extension OAuthClient {
     }
 
     func saveTokens() {
-        UserDefaults.standard.set(try? JSONEncoder().encode(tokens), forKey: "Token.\(id).oauth")
+        UserDefaults.standard.set(try? JSONEncoder().encode(tokens), forKey: "Tracker.\(id).oauth")
     }
 
     func setTokens(_ response: OAuthResponse?) {

@@ -280,8 +280,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate {
     func performMigration() {
+        let settingsVersion = UserDefaults.standard.string(forKey: "currentVersion")
+        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        guard currentVersion != settingsVersion else {
+            return
+        }
+
         // migrate history to 0.6 format
-        if UserDefaults.standard.string(forKey: "currentVersion") == "0.5" {
+        if settingsVersion == "0.5" {
             Task.detached {
                 await self.migrateHistory()
             }
@@ -305,7 +311,13 @@ extension AppDelegate {
             UserDefaults.standard.removeObject(forKey: "Library.pinMangaType")
         }
 
-        UserDefaults.standard.set(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String, forKey: "currentVersion")
+        // migrate tracker token settings
+        for (key, value) in UserDefaults.standard.dictionaryRepresentation() where key.hasPrefix("Token.") {
+            UserDefaults.standard.removeObject(forKey: key)
+            UserDefaults.standard.set(value, forKey: key.replacingOccurrences(of: "Token.", with: "Tracker."))
+        }
+
+        UserDefaults.standard.set(currentVersion, forKey: "currentVersion")
     }
 
     private func migrateHistory() async {
