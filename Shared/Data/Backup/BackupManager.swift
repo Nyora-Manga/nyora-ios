@@ -26,6 +26,7 @@ actor BackupManager {
 
     private static let excludedSettings = [
         "Browse.sourceLists", // stored separately
+        "General.icloudSync",
         "isiCloudAvailable",
         "isSideloaded"
     ]
