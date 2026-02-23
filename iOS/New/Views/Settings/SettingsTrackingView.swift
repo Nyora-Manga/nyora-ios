@@ -156,6 +156,7 @@ extension SettingsTrackingView {
 
                         if tracker.isLoggedIn {
                             await tracker.oauthClient.loadTokens()
+                            trackersNeedingRelogin.remove(tracker.id)
                         }
 
                         NotificationCenter.default.post(name: .updateTrackers, object: nil)
