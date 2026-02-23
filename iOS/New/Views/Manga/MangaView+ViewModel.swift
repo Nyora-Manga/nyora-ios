@@ -189,14 +189,7 @@ extension MangaView {
                 .sink { [weak self] output in
                     guard let self, let item = output.object as? TrackItem else { return }
                     Task {
-                        if let tracker = TrackerManager.getTracker(id: item.trackerId) {
-                            await TrackerManager.shared.syncProgressFromTracker(
-                                tracker: tracker,
-                                trackId: item.id,
-                                manga: self.manga,
-                                chapters: self.chapters
-                            )
-                        }
+                        await self.checkTrackerSync(item: item)
                     }
                 }
                 .store(in: &cancellables)
@@ -553,6 +546,50 @@ extension MangaView.ViewModel {
             sourceId: manga.sourceKey,
             mangaId: manga.key
         )
+    }
+
+    private func checkTrackerSync(item: TrackItem) async {
+        guard let tracker = TrackerManager.getTracker(id: item.trackerId) else { return }
+
+        if tracker is PageTracker {
+            await TrackerManager.shared.syncPageTrackerHistory(
+                tracker: tracker,
+                manga: self.manga,
+                chapters: self.chapters
+            )
+            return
+        }
+
+        let chaptersToMark = await TrackerManager.shared.getChaptersToSyncProgressFromTracker(
+            tracker: tracker,
+            trackId: item.id,
+            manga: self.manga,
+            chapters: self.chapters
+        )
+
+        if !chaptersToMark.isEmpty {
+            let alert = UIAlertController(
+                title: NSLocalizedString("SYNC_WITH_TRACKER"),
+                message: String(format: NSLocalizedString("SYNC_WITH_TRACKER_INFO_%i"), chaptersToMark.count),
+                preferredStyle: .alert
+            )
+
+            alert.addAction(UIAlertAction(title: NSLocalizedString("CANCEL"), style: .cancel) { _ in })
+
+            alert.addAction(UIAlertAction(title: NSLocalizedString("OK"), style: .default) { [weak self] _ in
+                guard let self else { return }
+                Task {
+                    await HistoryManager.shared.addHistory(
+                        sourceId: self.manga.sourceKey,
+                        mangaId: self.manga.key,
+                        chapters: chaptersToMark,
+                        skipTracker: tracker
+                    )
+                }
+            })
+
+            (UIApplication.shared.delegate as? AppDelegate)?.visibleViewController?.present(alert, animated: true)
+        }
     }
 }
 

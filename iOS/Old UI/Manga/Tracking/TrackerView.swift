@@ -70,7 +70,7 @@ struct TrackerView: View {
                         )
                     }
                     Button {
-                        NotificationCenter.default.post(name: Notification.Name("syncTrackItem"), object: item)
+                        NotificationCenter.default.post(name: .syncTrackItem, object: item)
                     } label: {
                         Label(
                             NSLocalizedString("SYNC_LOCAL_HISTORY", comment: ""),

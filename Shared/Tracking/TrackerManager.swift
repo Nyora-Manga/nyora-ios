@@ -223,21 +223,20 @@ actor TrackerManager {
                 highestChapterRead: highestReadNumber,
                 earliestReadDate: earliestReadDate
             )
-            await TrackerManager.shared.saveTrackItem(item: TrackItem(
+            let trackItem = TrackItem(
                 id: id ?? item.id,
                 trackerId: tracker.id,
                 sourceId: manga.sourceKey,
                 mangaId: manga.key,
                 title: item.title ?? manga.title
-            ))
+            )
+            await TrackerManager.shared.saveTrackItem(item: trackItem)
 
             // Sync progress from tracker if enabled or is enhanced tracker
             if UserDefaults.standard.bool(forKey: "Tracking.autoSyncFromTracker") || (tracker is EnhancedTracker) || (tracker is PageTracker) {
-                if tracker is PageTracker {
-                    await syncPageTrackerHistory(manga: manga)
-                } else {
-                    await syncProgressFromTracker(tracker: tracker, trackId: id ?? item.id, manga: manga)
-                }
+                await syncProgressFromTracker(tracker: tracker, trackId: id ?? item.id, manga: manga)
+            } else {
+                NotificationCenter.default.post(name: .syncTrackItem, object: trackItem)
             }
         } catch {
             LogManager.logger.error("Failed to register tracker \(tracker.id): \(error)")
