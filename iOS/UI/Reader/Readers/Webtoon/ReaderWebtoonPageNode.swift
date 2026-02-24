@@ -285,7 +285,7 @@ extension ReaderWebtoonPageNode {
         let request = ImageRequest(
             urlRequest: urlRequest,
             processors: processors,
-            userInfo: [.contextKey: context, .processesKey: usePageProcessor]
+            userInfo: [.contextKey: context as Any, .processesKey: usePageProcessor]
         )
 
         // Store current image request for reload functionality

@@ -333,7 +333,7 @@ extension DownloadTask {
                 let container = ImageContainer(image: image, data: result?.0)
                 let request = ImageRequest(
                     urlRequest: urlRequest,
-                    userInfo: [.contextKey: page.context]
+                    userInfo: [.contextKey: page.context as Any]
                 )
                 let newImage = try await pageInterceptor.processAsync(
                     container,
