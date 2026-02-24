@@ -5,8 +5,12 @@
 //  Created by Skitty on 9/15/25.
 //
 
+import AidokuRunner
+
 /// A tracker that automatically registers and tracks supported series.
-protocol EnhancedTracker: Tracker {}
+protocol EnhancedTracker: Tracker {
+    func removeTrackItems(source: AidokuRunner.Source) async throws
+}
 
 extension EnhancedTracker {
     func search(title: String, includeNsfw: Bool) async throws -> [TrackSearchItem] {

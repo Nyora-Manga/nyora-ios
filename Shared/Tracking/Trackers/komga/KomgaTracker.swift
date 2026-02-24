@@ -98,6 +98,29 @@ final class KomgaTracker: EnhancedTracker, PageTracker {
     func logout() {
         fatalError("logout not implemented for komga tracker")
     }
+
+    func removeTrackItems(source: AidokuRunner.Source) async {
+        await CoreDataManager.shared.container.performBackgroundTask { context in
+            let request = TrackObject.fetchRequest()
+            request.predicate = NSPredicate(
+                format: "trackerId == %@", self.id
+            )
+            do {
+                let items = try? context.fetch(request)
+                guard let items else { return }
+                for item in items {
+                    guard let id = item.id else { continue }
+                    let (sourceKey, _) = try self.getIdParts(from: id)
+                    if sourceKey == source.key {
+                        context.delete(item)
+                    }
+                }
+                try context.save()
+            } catch {
+                LogManager.logger.error("Error removing komga track items: \(error)")
+            }
+        }
+    }
 }
 
 extension KomgaTracker {

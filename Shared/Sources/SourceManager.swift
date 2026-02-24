@@ -360,8 +360,13 @@ extension SourceManager {
         }
         sources.removeAll { $0.id == source.id }
         Task {
+            if source.key.hasPrefix("komga") {
+                await TrackerManager.komga.removeTrackItems(source: source)
+            } else if source.key.hasPrefix("kavita") {
+                await TrackerManager.kavita.removeTrackItems(source: source)
+            }
             await CoreDataManager.shared.container.performBackgroundTask { context in
-                CoreDataManager.shared.removeSource(id: source.id, context: context)
+                CoreDataManager.shared.removeSource(id: source.key, context: context)
                 try? context.save()
             }
             NotificationCenter.default.post(name: .sourceUnloaded, object: source.key)
