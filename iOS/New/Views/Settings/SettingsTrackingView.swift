@@ -37,6 +37,7 @@ struct SettingsTrackingView: View {
             } footer: {
                 Text(NSLocalizedString("UPDATE_AFTER_READING_INFO"))
             }
+
             Section {
                 SettingView(setting: .init(
                     key: "Tracking.autoSyncFromTracker",
@@ -46,6 +47,7 @@ struct SettingsTrackingView: View {
             } footer: {
                 Text(NSLocalizedString("AUTO_SYNC_HISTORY_INFO"))
             }
+
             Section(NSLocalizedString("TRACKERS")) {
                 ForEach(trackers.indices, id: \.self) { index in
                     let tracker = trackers[index]
@@ -112,6 +114,10 @@ struct SettingsTrackingView: View {
                         // Call tracker logout to clear authentication data
                         do {
                             try await tracker.logout()
+
+                            if let index = trackers.firstIndex(where: { $0.id == tracker.id }) {
+                                trackers[index] = tracker
+                            }
                         } catch {
                             LogManager.logger.error("Unable to log out from \(tracker.name) tracker: \(error)")
                         }
@@ -153,6 +159,10 @@ extension SettingsTrackingView {
                         loadingTrackerId = tracker.id
                         await tracker.handleAuthenticationCallback(url: callbackURL)
                         loadingTrackerId = nil
+
+                        if let index = trackers.firstIndex(where: { $0.id == tracker.id }) {
+                            trackers[index] = tracker
+                        }
 
                         if tracker.isLoggedIn {
                             await tracker.oauthClient.loadTokens()
