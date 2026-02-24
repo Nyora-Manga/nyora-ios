@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ReaderSettingsView: View {
-    let mangaId: String
+    let mangaId: MangaIdentifier
 
     @State private var readingMode: ReadingMode?
     @State private var tapZones: DefaultTapZones
@@ -18,7 +18,7 @@ struct ReaderSettingsView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    init(mangaId: String) {
+    init(mangaId: MangaIdentifier) {
         self.mangaId = mangaId
         self._readingMode = State(
             initialValue: UserDefaults.standard.string(forKey: "Reader.readingMode.\(mangaId)")

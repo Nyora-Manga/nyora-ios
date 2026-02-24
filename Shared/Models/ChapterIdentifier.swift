@@ -14,3 +14,9 @@ struct ChapterIdentifier: Hashable, Equatable, Codable, Sendable {
         .init(sourceKey: sourceKey, mangaKey: mangaKey)
     }
 }
+
+extension ChapterIdentifier: CustomStringConvertible {
+    var description: String {
+        "\(sourceKey).\(mangaKey).\(chapterKey)"
+    }
+}

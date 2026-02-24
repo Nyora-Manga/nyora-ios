@@ -9,3 +9,9 @@ struct MangaIdentifier: Hashable, Equatable, Codable, Sendable {
     let sourceKey: String
     let mangaKey: String
 }
+
+extension MangaIdentifier: CustomStringConvertible {
+    var description: String {
+        "\(sourceKey).\(mangaKey)"
+    }
+}

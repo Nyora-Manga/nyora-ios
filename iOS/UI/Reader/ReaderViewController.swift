@@ -200,7 +200,7 @@ class ReaderViewController: BaseObservingViewController {
         view.addGestureRecognizer(barToggleTapGesture)
 
         // set reader
-        let readingModeKey = "Reader.readingMode.\(manga.key)"
+        let readingModeKey = "Reader.readingMode.\(manga.identifier)"
         UserDefaults.standard.register(defaults: [readingModeKey: "default"])
         setReadingMode(UserDefaults.standard.string(forKey: readingModeKey))
 
@@ -224,9 +224,9 @@ class ReaderViewController: BaseObservingViewController {
     }
 
     override func observe() {
-        addObserver(forName: "Reader.readingMode.\(manga.key)") { [weak self] _ in
+        addObserver(forName: "Reader.readingMode.\(manga.identifier)") { [weak self] _ in
             guard let self else { return }
-            self.setReadingMode(UserDefaults.standard.string(forKey: "Reader.readingMode.\(self.manga.key)"))
+            self.setReadingMode(UserDefaults.standard.string(forKey: "Reader.readingMode.\(self.manga.identifier)"))
             self.reader?.setChapter(self.chapter, startPage: self.currentPage)
             // if the tap zone is auto, it will changed based on the current reader
             self.updateTapZone()
@@ -456,7 +456,7 @@ class ReaderViewController: BaseObservingViewController {
 
     @objc func openReaderSettings() {
         let vc = UIHostingController(
-            rootView: ReaderSettingsView(mangaId: manga.key)
+            rootView: ReaderSettingsView(mangaId: manga.identifier)
         )
         present(vc, animated: true)
     }
