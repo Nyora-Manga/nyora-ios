@@ -374,8 +374,13 @@ struct MigrateMangaView: View {
                                             sourceId: newManga.sourceId,
                                             mangaId: newManga.id,
                                             context: context
-                                        )
-                                    else { continue }
+                                        ),
+                                        let tracker = TrackerManager.getTracker(id: trackerId),
+                                        tracker.canRegister(sourceKey: newManga.sourceId, mangaKey: newManga.id)
+                                    else {
+                                        context.delete(item)
+                                        continue
+                                    }
 
                                     item.sourceId = newManga.sourceId
                                     item.mangaId = newManga.id

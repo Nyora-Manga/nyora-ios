@@ -61,8 +61,8 @@ struct TrackerListView: View {
         .task {
             var trackers: [Tracker] = []
             for tracker in TrackerManager.trackers {
-                let canRegister = try? await tracker.canRegister(sourceKey: manga.sourceKey, mangaKey: manga.key)
-                if canRegister == true {
+                let canRegister = tracker.canRegister(sourceKey: manga.sourceKey, mangaKey: manga.key)
+                if canRegister {
                     let info = try? await tracker.getTrackerInfo()
                     guard let info else { continue }
                     trackers.append(tracker)

@@ -295,8 +295,8 @@ actor TrackerManager {
     /// Checks if there is a tracker that can be added to the given manga.
     func hasAvailableTrackers(sourceKey: String, mangaKey: String) async -> Bool {
         for tracker in Self.trackers {
-            let canRegister = try? await tracker.canRegister(sourceKey: sourceKey, mangaKey: mangaKey)
-            if canRegister == true {
+            let canRegister = tracker.canRegister(sourceKey: sourceKey, mangaKey: mangaKey)
+            if canRegister {
                 return true
             }
         }
@@ -487,7 +487,7 @@ actor TrackerManager {
     /// Add all applicable enhanced trackers to a given manga.
     func bindEnhancedTrackers(manga: AidokuRunner.Manga) async {
         for tracker in Self.trackers where tracker is EnhancedTracker {
-            if (try? await tracker.canRegister(sourceKey: manga.sourceKey, mangaKey: manga.key)) == true {
+            if tracker.canRegister(sourceKey: manga.sourceKey, mangaKey: manga.key) {
                 do {
                     let items = try await tracker.search(for: manga, includeNsfw: true)
                     guard let item = items.first else {
