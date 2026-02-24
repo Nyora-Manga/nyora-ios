@@ -241,6 +241,7 @@
 		FB4EEBCB27A35171005081A3 /* HistoryObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4EEBC727A35171005081A3 /* HistoryObject.swift */; };
 		FB4EEBE027A4F5C1005081A3 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB4EEBDF27A4F5C1005081A3 /* CloudKit.framework */; };
 		FB4EEBE227A5AB4E005081A3 /* MangaListSelectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4EEBE127A5AB4E005081A3 /* MangaListSelectionHeader.swift */; };
+		FB548C9B2F4CF07700F046A8 /* TrackerUnavailableItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB548C9A2F4CF07600F046A8 /* TrackerUnavailableItemView.swift */; };
 		FB55AF9E28AAA4E50083EFC3 /* ReaderToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB55AF9D28AAA4E50083EFC3 /* ReaderToolbarView.swift */; };
 		FB55AFA028AAAD9E0083EFC3 /* UIToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB55AF9F28AAAD9E0083EFC3 /* UIToolbar.swift */; };
 		FB55AFA328AAAEDF0083EFC3 /* ReaderPagedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB55AFA228AAAEDF0083EFC3 /* ReaderPagedViewController.swift */; };
@@ -762,6 +763,7 @@
 		FB4EEBDE27A4F5AF005081A3 /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
 		FB4EEBDF27A4F5C1005081A3 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.2.sdk/System/Library/Frameworks/CloudKit.framework; sourceTree = DEVELOPER_DIR; };
 		FB4EEBE127A5AB4E005081A3 /* MangaListSelectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaListSelectionHeader.swift; sourceTree = "<group>"; };
+		FB548C9A2F4CF07600F046A8 /* TrackerUnavailableItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerUnavailableItemView.swift; sourceTree = "<group>"; };
 		FB55AF9D28AAA4E50083EFC3 /* ReaderToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderToolbarView.swift; sourceTree = "<group>"; };
 		FB55AF9F28AAAD9E0083EFC3 /* UIToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIToolbar.swift; sourceTree = "<group>"; };
 		FB55AFA228AAAEDF0083EFC3 /* ReaderPagedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderPagedViewController.swift; sourceTree = "<group>"; };
@@ -1512,6 +1514,7 @@
 				FBE88BEF2886FC5800A61122 /* TrackerListView.swift */,
 				FBCA1B1F288896EB007149C5 /* TrackerAddView.swift */,
 				FB2E02512868A67500786F21 /* TrackerView.swift */,
+				FB548C9A2F4CF07600F046A8 /* TrackerUnavailableItemView.swift */,
 				FB2E02532868B3D900786F21 /* TrackerSettingOptionView.swift */,
 				FBBE0FCF2886F69500D7C63F /* TrackerSettingOptionViewCoordinator.swift */,
 			);
@@ -2742,6 +2745,7 @@
 				FB261ED92ECB90C900743F56 /* LogType.swift in Sources */,
 				FB1DD8932EF057EF0007FC78 /* AddSourceFilterMenu.swift in Sources */,
 				FB662EC82DA813E300007514 /* MangaCoverView.swift in Sources */,
+				FB548C9B2F4CF07700F046A8 /* TrackerUnavailableItemView.swift in Sources */,
 				FB662EC92DA813E300007514 /* FilterLabelView.swift in Sources */,
 				FB662ECA2DA813E300007514 /* ListingsHeaderView.swift in Sources */,
 				FB662ECB2DA813E300007514 /* FilterHeaderView.swift in Sources */,
