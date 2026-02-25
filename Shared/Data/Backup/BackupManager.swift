@@ -27,8 +27,10 @@ actor BackupManager {
     private static let excludedSettings = [
         "Browse.sourceLists", // stored separately
         "General.icloudSync",
-        "isiCloudAvailable",
-        "isSideloaded"
+        "currentVersion"
+    ]
+    private static let excludedSettingsPrefixes = [
+        "Flag."
     ]
 
     func save(backup: Backup, url: URL? = nil) {
@@ -186,7 +188,10 @@ actor BackupManager {
 
         // convert to export compatible types
         for (key, value) in allSettings {
-            guard !Self.excludedSettings.contains(key) else {
+            guard
+                !Self.excludedSettings.contains(key),
+                !Self.excludedSettingsPrefixes.contains(where: { key.hasPrefix($0) })
+            else {
                 continue
             }
             if let value = value as? String {
@@ -257,7 +262,12 @@ actor BackupManager {
             // restore settings
             if let settings = backup.settings {
                 for (key, value) in settings {
-                    guard !Self.excludedSettings.contains(key) else { continue }
+                    guard
+                        !Self.excludedSettings.contains(key),
+                        !Self.excludedSettingsPrefixes.contains(where: { key.hasPrefix($0) })
+                    else {
+                        continue
+                    }
                     UserDefaults.standard.set(value.toRaw(), forKey: key)
                 }
             }

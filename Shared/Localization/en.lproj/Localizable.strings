@@ -476,6 +476,9 @@
 "UNAVAILABLE_SOURCE_LISTS" = "Unavailable Source Lists";
 "UNAVAILABLE_SOURCE_LISTS_TEXT" = "An error occured while fetching the above source lists.";
 "COPY_URL" = "Copy URL";
+"LEGACY_SOURCE_LIST" = "Legacy Source List";
+"LEGACY_SOURCE_LIST_WARNING" = "Warning: Legacy Source List";
+"LEGACY_SOURCE_LIST_WARNING_INFO" = "You currently have a legacy source list configured. This format is outdated and will stop working in a future version of Aidoku. While it will still work for now, it is recommended that you find a replacement and configure it in Settings > Source Lists.";
 
 // Upscaling
 "UPSCALING" = "Upscaling";

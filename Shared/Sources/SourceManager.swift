@@ -478,8 +478,9 @@ extension SourceManager {
             }
             return SourceList(
                 url: url,
-                name: "Legacy Source List",
-                sources: externalSources
+                name: NSLocalizedString("LEGACY_SOURCE_LIST"),
+                sources: externalSources,
+                legacy: true
             )
         }
     }

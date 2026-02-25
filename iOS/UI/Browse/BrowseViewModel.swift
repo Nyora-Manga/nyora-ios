@@ -16,6 +16,8 @@ class BrowseViewModel {
 
     var unfilteredExternalSources: [ExternalSourceInfo] = []
 
+    var hasLegacySourceList = false
+
     // stored sources when searching
     private var query: String?
     private var storedUpdatesSources: [SourceInfo2]?
@@ -83,6 +85,9 @@ class BrowseViewModel {
         var sourceById: [String: ExternalSourceInfo] = [:]
 
         for sourceList in SourceManager.shared.sourceLists {
+            if sourceList.legacy {
+                hasLegacySourceList = true
+            }
             for source in sourceList.sources {
                 if let existing = sourceById[source.id] {
                     // if a newer version exists, replace it

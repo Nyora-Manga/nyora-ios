@@ -107,7 +107,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         UserDefaults.standard.register(
             defaults: [
-                "isSideloaded": Self.isSideloaded, // for icloud sync setting
+                "Flag.isSideloaded": Self.isSideloaded, // for icloud sync setting
+                "Flag.showedLegacySourceListNotice": false,
 
                 "General.incognitoMode": false,
                 "General.icloudSync": false,
@@ -203,7 +204,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 if !isiCloudAvailable {
                     LogManager.logger.info("iCloud unavailable")
                 }
-                UserDefaults.standard.register(defaults: ["isiCloudAvailable": isiCloudAvailable])
+                UserDefaults.standard.register(defaults: ["Flag.isiCloudAvailable": isiCloudAvailable])
             }
         }
 

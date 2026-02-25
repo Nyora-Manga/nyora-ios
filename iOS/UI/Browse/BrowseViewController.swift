@@ -93,6 +93,11 @@ class BrowseViewController: BaseTableViewController {
             await viewModel.loadExternalSources()
             viewModel.loadUpdates()
             updateDataSource()
+
+            if viewModel.hasLegacySourceList && !UserDefaults.standard.bool(forKey: "Flag.showedLegacySourceListNotice") {
+                showLegacySourceListNotice()
+                UserDefaults.standard.set(true, forKey: "Flag.showedLegacySourceListNotice")
+            }
         }
     }
 
@@ -213,6 +218,16 @@ extension BrowseViewController {
             where: { $0.title == NSLocalizedString("BROWSE", comment: "") }
         )
         tabBarItem?.badgeValue = updateCount > 0 ? String(updateCount) : nil
+    }
+
+    func showLegacySourceListNotice() {
+        let alert = UIAlertController(
+            title: NSLocalizedString("LEGACY_SOURCE_LIST_WARNING"),
+            message: NSLocalizedString("LEGACY_SOURCE_LIST_WARNING_INFO"),
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK"), style: .cancel) { _ in })
+        present(alert, animated: true)
     }
 
     @objc func refreshSourceLists(_ refreshControl: UIRefreshControl? = nil) {

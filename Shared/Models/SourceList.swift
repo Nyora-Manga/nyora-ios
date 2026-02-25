@@ -12,6 +12,7 @@ struct SourceList: Equatable {
     let name: String
     var feedbackURL: URL?
     let sources: [ExternalSourceInfo]
+    var legacy: Bool = false
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.url == rhs.url

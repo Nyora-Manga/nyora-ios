@@ -59,14 +59,14 @@ enum Settings {
                             .init(
                                 key: "General.icloudSync",
                                 title: String(format: NSLocalizedString("%@_EXPERIMENTAL"), NSLocalizedString("ICLOUD_SYNC")),
-                                requires: "isiCloudAvailable",
+                                requires: "Flag.isiCloudAvailable",
                                 value: .toggle(.init())
                             )
                         ])))
                     ],
                     icon: .system(name: "icloud.fill", color: "blue"),
                     info: NSLocalizedString(
-                        UserDefaults.standard.bool(forKey: "isSideloaded")
+                        UserDefaults.standard.bool(forKey: "Flag.isSideloaded")
                             ? "ICLOUD_SYNC_TEXT_SIDELOADED"
                             : "ICLOUD_SYNC_TEXT_EXPERIMENTAL"
                     )
