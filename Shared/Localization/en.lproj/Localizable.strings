@@ -141,6 +141,8 @@
 "PRIMARILY_NSFW" = "Primarily NSFW";
 "REMOVE_LOCAL_SOURCE" = "Remove Local Source?";
 "REMOVE_LOCAL_SOURCE_TEXT" = "This will remove all imported local files.";
+"MISSING_SOURCE_LIST" = "Missing Source List";
+"MISSING_SOURCE_LIST_INFO" = "This external source is not available on any configured source lists. This means that it will not receive updates and may break in the future.";
 
 // Source
 "SOURCE_INFO" = "Source Info";

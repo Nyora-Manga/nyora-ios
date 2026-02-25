@@ -475,14 +475,12 @@ extension BrowseViewController {
             else {
                 return UITableViewCell()
             }
-            cell.setSourceInfo(info)
 
-            if info.externalInfo != nil {
-                if section == .external {
-                    cell.buttonTitle = NSLocalizedString("BUTTON_GET")
-                } else if section == .updates {
-                    cell.buttonTitle = NSLocalizedString("BUTTON_UPDATE")
-                }
+            cell.delegate = self
+            cell.setSourceInfo(info, showButton: section == .updates)
+
+            if section == .updates {
+                cell.buttonTitle = NSLocalizedString("BUTTON_UPDATE")
                 cell.selectionStyle = .none
                 cell.accessoryType = .none
             } else {
@@ -630,5 +628,32 @@ extension BrowseViewController {
                 self.navigationController?.isToolbarHidden = true
             }
         }
+    }
+}
+
+extension BrowseViewController: SourceCellDelegate {
+    func getButtonPressed(cell: SourceTableViewCell) {
+        guard
+            let externalInfo = cell.info?.externalInfo,
+            let url = externalInfo.fileURL
+        else {
+            cell.getButton.buttonState = .fail
+            return
+        }
+        cell.getButton.buttonState = .downloading
+        Task {
+            let installedSource = await SourceManager.shared.importSource(from: url)
+            cell.getButton.buttonState = installedSource == nil ? .fail : .get
+        }
+    }
+
+    func warningButtonPressed(cell: SourceTableViewCell) {
+        let alert = UIAlertController(
+            title: NSLocalizedString("MISSING_SOURCE_LIST"),
+            message: NSLocalizedString("MISSING_SOURCE_LIST_INFO"),
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK"), style: .cancel) { _ in })
+        present(alert, animated: true)
     }
 }

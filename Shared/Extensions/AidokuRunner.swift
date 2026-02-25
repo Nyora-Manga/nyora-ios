@@ -71,6 +71,10 @@ extension AidokuRunner.Source {
         )
     }
 
+    var isExternal: Bool {
+        runner is Interpreter
+    }
+
     func toInfo() -> SourceInfo2 {
         SourceInfo2(
             sourceId: key,
@@ -78,7 +82,8 @@ extension AidokuRunner.Source {
             name: name,
             languages: languages,
             version: version,
-            contentRating: contentRating
+            contentRating: contentRating,
+            external: isExternal
         )
     }
 

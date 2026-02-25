@@ -21,11 +21,16 @@ class BrowseViewModel {
     private var storedUpdatesSources: [SourceInfo2]?
     private var storedPinnedSources: [SourceInfo2]?
     private var storedInstalledSources: [SourceInfo2]?
-    private var storedExternalSources: [SourceInfo2]?
 
     private func getInstalledSources() async -> [SourceInfo2] {
         await SourceManager.shared.loadSources()
-        return SourceManager.shared.sources.map { $0.toInfo() }
+        return SourceManager.shared.sources
+            .map { source in
+                var info = source.toInfo()
+                let externalInfo = unfilteredExternalSources.first { $0.id == info.sourceId }
+                info.externalInfo = externalInfo
+                return info
+            }
     }
 
     // load installed sources
@@ -91,6 +96,22 @@ class BrowseViewModel {
         }
 
         unfilteredExternalSources = Array(sourceById.values)
+
+        func updateExternalInfo(for property: inout [SourceInfo2]) {
+            property = property.map { info in
+                if let externalInfo = unfilteredExternalSources.first(where: { $0.id == info.sourceId }) {
+                    var updatedInfo = info
+                    updatedInfo.externalInfo = externalInfo
+                    return updatedInfo
+                }
+                return info
+            }
+        }
+
+        if query?.isEmpty ?? true {
+            updateExternalInfo(for: &pinnedSources)
+            updateExternalInfo(for: &installedSources)
+        }
     }
 
     func loadUpdates() {

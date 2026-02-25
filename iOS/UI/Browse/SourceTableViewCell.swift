@@ -8,9 +8,14 @@
 import UIKit
 import Nuke
 
-class SourceTableViewCell: UITableViewCell {
+protocol SourceCellDelegate: AnyObject {
+    func getButtonPressed(cell: SourceTableViewCell)
+    func warningButtonPressed(cell: SourceTableViewCell)
+}
 
+class SourceTableViewCell: UITableViewCell {
     var info: SourceInfo2?
+    weak var delegate: SourceCellDelegate?
 
     private var iconSize: CGFloat = 48 {
         didSet {
@@ -27,7 +32,8 @@ class SourceTableViewCell: UITableViewCell {
     private let badgeLabel = UILabel()
     private let subtitleLabel = UILabel()
     private let separator = UIView()
-    private let getButton = GetButtonView()
+    private let warningButton = UIButton()
+    let getButton = GetButtonView()
 
     private var imageTask: ImageTask?
 
@@ -99,6 +105,14 @@ class SourceTableViewCell: UITableViewCell {
         subtitleLabel.textColor = .secondaryLabel
         labelStack.addArrangedSubview(subtitleLabel)
 
+        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .regular)
+        let image = UIImage(systemName: "exclamationmark.triangle", withConfiguration: config)
+        warningButton.setImage(image, for: .normal)
+        warningButton.addTarget(self, action: #selector(warningPressed), for: .touchUpInside)
+        warningButton.tintColor = .systemGray3
+        warningButton.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(warningButton)
+
         getButton.button.addTarget(self, action: #selector(getPressed), for: .touchUpInside)
         getButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(getButton)
@@ -123,6 +137,9 @@ class SourceTableViewCell: UITableViewCell {
             badgeView.widthAnchor.constraint(equalTo: badgeLabel.widthAnchor, constant: 10),
             badgeView.heightAnchor.constraint(equalTo: badgeLabel.heightAnchor, constant: 4),
 
+            warningButton.trailingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor, constant: -6),
+            warningButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+
             getButton.trailingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
             getButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             getButton.widthAnchor.constraint(equalTo: getButton.backgroundView.widthAnchor),
@@ -143,7 +160,7 @@ class SourceTableViewCell: UITableViewCell {
         iconView.image = UIImage(named: "MangaPlaceholder")
     }
 
-    func setSourceInfo(_ info: SourceInfo2) {
+    func setSourceInfo(_ info: SourceInfo2, showButton: Bool = false) {
         self.info = info
         titleLabel.text = info.name
         versionLabel.text = "v" + String(info.version)
@@ -152,7 +169,8 @@ class SourceTableViewCell: UITableViewCell {
             ? NSLocalizedString("MULTI_LANGUAGE")
             : Locale.current.localizedString(forIdentifier: info.languages[0]) ?? info.languages[0]
 
-        getButton.isHidden = info.externalInfo == nil
+        warningButton.isHidden = !info.external || info.externalInfo != nil
+        getButton.isHidden = !showButton
 
         // load icon
         if let iconUrl = info.iconUrl {
@@ -204,14 +222,10 @@ class SourceTableViewCell: UITableViewCell {
     }
 
     @objc func getPressed() {
-        guard
-            let externalInfo = info?.externalInfo,
-            let url = externalInfo.fileURL
-        else { return }
-        getButton.buttonState = .downloading
-        Task {
-            let installedSource = await SourceManager.shared.importSource(from: url)
-            getButton.buttonState = installedSource == nil ? .fail : .get
-        }
+        delegate?.getButtonPressed(cell: self)
+    }
+
+    @objc func warningPressed() {
+        delegate?.warningButtonPressed(cell: self)
     }
 }
