@@ -100,7 +100,7 @@ class LibraryViewController: OldMangaCollectionViewController {
 
         // load stored download queue state on first load
         Task {
-            await SourceManager.shared.loadSources() // make sure sources are loaded first
+            await SourceManager.shared.waitForSourcesLoad() // make sure sources are loaded first
             await DownloadManager.shared.loadQueueState()
         }
     }

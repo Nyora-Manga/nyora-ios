@@ -52,7 +52,7 @@ final class CoreDataManager {
     lazy var container: NSPersistentCloudKitContainer = {
         let container = NSPersistentCloudKitContainer(name: "Aidoku")
 
-        let storeDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let storeDirectory = FileManager.default.applicationSupportDirectory
 
         let cloudDescription = NSPersistentStoreDescription(url: storeDirectory.appendingPathComponent("Aidoku.sqlite"))
         cloudDescription.configuration = "Cloud"

@@ -315,7 +315,7 @@ extension AppDelegate {
         }
 
         // migration for 0.8.2
-        if FileManager.default.documentDirectory.appendingPathComponent("Sources").exists {
+        if SourceManager.oldDirectory.exists {
             Task.detached {
                 await self.migrateSources()
             }
@@ -340,6 +340,8 @@ extension AppDelegate {
     private func migrateSources() async {
         showLoadingIndicator(style: .indefinite)
 
+        try? await Task.sleep(nanoseconds: 500 * 1_000_000)
+
         // migrate tracker token settings
         for (key, value) in UserDefaults.standard.dictionaryRepresentation() where key.hasPrefix("Token.") {
             UserDefaults.standard.removeObject(forKey: key)
@@ -355,7 +357,10 @@ extension AppDelegate {
             }
         }
 
-        // todo: migrate sources
+        // move all sources in old sources directory to the new one
+        FileManager.default.moveFiles(in: SourceManager.oldDirectory, to: SourceManager.directory)
+        SourceManager.oldDirectory.removeItem()
+        await SourceManager.shared.reloadSources()
 
         await hideLoadingIndicator()
     }
@@ -528,7 +533,7 @@ extension AppDelegate {
         else { return false }
 
         // ensure sources are loaded
-        await SourceManager.shared.loadSources()
+        await SourceManager.shared.waitForSourcesLoad()
 
         // find source that uses the given url
         var targetSource: AidokuRunner.Source?

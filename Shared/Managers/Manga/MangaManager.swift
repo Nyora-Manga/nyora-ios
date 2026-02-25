@@ -455,7 +455,7 @@ extension MangaManager {
     ) async {
         // make sure user agent and sources have loaded before doing library refresh
         _ = await UserAgentProvider.shared.getUserAgent()
-        await SourceManager.shared.loadSources()
+        await SourceManager.shared.waitForSourcesLoad()
 
         // process failed tracker updates first
         await TrackerManager.shared.processPendingUpdates()

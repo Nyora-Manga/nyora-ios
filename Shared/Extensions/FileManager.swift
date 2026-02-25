@@ -72,8 +72,25 @@ extension FileManager {
         urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
 
+    var applicationSupportDirectory: URL {
+        urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+    }
+
     var temporaryDirectory: URL? {
         try? url(for: .itemReplacementDirectory, in: .userDomainMask, appropriateFor: documentDirectory, create: true)
+    }
+
+    func moveFiles(in sourceDirectory: URL, to destinationDirectory: URL) {
+        if !destinationDirectory.exists {
+            destinationDirectory.createDirectory()
+        }
+
+        let oldFileURLs = try? contentsOfDirectory(at: sourceDirectory, includingPropertiesForKeys: nil, options: [])
+
+        for fileURL in oldFileURLs ?? [] {
+            let destinationURL = destinationDirectory.appendingPathComponent(fileURL.lastPathComponent)
+            try? moveItem(at: fileURL, to: destinationURL)
+        }
     }
 }
 

@@ -49,7 +49,7 @@ struct SourceObjectData {
 extension SourceObjectData {
     func toSource() -> Source? {
         if apiVersion == "0.6", let path {
-            return try? Source(from: FileManager.default.documentDirectory.appendingPathComponent(path))
+            return try? Source(from: FileManager.default.applicationSupportDirectory.appendingPathComponent(path))
         }
         return nil
     }
@@ -64,7 +64,7 @@ extension SourceObjectData {
         {
             return config.toSource()
         } else if let path {
-            let url = FileManager.default.documentDirectory.appendingPathComponent(path)
+            let url = FileManager.default.applicationSupportDirectory.appendingPathComponent(path)
             return try? await AidokuRunner.Source(id: id, url: url)
         }
         return nil

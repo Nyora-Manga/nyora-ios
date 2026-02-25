@@ -25,7 +25,7 @@ class BrowseViewModel {
     private var storedInstalledSources: [SourceInfo2]?
 
     private func getInstalledSources() async -> [SourceInfo2] {
-        await SourceManager.shared.loadSources()
+        await SourceManager.shared.waitForSourcesLoad()
         return SourceManager.shared.sources
             .map { source in
                 var info = source.toInfo()

@@ -16,7 +16,8 @@ import UIKit
 class SourceManager {
     static let shared = SourceManager()
 
-    static let directory = FileManager.default.documentDirectory.appendingPathComponent("Sources", isDirectory: true)
+    static let directory = FileManager.default.applicationSupportDirectory.appendingPathComponent("Sources", isDirectory: true)
+    static let oldDirectory = FileManager.default.documentDirectory.appendingPathComponent("Sources", isDirectory: true) // used for migration
 
     var sources: [AidokuRunner.Source] = []
     var sourceLists: [SourceList] = []
@@ -43,25 +44,7 @@ class SourceManager {
             .compactMap { URL(string: $0) }
 
         loadSourcesTask = Task {
-            // load installed sources
-            sources = await getInstalledSources()
-            sortSources()
-            for source in sources {
-                NotificationCenter.default.post(name: .sourceLoaded, object: source.key)
-            }
-            NotificationCenter.default.post(name: .updateSourceList, object: nil)
-
-            // load source filters
-            await withTaskGroup(of: Void.self) { group in
-                for source in sources {
-                    if let legacySource = source.legacySource {
-                        group.addTask {
-                            _ = try? await legacySource.getFilters()
-                        }
-                    }
-                }
-            }
-            NotificationCenter.default.post(name: .loadedSourceFilters, object: nil)
+            await reloadSources()
         }
 
         Task {
@@ -69,7 +52,29 @@ class SourceManager {
         }
     }
 
-    func loadSources() async {
+    func reloadSources() async {
+        // load installed sources
+        sources = await getInstalledSources()
+        sortSources()
+        for source in sources {
+            NotificationCenter.default.post(name: .sourceLoaded, object: source.key)
+        }
+        NotificationCenter.default.post(name: .updateSourceList, object: nil)
+
+        // load source filters
+        await withTaskGroup(of: Void.self) { group in
+            for source in sources {
+                if let legacySource = source.legacySource {
+                    group.addTask {
+                        _ = try? await legacySource.getFilters()
+                    }
+                }
+            }
+        }
+        NotificationCenter.default.post(name: .loadedSourceFilters, object: nil)
+    }
+
+    func waitForSourcesLoad() async {
         await loadSourcesTask?.value
     }
 
