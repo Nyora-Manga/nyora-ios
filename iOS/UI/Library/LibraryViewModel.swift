@@ -126,6 +126,7 @@ class LibraryViewModel {
         case completed
         case source
         case contentRating
+        case category
 
         var title: String {
             switch self {
@@ -136,6 +137,7 @@ class LibraryViewModel {
                 case .completed: NSLocalizedString("COMPLETED")
                 case .source: NSLocalizedString("SOURCES")
                 case .contentRating: NSLocalizedString("CONTENT_RATING")
+                case .category: NSLocalizedString("CATEGORY")
             }
         }
 
@@ -148,6 +150,7 @@ class LibraryViewModel {
                 case .completed: "checkmark.circle"
                 case .source: "globe"
                 case .contentRating: "exclamationmark.triangle.fill"
+                case .category: "folder"
             }
             return UIImage(systemName: name)
         }
@@ -155,7 +158,7 @@ class LibraryViewModel {
         var isAvailable: Bool {
             switch self {
                 case .tracking: TrackerManager.hasAvailableTrackers
-                case .source, .contentRating: false // needs custom handling
+                case .source, .contentRating, .category: false // needs custom handling
                 default: true
             }
         }
@@ -271,7 +274,11 @@ extension LibraryViewModel {
                     let mangaObject = libraryObject.manga,
                     // ensure the manga hasn't already been accounted for
                     ids.insert("\(mangaObject.sourceId)|\(mangaObject.id)").inserted
-                else { continue }
+                else {
+                    continue
+                }
+
+                let categories = (libraryObject.categories?.allObjects as? [CategoryObject])?.map { $0.title } ?? []
 
                 let info = MangaInfo(
                     mangaId: mangaObject.id,
@@ -287,6 +294,7 @@ extension LibraryViewModel {
                 // process filters
                 var filteredSourceKeys: Set<String> = []
                 var filteredContentRatings: Set<Int16> = []
+                var filteredCategories: Set<String> = []
                 for filter in filters {
                     let condition: Bool
                     switch filter.type {
@@ -328,6 +336,16 @@ extension LibraryViewModel {
                                 filteredContentRatings.insert(Int16(contentRating.rawValue))
                                 continue
                             }
+                        case .category:
+                            guard let category = filter.value else { continue }
+                            if filter.exclude {
+                                condition = categories.contains(category)
+                            } else {
+                                // handle included category filters as OR
+                                filteredCategories.insert(category)
+                                continue
+                            }
+
                     }
                     let shouldSkip = filter.exclude ? condition : !condition
                     if shouldSkip {
@@ -338,6 +356,9 @@ extension LibraryViewModel {
                     continue main
                 }
                 if !filteredContentRatings.isEmpty && !filteredContentRatings.contains(mangaObject.nsfw) {
+                    continue main
+                }
+                if !filteredCategories.isEmpty && !filteredCategories.contains(where: { categories.contains($0) }) {
                     continue main
                 }
 

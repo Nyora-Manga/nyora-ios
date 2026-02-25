@@ -946,6 +946,16 @@ extension LibraryViewController {
                         self?.toggleFilter(method: .contentRating, value: rating.stringValue)
                     }
                 })
+            } else if menu.title == LibraryViewModel.FilterMethod.category.title {
+                menu.replacingChildren(self.viewModel.categories.map { category in
+                    UIAction(
+                        title: category,
+                        attributes: .keepsMenuPresented,
+                        state: self.filterState(for: .category, value: category)
+                    ) { [weak self] _ in
+                        self?.toggleFilter(method: .category, value: category)
+                    }
+                })
             } else {
                 menu.replacingChildren(menu.children.map { element in
                     guard let menu = element as? UIMenu else { return element }
@@ -1089,6 +1099,19 @@ extension LibraryViewController {
                                 state: self.filterState(for: .source, value: key)
                             ) { [weak self] _ in
                                 self?.toggleFilter(method: .source, value: key)
+                            }
+                        }
+                    ),
+                    UIMenu(
+                        title: LibraryViewModel.FilterMethod.category.title,
+                        image: LibraryViewModel.FilterMethod.category.image,
+                        children: self.viewModel.categories.map { category in
+                            UIAction(
+                                title: category,
+                                attributes: attributes,
+                                state: self.filterState(for: .category, value: category)
+                            ) { [weak self] _ in
+                                self?.toggleFilter(method: .category, value: category)
                             }
                         }
                     )

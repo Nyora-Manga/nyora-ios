@@ -106,6 +106,7 @@
 "ALL" = "All";
 "NONE" = "None";
 "CATEGORIES" = "Categories";
+"CATEGORY" = "Category";
 "EDIT_CATEGORIES" = "Edit Categories";
 "CATEGORY_ADD" = "Add Category";
 "CATEGORY_ADD_TEXT" = "Enter the name of the new category to create.";
