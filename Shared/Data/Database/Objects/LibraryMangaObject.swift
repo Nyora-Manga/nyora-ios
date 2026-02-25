@@ -19,14 +19,6 @@ public class LibraryMangaObject: NSManagedObject {
         lastRead = now
         dateAdded = now
     }
-
-    public override func awakeFromFetch() {
-        super.awakeFromFetch()
-        // if lastUpdatedChapters is set to the default value, update default to lastUpdated
-        if lastUpdatedChapters.timeIntervalSince1970 == 21600 {
-            lastUpdatedChapters = lastUpdated
-        }
-    }
 }
 
 extension LibraryMangaObject {

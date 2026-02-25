@@ -284,9 +284,10 @@ extension AppDelegate {
     func performMigration() {
         let settingsVersion = UserDefaults.standard.string(forKey: "currentVersion")
         let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        guard currentVersion != settingsVersion else {
-            return
-        }
+        // todo: this should be uncommented when version is bumped to v0.8.2 for public release
+//        guard currentVersion != settingsVersion else {
+//            return
+//        }
 
         // migrate history to 0.6 format
         if settingsVersion == "0.5" {
@@ -313,10 +314,11 @@ extension AppDelegate {
             UserDefaults.standard.removeObject(forKey: "Library.pinMangaType")
         }
 
-        // migrate tracker token settings
-        for (key, value) in UserDefaults.standard.dictionaryRepresentation() where key.hasPrefix("Token.") {
-            UserDefaults.standard.removeObject(forKey: key)
-            UserDefaults.standard.set(value, forKey: key.replacingOccurrences(of: "Token.", with: "Tracker."))
+        // migration for 0.8.2
+        if FileManager.default.documentDirectory.appendingPathComponent("Sources").exists {
+            Task.detached {
+                await self.migrateSources()
+            }
         }
 
         UserDefaults.standard.set(currentVersion, forKey: "currentVersion")
@@ -324,13 +326,37 @@ extension AppDelegate {
 
     private func migrateHistory() async {
         showLoadingIndicator(style: .progress)
-        try? await Task.sleep(nanoseconds: 500 * 1000000)
+        try? await Task.sleep(nanoseconds: 500 * 1_000_000)
         await CoreDataManager.shared.migrateChapterHistory(progress: { @Sendable progress in
             Task { @MainActor in
                 self.indicatorProgress = progress
             }
         })
-        NotificationCenter.default.post(name: Notification.Name("updateLibrary"), object: nil)
+        NotificationCenter.default.post(name: .updateLibrary, object: nil)
+        await hideLoadingIndicator()
+    }
+
+    // migration for 0.8.2
+    private func migrateSources() async {
+        showLoadingIndicator(style: .indefinite)
+
+        // migrate tracker token settings
+        for (key, value) in UserDefaults.standard.dictionaryRepresentation() where key.hasPrefix("Token.") {
+            UserDefaults.standard.removeObject(forKey: key)
+            UserDefaults.standard.set(value, forKey: key.replacingOccurrences(of: "Token.", with: "Tracker."))
+        }
+
+        // handle lastUpdatedChapters addition
+        await CoreDataManager.shared.container.performBackgroundTask { context in
+            let items = CoreDataManager.shared.getLibraryManga(context: context)
+            // if lastUpdatedChapters is set to the default value, update default to lastUpdated
+            for item in items where item.lastUpdatedChapters.timeIntervalSince1970 == 21600 {
+                item.lastUpdatedChapters = item.lastUpdated
+            }
+        }
+
+        // todo: migrate sources
+
         await hideLoadingIndicator()
     }
 
