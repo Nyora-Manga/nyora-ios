@@ -346,6 +346,11 @@ extension Settings {
                 value: .toggle(.init())
             ),
             .init(
+                key: "Reader.hideBarsOnSwipe",
+                title: NSLocalizedString("HIDE_BARS_ON_SWIPE"),
+                value: .toggle(.init())
+            ),
+            .init(
                 key: "Reader.backgroundColor",
                 title: NSLocalizedString("READER_BG_COLOR"),
                 value: .select(.init(

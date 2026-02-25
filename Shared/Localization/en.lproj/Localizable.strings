@@ -493,6 +493,7 @@
 "CROP_BORDERS" = "Crop Borders";
 "DISABLE_QUICK_ACTIONS" = "Disable Quick Actions";
 "LIVE_TEXT" = "Live Text";
+"HIDE_BARS_ON_SWIPE" = "Hide Bars on Swipe";
 "READER_BG_COLOR" = "Background Color";
 "READER_BG_COLOR_SYSTEM" = "System";
 "READER_BG_COLOR_AUTO" = "Automatic";

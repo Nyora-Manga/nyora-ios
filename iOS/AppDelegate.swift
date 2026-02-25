@@ -152,6 +152,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Reader.cropBorders": false,
                 "Reader.disableQuickActions": false,
                 "Reader.liveText": false,
+                "Reader.hideBarsOnSwipe": false,
                 "Reader.tapZones": "disabled",
                 "Reader.invertTapZones": false,
                 "Reader.animatePageTransitions": true,

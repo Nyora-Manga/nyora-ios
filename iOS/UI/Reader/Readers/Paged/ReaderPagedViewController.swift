@@ -861,6 +861,11 @@ extension ReaderPagedViewController: UIPageViewControllerDelegate {
         willTransitionTo pendingViewControllers: [UIViewController]
     ) {
         setLiveTextButtonHidden(true)
+
+        if UserDefaults.standard.bool(forKey: "Reader.hideBarsOnSwipe") {
+            delegate?.hideBars()
+        }
+
         for controller in pendingViewControllers {
             if let controller = controller as? ReaderDoublePageViewController {
                 if let first = getIndex(of: controller, pos: .first) {

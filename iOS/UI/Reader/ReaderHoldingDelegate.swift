@@ -11,6 +11,8 @@ import AidokuRunner
 protocol ReaderHoldingDelegate: AnyObject {
     var barsHidden: Bool { get }
 
+    func hideBars()
+
     func getNextChapter() -> AidokuRunner.Chapter?
     func getPreviousChapter() -> AidokuRunner.Chapter?
     func setChapter(_ chapter: AidokuRunner.Chapter)
