@@ -86,7 +86,13 @@ final class MangaBakaTracker: OAuthTracker {
 
     func search(title: String, includeNsfw: Bool) async throws -> [TrackSearchItem] {
         let results = try await api.search(query: title, nsfw: includeNsfw)
-        let libraryEntries = try await api.getLibraryEntries(seriesIds: results.map { $0.id })
+        let libraryEntries: [MangaBakaLibraryEntry]
+        do {
+            libraryEntries = try await api.getLibraryEntries(seriesIds: results.map { $0.id })
+        } catch {
+            LogManager.logger.error("Failed to fetch library entries (\(id)): \(error)")
+            libraryEntries = []
+        }
         return results.map { series in
             TrackSearchItem(
                 id: String(series.id),
@@ -103,7 +109,7 @@ final class MangaBakaTracker: OAuthTracker {
     func getAuthenticationUrl() async -> URL? {
         await api.oauth.getAuthenticationUrl(
             redirectUri: "aidoku://\(callbackHost)",
-            extraQueryItems: ["scope": "library.read+library.write+profile+offline_access"]
+            extraQueryItems: ["scope": "library.read+library.write+profile+offline_access+openid"]
         )
     }
 
