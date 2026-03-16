@@ -799,7 +799,7 @@ extension ReaderPagedViewController: UIPageViewControllerDelegate {
                 loadPreviousChapter()
 
             case 0: // previous chapter transition page
-                delegate?.setCurrentPage(0)
+                delegate?.setCurrentPage(0, position: nil)
                 // preload previous
                 if let previousChapter = previousChapter {
                     Task {
@@ -814,7 +814,7 @@ extension ReaderPagedViewController: UIPageViewControllerDelegate {
                 }
 
             case displayPageCount + 1: // next chapter transition page
-                delegate?.setCurrentPage(displayPageCount + 1)
+                delegate?.setCurrentPage(displayPageCount + 1, position: nil)
                 // preload next
                 if let nextChapter = nextChapter {
                     Task {
@@ -849,7 +849,7 @@ extension ReaderPagedViewController: UIPageViewControllerDelegate {
                 } else {
                     // For single pages, report the actual page index
                     let actualPage = actualPageIndex(from: page)
-                    delegate?.setCurrentPage(actualPage)
+                    delegate?.setCurrentPage(actualPage, position: nil)
                 }
                 // preload 1 before and pagesToPreload ahead
                 loadPages(in: page - 1 - (usesDoublePages ? 1 : 0)...page + pagesToPreload + (usesDoublePages ? 1 : 0))

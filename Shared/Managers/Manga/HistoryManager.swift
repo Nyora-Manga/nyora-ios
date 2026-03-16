@@ -13,7 +13,13 @@ final class HistoryManager: Sendable {
 }
 
 extension HistoryManager {
-    func setProgress(chapter: Chapter, progress: Int, totalPages: Int? = nil, completed: Bool) async {
+    func setProgress(
+        chapter: Chapter,
+        progress: Int,
+        totalPages: Int? = nil,
+        scrollPosition: Double? = nil,
+        completed: Bool
+    ) async {
         let identifier = chapter.identifier
         await CoreDataManager.shared.container.performBackgroundTask { context in
             CoreDataManager.shared.setRead(sourceId: identifier.sourceKey, mangaId: identifier.mangaKey, context: context)
@@ -23,6 +29,7 @@ extension HistoryManager {
                 mangaId: identifier.mangaKey,
                 chapterId: identifier.chapterKey,
                 totalPages: totalPages,
+                scrollPosition: scrollPosition,
                 context: context
             )
             do {

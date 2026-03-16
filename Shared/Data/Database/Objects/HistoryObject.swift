@@ -34,6 +34,7 @@ extension HistoryObject {
     @NSManaged public var progress: Int16
     @NSManaged public var total: Int16
     @NSManaged public var completed: Bool
+    @NSManaged public var scrollPosition: NSNumber?
 
     @NSManaged public var chapter: ChapterObject?
     @NSManaged public var sessions: NSSet?

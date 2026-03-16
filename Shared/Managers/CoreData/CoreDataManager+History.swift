@@ -276,6 +276,7 @@ extension CoreDataManager {
         mangaId: String,
         chapterId: String,
         totalPages: Int? = nil,
+        scrollPosition: Double? = nil,
         dateRead: Date? = nil,
         completed: Bool? = nil,
         context: NSManagedObjectContext? = nil
@@ -290,6 +291,9 @@ extension CoreDataManager {
         historyObject.dateRead = dateRead ?? Date()
         if let totalPages {
             historyObject.total = Int16(totalPages)
+        }
+        if let scrollPosition {
+            historyObject.scrollPosition = NSNumber(value: scrollPosition)
         }
         if let completed {
             historyObject.completed = completed

@@ -199,7 +199,7 @@ extension ReaderWebtoonViewController {
         let page = getCurrentPage()
         if previousPage != page {
             previousPage = page
-            delegate?.setCurrentPage(page)
+            delegate?.setCurrentPage(page, position: nil)
         }
     }
 

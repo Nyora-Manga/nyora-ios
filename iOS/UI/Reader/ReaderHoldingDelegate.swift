@@ -17,7 +17,7 @@ protocol ReaderHoldingDelegate: AnyObject {
     func getPreviousChapter() -> AidokuRunner.Chapter?
     func setChapter(_ chapter: AidokuRunner.Chapter)
 
-    func setCurrentPage(_ page: Int)
+    func setCurrentPage(_ page: Int, position: Double?)
     func setCurrentPages(_ pages: ClosedRange<Int>)
     func setPages(_ pages: [Page])
     func displayPage(_ page: Int) // show page on toolbar but don't set it as current page
