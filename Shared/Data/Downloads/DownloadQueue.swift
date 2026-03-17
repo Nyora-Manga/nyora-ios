@@ -213,12 +213,12 @@ actor DownloadQueue {
 
     func saveQueueState() {
         let queueData = try? JSONEncoder().encode(queue)
-        UserDefaults.standard.set(queueData, forKey: "downloadQueueState")
+        UserDefaults.standard.set(queueData, forKey: "Data.downloadQueueState")
     }
 
     func loadQueueState() async {
         guard
-            let queueData = UserDefaults.standard.data(forKey: "downloadQueueState"),
+            let queueData = UserDefaults.standard.data(forKey: "Data.downloadQueueState"),
             let queueState = try? JSONDecoder().decode([String: [Download]].self, from: queueData)
         else {
             return

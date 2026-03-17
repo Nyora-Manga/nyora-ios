@@ -31,12 +31,12 @@ class ReaderViewController: BaseObservingViewController {
         didSet {
             // ensure chapters queued for deletion are persistent, in case of app termination
             if chaptersToRemoveDownload.isEmpty {
-                UserDefaults.standard.removeObject(forKey: "chaptersToBeDeleted")
+                UserDefaults.standard.removeObject(forKey: "Data.chaptersToBeDeleted")
             } else {
                 let data = try? JSONEncoder().encode(chaptersToRemoveDownload.map {
                     ChapterIdentifier(sourceKey: manga.sourceKey, mangaKey: manga.key, chapterKey: $0.key)
                 })
-                UserDefaults.standard.set(data, forKey: "chaptersToBeDeleted")
+                UserDefaults.standard.set(data, forKey: "Data.chaptersToBeDeleted")
             }
         }
     }

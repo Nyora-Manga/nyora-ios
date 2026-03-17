@@ -290,12 +290,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate {
     func performMigration() {
-        let settingsVersion = UserDefaults.standard.string(forKey: "currentVersion")
+        var settingsVersion = UserDefaults.standard.string(forKey: "Flag.currentVersion")
         let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        // todo: this should be uncommented when version is bumped to v0.8.2 for public release
-//        guard currentVersion != settingsVersion else {
-//            return
-//        }
+
+        if let oldSettingsVersion = UserDefaults.standard.string(forKey: "currentVersion") {
+            settingsVersion = settingsVersion ?? oldSettingsVersion
+            UserDefaults.standard.removeObject(forKey: "currentVersion")
+        }
+
+        guard currentVersion != settingsVersion else {
+            return
+        }
+
+        LogManager.logger.info("Migrating settings from version \(settingsVersion ?? "none") to \(currentVersion ?? "unknown")")
 
         // migrate history to 0.6 format
         if settingsVersion == "0.5" {
@@ -329,7 +336,25 @@ extension AppDelegate {
             }
         }
 
-        UserDefaults.standard.set(currentVersion, forKey: "currentVersion")
+        // migrate unprefixed settings
+        if UserDefaults.standard.bool(forKey: "downloadChapterSortAscending") {
+            UserDefaults.standard.set(true, forKey: "Flag.downloadChapterSortAscending")
+            UserDefaults.standard.removeObject(forKey: "downloadChapterSortAscending")
+        }
+        if let enabledModelFile = UserDefaults.standard.string(forKey: "enabledModelFile") {
+            UserDefaults.standard.set(enabledModelFile, forKey: "Data.enabledModelFile")
+            UserDefaults.standard.removeObject(forKey: "enabledModelFile")
+        }
+        if let downloadQueueState = UserDefaults.standard.data(forKey: "downloadQueueState") {
+            UserDefaults.standard.set(downloadQueueState, forKey: "Data.downloadQueueState")
+            UserDefaults.standard.removeObject(forKey: "downloadQueueState")
+        }
+        if let chaptersToBeDeleted = UserDefaults.standard.data(forKey: "chaptersToBeDeleted") {
+            UserDefaults.standard.set(chaptersToBeDeleted, forKey: "Data.chaptersToBeDeleted")
+            UserDefaults.standard.removeObject(forKey: "chaptersToBeDeleted")
+        }
+
+        UserDefaults.standard.set(currentVersion, forKey: "Flag.currentVersion")
     }
 
     private func migrateHistory() async {
@@ -376,7 +401,7 @@ extension AppDelegate {
     // delete chapters queued for deletion in last launch
     func handleChaptersToBeDeleted() {
         guard
-            let data = UserDefaults.standard.data(forKey: "chaptersToBeDeleted"),
+            let data = UserDefaults.standard.data(forKey: "Data.chaptersToBeDeleted"),
             let chapterKeys = try? JSONDecoder().decode([ChapterIdentifier].self, from: data)
         else {
             return
@@ -385,7 +410,7 @@ extension AppDelegate {
             await DownloadManager.shared.delete(chapters: chapterKeys.map {
                 .init(sourceKey: $0.sourceKey, mangaKey: $0.mangaKey, chapterKey: $0.chapterKey)
             })
-            UserDefaults.standard.removeObject(forKey: "chaptersToBeDeleted")
+            UserDefaults.standard.removeObject(forKey: "Data.chaptersToBeDeleted")
         }
     }
 
