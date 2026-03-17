@@ -12,7 +12,7 @@ struct FilterGroupCreateView: View {
     var editingGroupTitle: String?
 
     @State private var title: String = ""
-    @State private var filters: [LibraryViewModel.LibraryFilter] = []
+    @State private var filters: [LibraryFilter] = []
     @State private var isValid = false
 
     @State private var categories: [String] = []
@@ -33,7 +33,7 @@ struct FilterGroupCreateView: View {
                 }
 
                 Section(NSLocalizedString("FILTERS")) {
-                    ForEach(LibraryViewModel.FilterMethod.allCases, id: \.self) { method in
+                    ForEach(LibraryFilter.FilterMethod.allCases, id: \.self) { method in
                         if method.isAvailable {
                             let state = filterState(for: method)
                             Button {
@@ -76,10 +76,10 @@ struct FilterGroupCreateView: View {
                         }
                     } label: {
                         HStack {
-                            Image(systemName: LibraryViewModel.FilterMethod.contentRating.systemImageName)
+                            Image(systemName: LibraryFilter.FilterMethod.contentRating.systemImageName)
                                 .frame(minWidth: 30)
                                 .foregroundStyle(.tint)
-                            Text(LibraryViewModel.FilterMethod.contentRating.title)
+                            Text(LibraryFilter.FilterMethod.contentRating.title)
                             Spacer()
                         }
                     }
@@ -104,10 +104,10 @@ struct FilterGroupCreateView: View {
                         }
                     } label: {
                         HStack {
-                            Image(systemName: LibraryViewModel.FilterMethod.source.systemImageName)
+                            Image(systemName: LibraryFilter.FilterMethod.source.systemImageName)
                                 .frame(minWidth: 30)
                                 .foregroundStyle(.tint)
-                            Text(LibraryViewModel.FilterMethod.source.title)
+                            Text(LibraryFilter.FilterMethod.source.title)
                             Spacer()
                         }
                     }
@@ -132,10 +132,10 @@ struct FilterGroupCreateView: View {
                         }
                     } label: {
                         HStack {
-                            Image(systemName: LibraryViewModel.FilterMethod.category.systemImageName)
+                            Image(systemName: LibraryFilter.FilterMethod.category.systemImageName)
                                 .frame(minWidth: 30)
                                 .foregroundStyle(.tint)
-                            Text(LibraryViewModel.FilterMethod.category.title)
+                            Text(LibraryFilter.FilterMethod.category.title)
                             Spacer()
                         }
                     }
@@ -205,7 +205,7 @@ extension FilterGroupCreateView {
                 sourceKeys.insert(manga.sourceId)
             }
 
-            var filters: [LibraryViewModel.LibraryFilter] = []
+            var filters: [LibraryFilter] = []
             if let editingGroupTitle {
                 let request = CategoryObject.fetchRequest()
                 request.predicate = NSPredicate(format: "title == %@", editingGroupTitle)
@@ -213,7 +213,7 @@ extension FilterGroupCreateView {
                 if
                     let category = (try? context.fetch(request))?.first,
                     let data = category.data as? Data,
-                    let filterData = try? JSONDecoder().decode([LibraryViewModel.LibraryFilter].self, from: data)
+                    let filterData = try? JSONDecoder().decode([LibraryFilter].self, from: data)
                 {
                     filters = filterData
                 }
@@ -306,7 +306,7 @@ extension FilterGroupCreateView {
 }
 
 extension FilterGroupCreateView {
-    func toggleFilter(method: LibraryViewModel.FilterMethod, value: String? = nil) {
+    func toggleFilter(method: LibraryFilter.FilterMethod, value: String? = nil) {
         let filterIndex = filters.firstIndex(where: { $0.type == method && $0.value == value })
         if let filterIndex {
             if filters[filterIndex].exclude {
@@ -325,7 +325,7 @@ extension FilterGroupCreateView {
         case excluded
     }
 
-    func filterState(for method: LibraryViewModel.FilterMethod, value: String? = nil) -> FilterState {
+    func filterState(for method: LibraryFilter.FilterMethod, value: String? = nil) -> FilterState {
         if let filter = filters.first(where: { $0.type == method && $0.value == value }) {
             filter.exclude ? .excluded : .included
         } else {

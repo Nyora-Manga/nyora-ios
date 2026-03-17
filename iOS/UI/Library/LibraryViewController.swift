@@ -902,7 +902,7 @@ extension LibraryViewController {
         }
     }
 
-    func toggleFilter(method: LibraryViewModel.FilterMethod, value: String? = nil) {
+    func toggleFilter(method: LibraryFilter.FilterMethod, value: String? = nil) {
         Task {
             await viewModel.toggleFilter(method: method, value: value)
             updateDataSource()
@@ -914,7 +914,7 @@ extension LibraryViewController {
         }
     }
 
-    func filterState(for method: LibraryViewModel.FilterMethod, value: String? = nil) -> UIMenuElement.State {
+    func filterState(for method: LibraryFilter.FilterMethod, value: String? = nil) -> UIMenuElement.State {
         if let filter = viewModel.filters.first(where: { $0.type == method && $0.value == value }) {
             filter.exclude ? .mixed : .on
         } else {
@@ -939,8 +939,8 @@ extension LibraryViewController {
     func filtersSubtitle() -> String? {
         guard !viewModel.filters.isEmpty else { return nil }
         var options: [String] = []
-        var methods: Set<LibraryViewModel.FilterMethod> = []
-        for filterMethod in LibraryViewModel.FilterMethod.allCases {
+        var methods: Set<LibraryFilter.FilterMethod> = []
+        for filterMethod in LibraryFilter.FilterMethod.allCases {
             // ensure we only list each method type once (e.g. for multiple source filters)
             guard methods.insert(filterMethod).inserted else {
                 continue
@@ -972,7 +972,7 @@ extension LibraryViewController {
             menu.subtitle = self.filtersSubtitle()
             return menu.replacingChildren(menu.children.map { element in
                 guard let action = element as? UIAction else { return element }
-                if let method = LibraryViewModel.FilterMethod.allCases.first(where: { $0.title == action.title }) {
+                if let method = LibraryFilter.FilterMethod.allCases.first(where: { $0.title == action.title }) {
                     action.state = filterState(for: method)
                 }
                 return action
@@ -982,7 +982,7 @@ extension LibraryViewController {
         contextMenuInteraction.updateVisibleMenu { menu in
             if menu.title == NSLocalizedString("BUTTON_FILTER") {
                 updateFilterSubmenu(menu)
-            } else if menu.title == LibraryViewModel.FilterMethod.source.title {
+            } else if menu.title == LibraryFilter.FilterMethod.source.title {
                 menu.replacingChildren(self.viewModel.sourceKeys.map { key in
                     UIAction(
                         title: SourceManager.shared.source(for: key)?.name ?? key,
@@ -992,7 +992,7 @@ extension LibraryViewController {
                         self?.toggleFilter(method: .source, value: key)
                     }
                 })
-            } else if menu.title == LibraryViewModel.FilterMethod.contentRating.title {
+            } else if menu.title == LibraryFilter.FilterMethod.contentRating.title {
                 menu.replacingChildren(MangaContentRating.allCases.map { rating in
                     UIAction(
                         title: rating.title,
@@ -1002,7 +1002,7 @@ extension LibraryViewController {
                         self?.toggleFilter(method: .contentRating, value: rating.stringValue)
                     }
                 })
-            } else if menu.title == LibraryViewModel.FilterMethod.category.title {
+            } else if menu.title == LibraryFilter.FilterMethod.category.title {
                 menu.replacingChildren(self.viewModel.categories.map { category in
                     UIAction(
                         title: category,
@@ -1121,7 +1121,7 @@ extension LibraryViewController {
                 title: NSLocalizedString("BUTTON_FILTER"),
                 subtitle: self.filtersSubtitle(),
                 image: UIImage(systemName: "line.3.horizontal.decrease"),
-                children: LibraryViewModel.FilterMethod.allCases.compactMap { method in
+                children: LibraryFilter.FilterMethod.allCases.compactMap { method in
                     guard method.isAvailable else { return nil }
                     return UIAction(
                         title: method.title,
@@ -1133,8 +1133,8 @@ extension LibraryViewController {
                     }
                 } + [
                     UIMenu(
-                        title: LibraryViewModel.FilterMethod.contentRating.title,
-                        image: LibraryViewModel.FilterMethod.contentRating.image,
+                        title: LibraryFilter.FilterMethod.contentRating.title,
+                        image: LibraryFilter.FilterMethod.contentRating.image,
                         children: MangaContentRating.allCases.map { rating in
                             UIAction(
                                 title: rating.title,
@@ -1146,8 +1146,8 @@ extension LibraryViewController {
                         }
                     ),
                     UIMenu(
-                        title: LibraryViewModel.FilterMethod.source.title,
-                        image: LibraryViewModel.FilterMethod.source.image,
+                        title: LibraryFilter.FilterMethod.source.title,
+                        image: LibraryFilter.FilterMethod.source.image,
                         children: self.viewModel.sourceKeys.map { key in
                             UIAction(
                                 title: SourceManager.shared.source(for: key)?.name ?? key,
@@ -1159,8 +1159,8 @@ extension LibraryViewController {
                         }
                     ),
                     UIMenu(
-                        title: LibraryViewModel.FilterMethod.category.title,
-                        image: LibraryViewModel.FilterMethod.category.image,
+                        title: LibraryFilter.FilterMethod.category.title,
+                        image: LibraryFilter.FilterMethod.category.image,
                         children: self.viewModel.categories.map { category in
                             UIAction(
                                 title: category,

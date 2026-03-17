@@ -7,7 +7,7 @@
 
 struct FilterGroup: Equatable {
     let title: String
-    let filters: [LibraryViewModel.LibraryFilter]
+    let filters: [LibraryFilter]
 
     static func == (lhs: FilterGroup, rhs: FilterGroup) -> Bool {
         lhs.title == rhs.title

@@ -62,7 +62,7 @@ extension CoreDataManager {
                 guard
                     let title = object.title,
                     let data = object.data as? Data,
-                    let filters = try? decoder.decode([LibraryViewModel.LibraryFilter].self, from: data)
+                    let filters = try? decoder.decode([LibraryFilter].self, from: data)
                 else {
                     return nil
                 }

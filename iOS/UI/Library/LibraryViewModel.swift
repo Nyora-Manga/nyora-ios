@@ -112,61 +112,6 @@ class LibraryViewModel {
         static let downloaded = BadgeType(rawValue: 1 << 1)
     }
 
-    struct LibraryFilter: Codable, Hashable {
-        var type: FilterMethod
-        var value: String?
-        var exclude: Bool
-    }
-
-    enum FilterMethod: Int, Codable, CaseIterable {
-        case downloaded
-        case tracking
-        case hasUnread
-        case started
-        case completed
-        case source
-        case contentRating
-        case category
-
-        var title: String {
-            switch self {
-                case .downloaded: NSLocalizedString("DOWNLOADED")
-                case .tracking: NSLocalizedString("IS_TRACKING")
-                case .hasUnread: NSLocalizedString("FILTER_HAS_UNREAD")
-                case .started: NSLocalizedString("FILTER_STARTED")
-                case .completed: NSLocalizedString("COMPLETED")
-                case .source: NSLocalizedString("SOURCES")
-                case .contentRating: NSLocalizedString("CONTENT_RATING")
-                case .category: NSLocalizedString("CATEGORY")
-            }
-        }
-
-        var systemImageName: String {
-            switch self {
-                case .downloaded: "arrow.down.circle"
-                case .tracking: "clock.arrow.trianglehead.2.counterclockwise.rotate.90"
-                case .hasUnread: "eye.slash"
-                case .started: "clock"
-                case .completed: "checkmark.circle"
-                case .source: "globe"
-                case .contentRating: "exclamationmark.triangle.fill"
-                case .category: "folder"
-            }
-        }
-
-        var image: UIImage? {
-            UIImage(systemName: systemImageName)
-        }
-
-        var isAvailable: Bool {
-            switch self {
-                case .tracking: TrackerManager.hasAvailableTrackers
-                case .source, .contentRating, .category: false // needs custom handling
-                default: true
-            }
-        }
-    }
-
     lazy var pinType: PinType = getPinType()
     lazy var sortMethod = SortMethod(rawValue: UserDefaults.standard.integer(forKey: "Library.sortOption")) ?? .lastOpened
     lazy var sortAscending = UserDefaults.standard.bool(forKey: "Library.sortAscending")
@@ -695,7 +640,7 @@ extension LibraryViewModel {
         await sortLibrary()
     }
 
-    func toggleFilter(method: FilterMethod, value: String? = nil) async {
+    func toggleFilter(method: LibraryFilter.FilterMethod, value: String? = nil) async {
         let filterIndex = filters.firstIndex(where: { $0.type == method && $0.value == value })
         if let filterIndex {
             if filters[filterIndex].exclude {

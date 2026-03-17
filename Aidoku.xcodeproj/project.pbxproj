@@ -152,6 +152,8 @@
 		FB1DD89E2EF1A6BC0007FC78 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = FB1DD89C2EF1A6BC0007FC78 /* AppIcon.icon */; };
 		FB1F553228AFC9FD00CFE182 /* ReadingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1F553128AFC9FD00CFE182 /* ReadingMode.swift */; };
 		FB1F553428AFE78600CFE182 /* ReaderDoublePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1F553328AFE78600CFE182 /* ReaderDoublePageViewController.swift */; };
+		FB2202142F69DE2F008DD26A /* LibraryFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2202132F69DE28008DD26A /* LibraryFilter.swift */; };
+		FB2202152F69DE2F008DD26A /* LibraryFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2202132F69DE28008DD26A /* LibraryFilter.swift */; };
 		FB248CC12EA55D0600BECD2E /* KavitaSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB248CC02EA55D0400BECD2E /* KavitaSource.swift */; };
 		FB248CC22EA55D0600BECD2E /* KavitaSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB248CC02EA55D0400BECD2E /* KavitaSource.swift */; };
 		FB248CC42EA55D8D00BECD2E /* KomgaHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB248CC32EA55D8B00BECD2E /* KomgaHelper.swift */; };
@@ -706,6 +708,7 @@
 		FB1DD89C2EF1A6BC0007FC78 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		FB1F553128AFC9FD00CFE182 /* ReadingMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingMode.swift; sourceTree = "<group>"; };
 		FB1F553328AFE78600CFE182 /* ReaderDoublePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderDoublePageViewController.swift; sourceTree = "<group>"; };
+		FB2202132F69DE28008DD26A /* LibraryFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryFilter.swift; sourceTree = "<group>"; };
 		FB2453092A2BA48800716677 /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FB24530A2A2BA50600716677 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FB24530B2A2BA52100716677 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1196,6 +1199,7 @@
 				FBE7A5932DE35AB700CA5B60 /* CustomSourceConfig.swift */,
 				FB63D5002E38124A004FF4DC /* EditedKeys.swift */,
 				FB0AB8A42F52046F00AF1451 /* FilterGroup.swift */,
+				FB2202132F69DE28008DD26A /* LibraryFilter.swift */,
 				FB02E1F3288D7C0C00B9E2DE /* Manga.swift */,
 				FB034EA32EAC275C0072EEEB /* MangaIdentifier.swift */,
 				FB90F6CD28A032FC000C37E6 /* MangaInfo.swift */,
@@ -2868,6 +2872,7 @@
 				FB662ED92DA813E300007514 /* MangaDetailsHeaderView.swift in Sources */,
 				FB1854662EF9B11E0063F698 /* UINavigationController+DismissGestures.swift in Sources */,
 				FB261ED52ECB8B8400743F56 /* LogEntry.swift in Sources */,
+				FB2202152F69DE2F008DD26A /* LibraryFilter.swift in Sources */,
 				FB662EDB2DA813E300007514 /* MultiSelectFilterView.swift in Sources */,
 				FB72502427CBF8C00037F1C9 /* SettingsTableViewController.swift in Sources */,
 				FB6340B3278F898E0072A2A2 /* Filter.swift in Sources */,
@@ -3062,6 +3067,7 @@
 				FB034E9B2EAAFA850072EEEB /* KavitaTracker.swift in Sources */,
 				FB30D583296CC0FE006B03A7 /* HistoryManager.swift in Sources */,
 				FB14B1322DF4D36A0067E4D4 /* NotificationName.swift in Sources */,
+				FB2202142F69DE2F008DD26A /* LibraryFilter.swift in Sources */,
 				FB947CFC2EF1D15500FC6226 /* CoreDataManager+ReadingSession.swift in Sources */,
 				FBE781352830A34B0038C0E3 /* DownloadTask.swift in Sources */,
 				FBAE7BEF2AF2DC5D00D530EE /* LegacySource.swift in Sources */,
