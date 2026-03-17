@@ -229,7 +229,7 @@ class LibraryViewController: OldMangaCollectionViewController {
         // load data
         Task {
             // load categories
-            await viewModel.refreshCategories()
+            await viewModel.refreshCategories(skipDataLoad: true)
             // refresh header
             collectionView.collectionViewLayout = self.makeCollectionViewLayout()
             updateNavbarItems()

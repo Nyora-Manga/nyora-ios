@@ -176,21 +176,23 @@ extension LibraryViewModel {
         UserDefaults.standard.string(forKey: "Library.pinTitles").flatMap(PinType.init) ?? .none
     }
 
-    func refreshCategories() async {
+    func refreshCategories(skipDataLoad: Bool = false) async {
         (categories, filterGroups) = await CoreDataManager.shared.container.performBackgroundTask { @Sendable context in
             (
                 CoreDataManager.shared.getCategoryTitles(context: context),
                 CoreDataManager.shared.getFilterGroups(context: context)
             )
         }
-        let isInFilterGroup = filterGroups.contains(where: { $0.title == currentCategory })
-        let showUncategorized = UserDefaults.standard.bool(forKey: "Library.showUncategorizedCategory")
-        if let currentCategory, (!categories.contains(currentCategory) && !isInFilterGroup) || (currentCategory.isEmpty && !showUncategorized) {
-            self.currentCategory = nil
-            await loadLibrary()
-        } else if isInFilterGroup {
-            // refresh filter group in case filters changed
-            await loadLibrary()
+        if !skipDataLoad {
+            let isInFilterGroup = filterGroups.contains(where: { $0.title == currentCategory })
+            let showUncategorized = UserDefaults.standard.bool(forKey: "Library.showUncategorizedCategory")
+            if let currentCategory, (!categories.contains(currentCategory) && !isInFilterGroup) || (currentCategory.isEmpty && !showUncategorized) {
+                self.currentCategory = nil
+                await loadLibrary()
+            } else if isInFilterGroup {
+                // refresh filter group in case filters changed
+                await loadLibrary()
+            }
         }
     }
 
