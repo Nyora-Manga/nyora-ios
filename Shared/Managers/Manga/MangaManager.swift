@@ -476,7 +476,8 @@ extension MangaManager {
         }
 
         let skipOptions = forceAll ? [] : UserDefaults.standard.stringArray(forKey: "Library.skipTitles") ?? []
-        let excludedCategories = forceAll ? [] : UserDefaults.standard.stringArray(forKey: "Library.excludedUpdateCategories") ?? []
+        let excludedCategories = forceAll ? [] : (UserDefaults.standard.stringArray(forKey: "Library.excludedUpdateCategories") ?? [])
+            .filter { $0 != category }
         let updateMetadata = forceAll || UserDefaults.standard.bool(forKey: "Library.refreshMetadata")
 
         await refreshStarted?()
