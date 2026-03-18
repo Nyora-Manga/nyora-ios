@@ -207,7 +207,7 @@ actor KomgaSourceRunner: Runner {
         } else {
             try helper.getConfiguredServer()
         }
-        let pageBaseUrl = URL(string: "api/v1/books/\(chapter.id)/pages", relativeTo: baseUrl)
+        let pageBaseUrl = URL(string: "api/v1/books/\(chapter.id)/pages/", relativeTo: baseUrl)
 
         return pages.compactMap { page in
             let convert = if !["image/jpeg", "image/png", "image/gif", "image/webp"].contains(page.mediaType) {
