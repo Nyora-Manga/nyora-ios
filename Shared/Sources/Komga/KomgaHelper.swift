@@ -22,7 +22,7 @@ struct KomgaHelper: Sendable {
     }
 
     func getConfiguredServer() throws(SourceError) -> URL {
-        guard let server = UserDefaults.standard.string(forKey: "\(sourceKey).server").flatMap(URL.init) else {
+        guard let server = UserDefaults.standard.string(forKey: "\(sourceKey).server")?.urlWithTrailingSlash() else {
             throw SourceError.message("NO_SERVER_CONFIGURED")
         }
         return server
@@ -37,7 +37,8 @@ struct KomgaHelper: Sendable {
     }
 
     func getMirrors() -> [URL] {
-        UserDefaults.standard.stringArray(forKey: "\(sourceKey).mirrors")?.compactMap(URL.init) ?? []
+        UserDefaults.standard.stringArray(forKey: "\(sourceKey).mirrors")?
+            .compactMap { $0.urlWithTrailingSlash() } ?? []
     }
 
     func request<T: Decodable>(
@@ -395,5 +396,15 @@ extension KomgaHelper {
             default:
                 return .init(entries: [], hasNextPage: false)
         }
+    }
+}
+
+private extension String {
+    func urlWithTrailingSlash() -> URL? {
+        var string = self.trimmingCharacters(in: .whitespacesAndNewlines)
+        if string.last != "/" {
+            string += "/"
+        }
+        return URL(string: string)
     }
 }
