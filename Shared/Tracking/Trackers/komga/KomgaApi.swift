@@ -80,7 +80,7 @@ actor KomgaApi {
         progress: ChapterReadProgress
     ) async throws {
         let helper = KomgaHelper(sourceKey: sourceKey)
-        let bookUrl = try helper.getServerUrl(path: "api/v1/books/\(bookId)")
+        let bookUrl = try helper.getServerUrl(path: "api/v1/books/\(bookId)/")
 
         guard let url = URL(string: "read-progress", relativeTo: bookUrl) else { return }
 
