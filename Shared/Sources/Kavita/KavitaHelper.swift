@@ -28,7 +28,7 @@ struct KavitaHelper: Sendable {
     }
 
     func getConfiguredServer() throws(SourceError) -> URL {
-        guard let server = UserDefaults.standard.string(forKey: "\(sourceKey).server").flatMap(URL.init) else {
+        guard let server = UserDefaults.standard.string(forKey: "\(sourceKey).server")?.urlWithTrailingSlash() else {
             throw SourceError.message("NO_SERVER_CONFIGURED")
         }
         return server

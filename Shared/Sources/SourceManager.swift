@@ -319,7 +319,11 @@ extension SourceManager {
         }
 
         // register details
-        UserDefaults.standard.setValue(server.absoluteString, forKey: "\(key).server")
+        var url = server.absoluteString
+        if url.last == "/" {
+            url.removeLast()
+        }
+        UserDefaults.standard.setValue(url, forKey: "\(key).server")
         if username != nil || password != nil {
             UserDefaults.standard.setValue("logged_in", forKey: "\(key).login")
         }

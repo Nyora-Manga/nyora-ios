@@ -398,13 +398,3 @@ extension KomgaHelper {
         }
     }
 }
-
-private extension String {
-    func urlWithTrailingSlash() -> URL? {
-        var string = self.trimmingCharacters(in: .whitespacesAndNewlines)
-        if string.last != "/" {
-            string += "/"
-        }
-        return URL(string: string)
-    }
-}

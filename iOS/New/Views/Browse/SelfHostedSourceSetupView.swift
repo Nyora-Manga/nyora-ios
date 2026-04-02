@@ -363,7 +363,7 @@ struct SelfHostedSourceSetupView: View {
         // trim whitespace (again, in case name was changed)
         name = name.trimmingCharacters(in: .whitespaces)
 
-        guard let serverURL = URL(string: server) else {
+        guard let serverURL = server.urlWithTrailingSlash() else {
             state = .logIn(check)
             error = .connection
             return
@@ -512,6 +512,7 @@ struct KavitaSetupView: View {
             let response,
             let token = response.token,
             let refreshToken = response.refreshToken,
+            let apiKey = response.getApiKey(),
             response.username == username
         else {
             return false
@@ -525,7 +526,7 @@ struct KavitaSetupView: View {
             password: password
         )
 
-        UserDefaults.standard.setValue(response.apiKey, forKey: "\(key).apiKey")
+        UserDefaults.standard.setValue(apiKey, forKey: "\(key).apiKey")
         UserDefaults.standard.setValue(token, forKey: "\(key).token")
         UserDefaults.standard.setValue(refreshToken, forKey: "\(key).refreshToken")
 
@@ -544,7 +545,7 @@ struct KavitaSetupView: View {
         )
 
         UserDefaults.standard.setValue("logged_in", forKey: "\(key).login_oidc")
-        UserDefaults.standard.setValue(response.apiKey, forKey: "\(key).apiKey")
+        UserDefaults.standard.setValue(response.getApiKey(), forKey: "\(key).apiKey")
         UserDefaults.standard.setValue(cookie, forKey: "\(key).cookie")
 
         return true

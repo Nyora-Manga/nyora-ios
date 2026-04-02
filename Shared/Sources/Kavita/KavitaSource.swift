@@ -540,7 +540,7 @@ actor KavitaSourceRunner: Runner {
 
         // check for oidc support
         guard
-            let server = URL(string: currentServer),
+            let server = currentServer.urlWithTrailingSlash(),
             let oidcCheckUrl = URL(string: "api/settings/oidc", relativeTo: server)
         else {
             return settings

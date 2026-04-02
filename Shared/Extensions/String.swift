@@ -77,3 +77,13 @@ extension String {
         normalized.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? self
     }
 }
+
+extension String {
+    func urlWithTrailingSlash() -> URL? {
+        var string = self.trimmingCharacters(in: .whitespacesAndNewlines)
+        if string.last != "/" {
+            string += "/"
+        }
+        return URL(string: string)
+    }
+}
