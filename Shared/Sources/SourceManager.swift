@@ -296,12 +296,12 @@ extension SourceManager {
             case .kavita: KavitaSourceRunner.sourceKeyPrefix
         }
         let nameEncoded = name.lowercased().replacingOccurrences(of: " ", with: "-")
-        var key = "\(keyPrefix)\(nameEncoded)"
+        var key = "\(keyPrefix).\(nameEncoded)"
 
         // make sure key is unique
         var counter = 1
         while SourceManager.shared.hasSourceInstalled(id: key) {
-            key = "\(keyPrefix)\(nameEncoded)-\(counter)"
+            key = "\(keyPrefix).\(nameEncoded)-\(counter)"
             counter += 1
         }
 
