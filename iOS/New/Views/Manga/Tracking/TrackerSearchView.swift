@@ -33,26 +33,25 @@ struct TrackerSearchView: View {
 
     var body: some View {
         PlatformNavigationStack {
-            Group {
+            List {
+                ForEach(results, id: \.id) { item in
+                    Button {
+                        if selectedItem == item.id {
+                            selectedItem = nil
+                        } else {
+                            selectedItem = item.id
+                        }
+                    } label: {
+                        TrackerSearchItemCell(item: item, selected: selectedItem == item.id)
+                    }
+                    .offsetListSeparator()
+                }
+            }
+            .listStyle(.plain)
+            .scrollDismissesKeyboardImmediately()
+            .overlay {
                 if loading {
                     ProgressView().progressViewStyle(.circular)
-                } else {
-                    List {
-                        ForEach(results, id: \.id) { item in
-                            Button {
-                                if selectedItem == item.id {
-                                    selectedItem = nil
-                                } else {
-                                    selectedItem = item.id
-                                }
-                            } label: {
-                                TrackerSearchItemCell(item: item, selected: selectedItem == item.id)
-                            }
-                            .offsetListSeparator()
-                        }
-                    }
-                    .listStyle(.plain)
-                    .scrollDismissesKeyboardImmediately()
                 }
             }
             .toolbar {
@@ -80,17 +79,8 @@ struct TrackerSearchView: View {
                     view
                 }
             }
-            .animation(.default, value: loading)
             .animation(.default, value: results)
             .navigationBarTitleDisplayMode(.inline)
-            .task {
-                do {
-                    results = try await tracker.search(for: manga, includeNsfw: includeNsfw)
-                } catch {
-                    LogManager.logger.error("Failed to search tracker \(tracker.id): \(error)")
-                }
-                loading = false
-            }
             .onChange(of: query) { _ in
                 guard !query.isEmpty else {
                     results = []
@@ -108,7 +98,7 @@ struct TrackerSearchView: View {
                 hidesNavigationBarDuringPresentation: false,
                 hidesSearchBarWhenScrolling: false,
                 bookmarkIcon: UIImage(systemName: "slider.horizontal.3")?
-                    .withTintColor(.tintColor, renderingMode: .alwaysOriginal),
+                    .withTintColor(.tintColor, renderingMode: .alwaysOriginal), // doesn't work ios 26
                 onSubmit: {
                     if query.isEmpty {
                         results = []
@@ -120,6 +110,16 @@ struct TrackerSearchView: View {
                     showSearchOptions = true
                 }
             )
+            .task {
+                do {
+                    results = try await tracker.search(for: manga, includeNsfw: includeNsfw)
+                } catch {
+                    LogManager.logger.error("Failed to search tracker \(tracker.id): \(error)")
+                }
+                withAnimation {
+                    loading = false
+                }
+            }
         }
     }
 
