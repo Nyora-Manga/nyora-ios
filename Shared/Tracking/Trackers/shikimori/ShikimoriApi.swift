@@ -18,7 +18,7 @@ actor ShikimoriApi {
         id: "shikimori",
         clientId: "0pRPZsB87w9mp0gQe1HZbSiGt7FfVzJohPGhJKjayW4",
         clientSecret: "42vg9aoyPBnrvFoH1ey2GxbO24eVufOe8D0B6P756e8",
-        baseUrl: "https://shikimori.one"
+        baseUrl: "https://shikimori.io"
     )
 }
 
