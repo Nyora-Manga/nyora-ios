@@ -200,6 +200,12 @@ class ReaderViewController: BaseObservingViewController {
         // bar toggle tap gesture
         view.addGestureRecognizer(barToggleTapGesture)
 
+        // page offset tap gesture
+        let pageOffsetGesture = UITapGestureRecognizer(target: self, action: #selector(toggleOffset))
+        pageOffsetGesture.numberOfTouchesRequired = 2
+        pageOffsetGesture.numberOfTapsRequired = 2
+        view.addGestureRecognizer(pageOffsetGesture)
+
         // set reader
         let readingModeKey = "Reader.readingMode.\(manga.identifier)"
         UserDefaults.standard.register(defaults: [readingModeKey: "default"])
@@ -1063,6 +1069,11 @@ extension ReaderViewController {
                 input: UIKeyCommand.inputRightArrow
             ),
             UIKeyCommand(
+                title: NSLocalizedString("TOGGLE_PAGE_OFFSET"),
+                action: #selector(toggleOffset),
+                input: "o"
+            ),
+            UIKeyCommand(
                 title: NSLocalizedString("CHAPTER_FORWARD"),
                 action: #selector(nextChapter),
                 input: ","
@@ -1098,6 +1109,10 @@ extension ReaderViewController {
 
     @objc func moveRight() {
         reader?.moveRight()
+    }
+
+    @objc func toggleOffset() {
+        reader?.toggleOffset()
     }
 
     @objc func nextChapter() {
