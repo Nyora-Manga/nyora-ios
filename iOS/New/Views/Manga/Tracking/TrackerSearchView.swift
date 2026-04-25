@@ -48,12 +48,14 @@ struct TrackerSearchView: View {
                 }
             }
             .listStyle(.plain)
-            .scrollDismissesKeyboardImmediately()
             .overlay {
                 if loading {
                     ProgressView().progressViewStyle(.circular)
                 }
             }
+            .scrollDismissesKeyboardImmediately()
+            .scrollBackgroundHiddenPlease()
+            .background(Color(uiColor: .systemBackground))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     CloseButton {
