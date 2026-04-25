@@ -193,6 +193,13 @@ extension MangaView {
                 }
                 .store(in: &cancellables)
 
+            NotificationCenter.default.publisher(for: .init("Library.resumeLastOpenedChapter"))
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] _ in
+                    self?.updateReadButton()
+                }
+                .store(in: &cancellables)
+
             // tracking
             NotificationCenter.default.publisher(for: .syncTrackItem)
                 .sink { [weak self] output in
@@ -264,6 +271,10 @@ extension MangaView {
 }
 
 extension MangaView.ViewModel {
+    func refreshReadButtonState() {
+        updateReadButton()
+    }
+
     func markUpdatesViewed() async {
         if !UserDefaults.standard.bool(forKey: "General.incognitoMode") {
             await MangaUpdateManager.shared.viewAllUpdates(of: manga)
