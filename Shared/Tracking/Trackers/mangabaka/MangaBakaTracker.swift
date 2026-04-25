@@ -69,8 +69,8 @@ final class MangaBakaTracker: OAuthTracker {
             status: libraryEntry.state?.into(),
             lastReadChapter: libraryEntry.progressChapter.flatMap(Float.init),
             lastReadVolume: libraryEntry.progressVolume,
-            totalChapters: series.totalChapters.flatMap(Int.init),
-            totalVolumes: series.finalVolume.flatMap(Int.init),
+            totalChapters: series.status == .releasing ? nil : series.totalChapters.flatMap(Int.init),
+            totalVolumes: series.status == .releasing ? nil : series.finalVolume.flatMap(Int.init),
             startReadDate: libraryEntry.startDate?.date(format: dateFormat),
             finishReadDate: libraryEntry.finishDate?.date(format: dateFormat)
         )
