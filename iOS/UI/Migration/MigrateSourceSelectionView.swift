@@ -12,7 +12,9 @@ struct MigrateSourceSelectionView: View {
     var excludedSources: [String] = []
 
     @Binding var selectedSources: [SourceInfo2]
-    @State var availableSources = SourceManager.shared.sources.map { $0.toInfo() }
+    @State var availableSources = SourceManager.shared.sources
+        .map { $0.toInfo() }
+        .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
 
     @State private var editMode: EditMode = .active
 
