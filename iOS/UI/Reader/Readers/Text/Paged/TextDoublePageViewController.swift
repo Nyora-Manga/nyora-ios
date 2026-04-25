@@ -96,6 +96,8 @@ class TextDoublePageViewController: UIViewController {
         let tv = UITextView()
         tv.isEditable = false
         tv.isScrollEnabled = false
+        tv.isUserInteractionEnabled = false  // Let taps pass through to parent tap zones
+        tv.textContainer.lineFragmentPadding = 0  // Match paginator's layout width
         tv.backgroundColor = .systemBackground
         return tv
     }

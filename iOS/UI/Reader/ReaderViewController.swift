@@ -247,9 +247,15 @@ class ReaderViewController: BaseObservingViewController {
             guard let self else { return }
             // Only switch if we're currently in a text reader
             if self.reader is ReaderTextViewController || self.reader is ReaderPagedTextViewController {
-                self.setReader(.text)
-                self.reader?.setChapter(self.chapter, startPage: self.currentPage)
-                self.updateTapZone()
+                // Save current position before switching so the new reader can restore it
+                Task {
+                    await self.updateReadPosition()
+                    await MainActor.run {
+                        self.setReader(.text)
+                        self.reader?.setChapter(self.chapter, startPage: self.currentPage)
+                        self.updateTapZone()
+                    }
+                }
             }
         }
         addObserver(forName: UIScene.willDeactivateNotification) { [weak self] _ in

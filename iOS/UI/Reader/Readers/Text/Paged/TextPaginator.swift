@@ -430,7 +430,16 @@ class TextPaginator {
         )
 
         if sentenceBreak.location != NSNotFound {
-            let breakEnd = min(sentenceBreak.location + 2, text.length)
+            // Include the sentence ender. Also include the following character
+            // only if it's whitespace so we never split a word across pages.
+            var breakEnd = sentenceBreak.location + 1
+            if breakEnd < text.length {
+                let nextChar = text.character(at: breakEnd)
+                if CharacterSet.whitespacesAndNewlines.contains(UnicodeScalar(nextChar)!) {
+                    breakEnd += 1
+                }
+            }
+            breakEnd = min(breakEnd, text.length)
             return NSRange(location: proposedRange.location, length: breakEnd - proposedRange.location)
         }
 

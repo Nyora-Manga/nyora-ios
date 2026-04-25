@@ -49,6 +49,13 @@ class ReaderTextViewController: BaseViewController {
     private var lastReportedPage = 0
     private var needsPageCountUpdate = false
 
+    /// Tracks the last known safe area insets so we can compensate content offset
+    /// when bars show/hide with `contentInsetAdjustmentBehavior = .never`.
+    private var lastSafeAreaInsets: UIEdgeInsets?
+    /// When true, suppresses hosting controller size invalidation to prevent
+    /// layout passes from undoing offset compensation during bar transitions.
+    private var isSafeAreaTransitioning = false
+
     // MARK: - Scroll Position Persistence
 
     /// Load previously saved reading progress for a chapter.
@@ -113,6 +120,9 @@ class ReaderTextViewController: BaseViewController {
         if #available(iOS 16.0, *) {
             hc.sizingOptions = .intrinsicContentSize
         }
+        if #available(iOS 16.4, *) {
+            hc.safeAreaRegions = []
+        }
         hc.view.backgroundColor = .clear
         return hc
     }
@@ -127,7 +137,9 @@ class ReaderTextViewController: BaseViewController {
     private var showsNextTransition = false
 
     private var transitionPageHeight: CGFloat {
-        scrollView.frame.height
+        // Use the full view height so transition pages stay a stable size
+        // regardless of bar visibility (scrollView.frame changes with safe area).
+        view.bounds.height
     }
 
     init(source: AidokuRunner.Source?, manga: AidokuRunner.Manga) {
@@ -286,29 +298,71 @@ class ReaderTextViewController: BaseViewController {
 
     // MARK: - Layout
 
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        let newInsets = view.safeAreaInsets
+        defer { lastSafeAreaInsets = newInsets }
+
+        // Keep content inset in sync so the scroll view allows scrolling
+        // past the content top (text starts below the navigation bar).
+        scrollView.contentInset = UIEdgeInsets(top: newInsets.top, left: 0, bottom: newInsets.bottom, right: 0)
+        scrollView.verticalScrollIndicatorInsets = scrollView.contentInset
+
+        guard let lastInsets = lastSafeAreaInsets else { return }
+        let topDelta = newInsets.top - lastInsets.top
+        guard topDelta != 0 else { return }
+
+        // On iOS 16.4+, safeAreaRegions = [] on the hosting controllers prevents
+        // them from resizing when bars show/hide — no compensation needed.
+        // On older iOS, suppress invalidation and compensate the offset manually.
+        if #unavailable(iOS 16.4) {
+            isSafeAreaTransitioning = true
+            setHostingControllerInvalidation(suppressed: true)
+            scrollView.contentOffset.y += topDelta
+        }
+    }
+
+    private func setHostingControllerInvalidation(suppressed: Bool) {
+        for hc in allHostingControllers {
+            (hc as? HostingController<ReaderTextView>)?.suppressInvalidation = suppressed
+        }
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+
+        // During bar show/hide on iOS < 16.4, skip layout updates to prevent
+        // content shifting, then clear the suppression flags for the next pass.
+        if isSafeAreaTransitioning {
+            isSafeAreaTransitioning = false
+            setHostingControllerInvalidation(suppressed: false)
+            return
+        }
 
         for hc in allHostingControllers {
             hc.view.invalidateIntrinsicContentSize()
         }
 
-        let screenHeight = scrollView.frame.height
+        let transHeight = transitionPageHeight
         if showsPreviousTransition {
-            prevHeightConstraint?.constant = screenHeight
+            prevHeightConstraint?.constant = transHeight
         }
         if showsNextTransition {
-            nextHeightConstraint?.constant = screenHeight
+            nextHeightConstraint?.constant = transHeight
         }
         // Keep inline transition views in sync
         for section in sections where section.transitionView != nil {
-            section.transitionHeightConstraint?.constant = screenHeight
+            section.transitionHeightConstraint?.constant = transHeight
         }
 
         if needsPageCountUpdate {
             updateEstimatedPageCount()
         }
     }
+}
+
+// MARK: - Section Helpers & Chapter Loading
+extension ReaderTextViewController {
 
     /// Recalculate estimated page count for the current chapter's section.
     private func updateEstimatedPageCount() {
@@ -336,7 +390,7 @@ class ReaderTextViewController: BaseViewController {
     // MARK: - Boundary Transition Views
 
     private func updateBoundaryTransitionViews() {
-        let screenHeight = scrollView.frame.height > 0 ? scrollView.frame.height : view.bounds.height
+        let screenHeight = transitionPageHeight
 
         // Previous transition (top) — shows info about the chapter before sections[0]
         if let prevView = previousTransitionView, let firstSection = sections.first {
@@ -446,6 +500,7 @@ class ReaderTextViewController: BaseViewController {
             needsPageCountUpdate = true
 
             let prevHeight = showsPreviousTransition ? transitionPageHeight : 0
+            let safeTop = scrollView.contentInset.top
 
             if restorePosition {
                 pendingScrollRestore = true
@@ -455,9 +510,15 @@ class ReaderTextViewController: BaseViewController {
                         self.updateEstimatedPageCount()
                         let sectionHeight = self.sectionContentHeight(at: 0)
                         let screenHeight = self.scrollView.frame.size.height
+                        let insetTop = self.scrollView.contentInset.top
                         if sectionHeight > 0, screenHeight > 0 {
-                            let targetOffset = prevHeight + (sectionHeight - screenHeight) * savedProgress
-                            self.scrollView.setContentOffset(CGPoint(x: 0, y: max(prevHeight, targetOffset)), animated: false)
+                            let scrollStart = prevHeight - insetTop
+                            let scrollableRange = sectionHeight - screenHeight + insetTop
+                            let targetOffset = scrollStart + scrollableRange * savedProgress
+                            self.scrollView.setContentOffset(
+                                CGPoint(x: 0, y: max(prevHeight - insetTop, targetOffset)),
+                                animated: false
+                            )
                             let currentPage = min(self.estimatedPageCount, Int(savedProgress * CGFloat(self.estimatedPageCount)) + 1)
                             self.lastReportedPage = currentPage
                             self.delegate?.setCurrentPage(currentPage, position: savedProgress)
@@ -466,7 +527,7 @@ class ReaderTextViewController: BaseViewController {
                     self.pendingScrollRestore = false
                 }
             } else {
-                scrollView.setContentOffset(.init(x: 0, y: prevHeight), animated: false)
+                scrollView.setContentOffset(.init(x: 0, y: prevHeight - safeTop), animated: false)
             }
 
             isLoadingChapter = false
@@ -510,7 +571,7 @@ class ReaderTextViewController: BaseViewController {
             await MainActor.run {
                 // Add an inline transition view after the last section
                 let lastSection = sections.last!
-                let screenHeight = scrollView.frame.height > 0 ? scrollView.frame.height : view.bounds.height
+                let screenHeight = transitionPageHeight
                 let tv = createInlineTransitionView(
                     finishedChapter: lastSection.chapter,
                     nextChapter: nextCh
@@ -576,7 +637,7 @@ class ReaderTextViewController: BaseViewController {
             }
 
             await MainActor.run {
-                let screenHeight = scrollView.frame.height > 0 ? scrollView.frame.height : view.bounds.height
+                let screenHeight = transitionPageHeight
                 let oldContentHeight = scrollView.contentSize.height
                 let oldOffset = scrollView.contentOffset.y
 
@@ -665,8 +726,15 @@ extension ReaderTextViewController: ReaderReaderDelegate {
         let animated = UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
         let prevHeight = showsPreviousTransition ? transitionPageHeight : 0
 
+        // Already scrolled into the previous transition area
         if scrollView.contentOffset.y <= prevHeight {
-            scrollView.setContentOffset(.init(x: 0, y: 0), animated: animated)
+            if scrollView.contentOffset.y <= 0 {
+                // Fully at top — trigger chapter load on second press
+                checkInfiniteLoad()
+            } else {
+                // Scroll to show the full transition view
+                scrollView.setContentOffset(.init(x: 0, y: 0), animated: animated)
+            }
             return
         }
 
@@ -677,6 +745,23 @@ extension ReaderTextViewController: ReaderReaderDelegate {
     func moveRight() {
         let animated = UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
         let maxOffset = scrollView.contentSize.height - scrollView.bounds.height
+
+        // Check if we're already in the next transition area
+        if showsNextTransition {
+            // Calculate where the last section's content ends
+            let lastSectionEnd: CGFloat
+            if let lastIndex = sections.indices.last {
+                lastSectionEnd = sectionContentStartY(at: lastIndex) + sectionContentHeight(at: lastIndex)
+            } else {
+                lastSectionEnd = 0
+            }
+            let transitionStart = lastSectionEnd
+            if scrollView.contentOffset.y + scrollView.bounds.height >= transitionStart {
+                // Already seeing the transition — trigger chapter load
+                checkInfiniteLoad()
+                return
+            }
+        }
 
         let target = min(maxOffset, scrollView.contentOffset.y + scrollView.bounds.height * 2 / 3)
         scrollView.setContentOffset(.init(x: 0, y: target), animated: animated)

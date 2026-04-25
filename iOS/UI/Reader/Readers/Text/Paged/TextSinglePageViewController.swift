@@ -13,6 +13,7 @@ class TextSinglePageViewController: UIViewController {
         let tv = UITextView()
         tv.isEditable = false
         tv.isScrollEnabled = false
+        tv.isUserInteractionEnabled = false  // Let taps pass through to parent tap zones
         tv.backgroundColor = .systemBackground
         tv.font = .systemFont(ofSize: 18)
         return tv
@@ -44,6 +45,11 @@ class TextSinglePageViewController: UIViewController {
             textView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             textView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+
+        // Match the paginator's lineFragmentPadding = 0 so the text layout
+        // width is identical. The default (5pt) causes lines to wrap earlier
+        // than the paginator predicted, pushing words off the visible area.
+        textView.textContainer.lineFragmentPadding = 0
 
         // Set the text content
         if page.attributedContent.length > 0 {

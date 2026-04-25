@@ -392,7 +392,7 @@ class ReaderPagedTextViewController: BaseObservingViewController {
         }
 
         // Update current page display (1-indexed for UI)
-        delegate?.setCurrentPage(targetIndex + 1, position: nil)
+        delegate?.setCurrentPage(targetIndex + 1, position: normalizedPosition(for: targetIndex))
         updateSliderPosition()
     }
 
@@ -417,6 +417,14 @@ class ReaderPagedTextViewController: BaseObservingViewController {
             // Single page - pass parent reference so it can get live safe area updates
             return TextSinglePageViewController(page: pages[index], parentReader: self)
         }
+    }
+
+    /// Compute a normalized 0-1 position from the current page index.
+    /// Both the scroll and paged text readers use this format so switching
+    /// between them preserves the reading position.
+    private func normalizedPosition(for pageIndex: Int) -> Double {
+        guard pages.count > 1 else { return 0 }
+        return Double(pageIndex) / Double(pages.count - 1)
     }
 
     private func updateSliderPosition() {
@@ -483,8 +491,7 @@ extension ReaderPagedTextViewController: ReaderReaderDelegate {
         if targetIndex >= 0 && targetIndex < pages.count {
             move(toPage: targetIndex, animated: UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions"))
         } else if targetIndex < 0 {
-            // Load previous chapter
-            loadPreviousChapter()
+            navigateToPreviousChapterTransition()
         }
     }
 
@@ -500,8 +507,7 @@ extension ReaderPagedTextViewController: ReaderReaderDelegate {
         if targetIndex >= 0 && targetIndex < pages.count {
             move(toPage: targetIndex, animated: UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions"))
         } else if targetIndex >= pages.count {
-            // Load next chapter
-            loadNextChapter()
+            navigateToNextChapterTransition()
         }
     }
 
@@ -548,6 +554,66 @@ extension ReaderPagedTextViewController: ReaderReaderDelegate {
         Task {
             await loadChapter(chapter, startPage: startPage)
         }
+    }
+
+    /// Navigate toward the previous chapter transition page.
+    /// First call shows the transition info page; second call (when already on it) triggers the chapter load.
+    private func navigateToPreviousChapterTransition() {
+        guard let currentVC = pageViewController.viewControllers?.first else { return }
+        let animated = UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
+
+        // Already on the transition page — trigger the chapter load
+        if let transitionVC = currentVC as? ChapterTransitionViewController {
+            guard transitionVC.chapter != nil else { return }
+            transitionVC.performTransition()
+            return
+        }
+
+        // Show the transition page
+        let sourceId = viewModel.source?.key ?? viewModel.manga.sourceKey
+        let transitionVC = ChapterTransitionViewController(
+            direction: .previous,
+            chapter: previousChapter,
+            currentChapter: chapter,
+            sourceId: sourceId,
+            mangaId: viewModel.manga.key,
+            parentReader: self
+        )
+        pageViewController.setViewControllers(
+            [transitionVC],
+            direction: .reverse,
+            animated: animated
+        )
+    }
+
+    /// Navigate toward the next chapter transition page.
+    /// First call shows the transition info page; second call (when already on it) triggers the chapter load.
+    private func navigateToNextChapterTransition() {
+        guard let currentVC = pageViewController.viewControllers?.first else { return }
+        let animated = UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
+
+        // Already on the transition page — trigger the chapter load
+        if let transitionVC = currentVC as? ChapterTransitionViewController {
+            guard transitionVC.chapter != nil else { return }
+            transitionVC.performTransition()
+            return
+        }
+
+        // Show the transition page
+        let sourceId = viewModel.source?.key ?? viewModel.manga.sourceKey
+        let transitionVC = ChapterTransitionViewController(
+            direction: .next,
+            chapter: nextChapter,
+            currentChapter: chapter,
+            sourceId: sourceId,
+            mangaId: viewModel.manga.key,
+            parentReader: self
+        )
+        pageViewController.setViewControllers(
+            [transitionVC],
+            direction: .forward,
+            animated: animated
+        )
     }
 
     func loadPreviousChapter() {
@@ -625,7 +691,7 @@ extension ReaderPagedTextViewController: UIPageViewControllerDelegate {
             currentCharacterOffset = doublePage.leftPage.range.location
         }
 
-        delegate?.setCurrentPage(currentPageIndex + 1, position: nil)
+        delegate?.setCurrentPage(currentPageIndex + 1, position: normalizedPosition(for: currentPageIndex))
         updateSliderPosition()
     }
 
