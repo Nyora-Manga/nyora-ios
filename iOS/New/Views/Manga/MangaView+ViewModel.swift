@@ -664,6 +664,7 @@ extension MangaView.ViewModel {
         withAnimation {
             chapters = filteredChapters()
         }
+        updateReadButton()
         if bookmarked {
             Task {
                 await saveFilters()
