@@ -364,13 +364,19 @@ extension SourceViewController {
                             title: NSLocalizedString("ADD_TO_LIBRARY", comment: ""),
                             image: UIImage(systemName: "books.vertical.fill")
                         ) { _ in
-                            Task {
-                                await MangaManager.shared.addToLibrary(
-                                    sourceId: mangaInfo.sourceId,
-                                    manga: mangaInfo.toManga().toNew(),
-                                    fetchMangaDetails: true
-                                )
-                                self.refreshCells(for: [mangaInfo])
+                            let entry = mangaInfo.toManga().toNew()
+                            if MangaManager.shouldAskForCategories() { // open category select view
+                                let viewController = UINavigationController(rootViewController: CategorySelectViewController(manga: entry))
+                                self.present(viewController, animated: true)
+                            } else {
+                                Task {
+                                    await MangaManager.shared.addToLibrary(
+                                        sourceId: mangaInfo.sourceId,
+                                        manga: entry,
+                                        fetchMangaDetails: true
+                                    )
+                                    self.refreshCells(for: [mangaInfo])
+                                }
                             }
                         }])
                     }

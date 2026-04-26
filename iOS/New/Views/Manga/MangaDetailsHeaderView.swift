@@ -409,21 +409,9 @@ struct MangaDetailsHeaderView: View {
             )
             bookmarked = false
         } else {
-            // check if category select should open
-            let categories = CoreDataManager.shared.getCategoryTitles()
-            var shouldAskCategory = !categories.isEmpty
-            if
-                let defaultCategory = UserDefaults.standard.string(forKey: "Library.defaultCategory"),
-                defaultCategory == "none" || categories.contains(defaultCategory)
-            {
-                shouldAskCategory = false
-            }
-            if shouldAskCategory { // open category select view
-                path.present(
-                    UINavigationController(rootViewController: CategorySelectViewController(
-                        manga: manga
-                    ))
-                )
+            if MangaManager.shouldAskForCategories() { // open category select view
+                let viewController = UINavigationController(rootViewController: CategorySelectViewController(manga: manga))
+                path.present(viewController)
             } else { // add to library
                 bookmarked = true
                 await MangaManager.shared.addToLibrary(

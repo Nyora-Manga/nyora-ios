@@ -234,6 +234,18 @@ extension MangaManager {
             }
         }
     }
+
+    static func shouldAskForCategories() -> Bool {
+        let categories = CoreDataManager.shared.getCategoryTitles()
+        guard !categories.isEmpty else { return false }
+        if
+            let defaultCategory = UserDefaults.standard.string(forKey: "Library.defaultCategory"),
+            defaultCategory == "none" || categories.contains(defaultCategory)
+        {
+            return false
+        }
+        return true
+    }
 }
 
 // MARK: - Category Managing

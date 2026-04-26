@@ -266,18 +266,24 @@ extension MangaCollectionViewController {
                     title: NSLocalizedString("ADD_TO_LIBRARY"),
                     image: UIImage(systemName: "books.vertical.fill")
                 ) { _ in
-                    // add bookmark icon
-                    self.bookmarkedItems.insert(entry.key)
-                    var snapshot = self.dataSource.snapshot()
-                    snapshot.reloadItems([entry])
-                    self.dataSource.apply(snapshot)
-                    // add to library
-                    Task {
-                        await MangaManager.shared.addToLibrary(
-                            sourceId: entry.sourceKey,
-                            manga: entry,
-                            fetchMangaDetails: true
-                        )
+                    if MangaManager.shouldAskForCategories() {
+                        // open category select view
+                        let viewController = UINavigationController(rootViewController: CategorySelectViewController(manga: entry))
+                        self.present(viewController, animated: true)
+                    } else {
+                        // add bookmark icon
+                        self.bookmarkedItems.insert(entry.key)
+                        var snapshot = self.dataSource.snapshot()
+                        snapshot.reloadItems([entry])
+                        self.dataSource.apply(snapshot)
+                        // add to library
+                        Task {
+                            await MangaManager.shared.addToLibrary(
+                                sourceId: entry.sourceKey,
+                                manga: entry,
+                                fetchMangaDetails: true
+                            )
+                        }
                     }
                 })
             }

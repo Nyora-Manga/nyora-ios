@@ -124,13 +124,20 @@ struct HomeGridView: View {
                 }
             } else {
                 Button {
-                    bookmarkedItems.insert(entry.key)
-                    Task {
-                        await MangaManager.shared.addToLibrary(
-                            sourceId: source.key,
-                            manga: entry,
-                            fetchMangaDetails: true
-                        )
+                    if MangaManager.shouldAskForCategories() {
+                        // open category select view
+                        let viewController = UINavigationController(rootViewController: CategorySelectViewController(manga: entry))
+                        path.present(viewController)
+                    } else {
+                        // add to library
+                        bookmarkedItems.insert(entry.key)
+                        Task {
+                            await MangaManager.shared.addToLibrary(
+                                sourceId: source.key,
+                                manga: entry,
+                                fetchMangaDetails: true
+                            )
+                        }
                     }
                 } label: {
                     Label(NSLocalizedString("ADD_TO_LIBRARY"), systemImage: "books.vertical.fill")
