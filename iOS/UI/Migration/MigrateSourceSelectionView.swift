@@ -8,13 +8,10 @@
 import SwiftUI
 
 struct MigrateSourceSelectionView: View {
-
     var excludedSources: [String] = []
 
     @Binding var selectedSources: [SourceInfo2]
-    @State var availableSources = SourceManager.shared.sources
-        .map { $0.toInfo() }
-        .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    @State var availableSources = SourceManager.shared.sources.map { $0.toInfo() }
 
     @State private var editMode: EditMode = .active
 
@@ -32,10 +29,7 @@ struct MigrateSourceSelectionView: View {
                     Button {
                         select(source: source)
                     } label: {
-                        HStack {
-                            Text(source.name)
-                            Spacer() // for ios 15
-                        }
+                        SourceCell(source: source)
                     }
                     .disabled(
                         selectedSources.contains(source) || excludedSources.contains(source.sourceId)
@@ -61,11 +55,27 @@ struct MigrateSourceSelectionView: View {
             selectedSources.remove(at: index)
         }
     }
+
+    struct SourceCell: View {
+        let source: SourceInfo2
+
+        var body: some View {
+            HStack(spacing: 12) {
+                SourceIconView(
+                    sourceId: source.sourceId,
+                    imageUrl: source.iconUrl,
+                    iconSize: 32
+                )
+                Text(source.name)
+                Spacer(minLength: 0) // for ios 15
+            }
+        }
+    }
 }
 
 // fixes buttons not being selectable in lists pre-ios 16
 // if BorderlessButtonStyle is enabled on ios 16+, only the text becomes selectable and not the entire cell (smh apple)
-fileprivate extension View {
+private extension View {
     @ViewBuilder
     func cellButtonFix() -> some View {
         if #available(iOS 16.0, *) {
