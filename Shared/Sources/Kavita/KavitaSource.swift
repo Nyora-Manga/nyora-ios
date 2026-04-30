@@ -538,6 +538,27 @@ actor KavitaSourceRunner: Runner {
             )
         }
 
+        settings.append(.init(
+            value: .group(.init(
+                footer: "API_KEY_LOGIN_INFO",
+                items: [
+                    .init(
+                        key: "login_key",
+                        title: "API_KEY",
+                        notification: "login_key",
+                        requires: "server",
+                        refreshes: ["content", "listings", "filters", "settings"],
+                        value: .text(.init(
+                            placeholder: NSLocalizedString("API_KEY"),
+                            autocapitalizationType: UITextAutocapitalizationType.none.rawValue,
+                            returnKeyType: UIReturnKeyType.done.rawValue,
+                            autocorrectionDisabled: true
+                        ))
+                    )
+                ]
+            ))
+        ))
+
         // check for oidc support
         guard
             let server = currentServer.urlWithTrailingSlash(),
@@ -568,7 +589,7 @@ actor KavitaSourceRunner: Runner {
                     items: [
                         .init(
                             key: "login",
-                            title: "LOGIN",
+                            title: "BASIC_LOGIN",
                             notification: "login",
                             requires: "server",
                             requiresFalse: "login_oidc",
@@ -620,6 +641,7 @@ extension KavitaSourceRunner {
             return false
         }
 
+        UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).login_key") // clear manual api key
         UserDefaults.standard.setValue(apiKey, forKey: "\(sourceKey).apiKey")
         UserDefaults.standard.setValue(token, forKey: "\(sourceKey).token")
         UserDefaults.standard.setValue(refreshToken, forKey: "\(sourceKey).refreshToken")
@@ -652,6 +674,7 @@ extension KavitaSourceRunner {
             return false
         }
 
+        UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).login_key") // clear manual api key
         UserDefaults.standard.setValue(apiKey, forKey: "\(sourceKey).apiKey")
         UserDefaults.standard.setValue(cookie, forKey: "\(sourceKey).cookie")
 
@@ -674,6 +697,36 @@ extension KavitaSourceRunner {
                 if !isLoggedIn {
                     UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).apiKey")
                     UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).cookie")
+                }
+
+            case "login_key":
+                let apiKey = UserDefaults.standard.string(forKey: "\(sourceKey).login_key") ?? ""
+
+                if apiKey.isEmpty {
+                    UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).apiKey")
+                    UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).token")
+                    UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).refreshToken")
+                } else {
+                    let server = try helper.getConfiguredServer()
+                    let response = await Self.getLoginResponse(server: server, apiKey: apiKey)
+
+                    guard
+                        let response,
+                        let token = response.token,
+                        let refreshToken = response.refreshToken,
+                        let apiKey = response.getApiKey()
+                    else {
+                        LogManager.logger.error("Kavita: Failed to log in with provided API key")
+                        return
+                    }
+
+                    UserDefaults.standard.setValue(apiKey, forKey: "\(sourceKey).apiKey")
+                    UserDefaults.standard.setValue(token, forKey: "\(sourceKey).token")
+                    UserDefaults.standard.setValue(refreshToken, forKey: "\(sourceKey).refreshToken")
+
+                    // clear other login methods
+                    UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).login")
+                    UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).login_oidc")
                 }
 
             case "name_change":
@@ -838,6 +891,22 @@ extension KavitaSourceRunner {
         request.httpBody = try? JSONEncoder().encode(payload)
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        return try? await URLSession.shared.object(from: request)
+    }
+
+    static func getLoginResponse(server: URL, apiKey: String) async -> LoginResponse? {
+        guard var loginUrl = URL(string: "api/Plugin/authenticate", relativeTo: server) else {
+            return nil
+        }
+        loginUrl.queryParameters = [
+            "apiKey": apiKey,
+            "pluginName": "Aidoku"
+        ]
+
+        var request = URLRequest(url: loginUrl)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
 
         return try? await URLSession.shared.object(from: request)
     }

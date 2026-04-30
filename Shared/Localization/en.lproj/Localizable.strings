@@ -302,6 +302,10 @@
 "FORMAT_PDF" = "PDF";
 "FORMAT_ARCHIVE" = "Archive";
 "LOGIN_VIA_OIDC" = "Log In via OIDC";
+"API_KEY" = "API Key";
+"OIDC" = "OIDC";
+"BASIC_LOGIN" = "Basic Login";
+"API_KEY_LOGIN_INFO" = "Manually providing an API key for login will override other login methods. You can leave it blank to use other login methods.";
 
 // Manga
 "UNTITLED" = "Untitled";
@@ -407,6 +411,8 @@
 "LOGIN_WEBVIEW_WARNING" = "Log in via web view?";
 "LOGIN_WEBVIEW_WARNING_TEXT" = "All cookies set in the presented web view will be given to the source. Do not log in to any source you do not trust.";
 "REFRESH_LOGIN" = "Refresh Login";
+"LOGIN_METHOD" = "Login Method";
+"BASIC" = "Basic";
 
 // Settings
 "SETTINGS" = "Settings";

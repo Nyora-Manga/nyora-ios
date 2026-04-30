@@ -172,7 +172,9 @@ struct KavitaHelper: Sendable {
 
         let token = UserDefaults.standard.string(forKey: "\(sourceKey).token")
         let refreshToken = UserDefaults.standard.string(forKey: "\(sourceKey).refreshToken")
-        guard let token, let refreshToken else { return false }
+        guard let token, let refreshToken else {
+            return try await refreshApiKey() // if we don't have a refresh token, just try with api key
+        }
 
         struct TokenRefresh: Codable {
             let token: String
@@ -188,6 +190,33 @@ struct KavitaHelper: Sendable {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         let response: TokenRefresh? = try? await URLSession.shared.object(from: request)
+        guard let response else {
+            return try await refreshApiKey() // maybe refresh token expired(?)
+        }
+
+        UserDefaults.standard.set(response.token, forKey: "\(sourceKey).token")
+        UserDefaults.standard.set(response.refreshToken, forKey: "\(sourceKey).refreshToken")
+
+        return true
+    }
+
+    // attempts to authenticate only using an api key
+    private func refreshApiKey() async throws(SourceError) -> Bool {
+        var url = try getServerUrl(path: "api/Plugin/authenticate")
+
+        let apiKey = UserDefaults.standard.string(forKey: "\(sourceKey).apiKey")
+        guard let apiKey else { return false }
+
+        url.queryParameters = [
+            "apiKey": apiKey,
+            "pluginName": "Aidoku"
+        ]
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+
+        let response: KavitaSourceRunner.LoginResponse? = try? await URLSession.shared.object(from: request)
         guard let response else { return false }
 
         UserDefaults.standard.set(response.token, forKey: "\(sourceKey).token")
