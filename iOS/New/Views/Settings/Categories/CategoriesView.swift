@@ -23,20 +23,31 @@ struct CategoriesView: View {
     var body: some View {
         List {
             ForEach(categories, id: \.self) { category in
-                Text(category)
-                    .swipeActions {
-                        Button(role: .destructive) {
-                            onDelete(at: IndexSet(integer: categories.firstIndex(of: category)!))
-                        } label: {
-                            Label(NSLocalizedString("DELETE"), systemImage: "trash")
-                        }
-                        Button {
-                            showRenamePrompt(targetRenameCategory: category)
-                        } label: {
-                            Label(NSLocalizedString("RENAME"), systemImage: "pencil")
-                        }
-                        .tint(.indigo)
+                HStack {
+                    Text(category)
+                    Spacer()
+                    Button {
+                        showRenamePrompt(targetRenameCategory: category)
+                    } label: {
+                        Image(systemName: "pencil.circle")
+                            .scaleEffect(1.2)
                     }
+                    .buttonStyle(.borderless)
+                    .padding(.trailing, 6)
+                }
+                .contextMenu {
+                    Button {
+                        showRenamePrompt(targetRenameCategory: category)
+                    } label: {
+                        Label(NSLocalizedString("RENAME"), systemImage: "pencil")
+                    }
+                    Button(role: .destructive) {
+                        guard let index = categories.firstIndex(of: category) else { return }
+                        onDelete(at: IndexSet(integer: index))
+                    } label: {
+                        Label(NSLocalizedString("DELETE"), systemImage: "trash")
+                    }
+                }
             }
             .onDelete(perform: onDelete)
             .onMove(perform: onMove)

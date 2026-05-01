@@ -34,20 +34,30 @@ struct FilterGroupsView: View {
         List {
             ForEach(groups.indices, id: \.self) { index in
                 let group = groups[index]
-                Text(group.title)
-                    .swipeActions {
-                        Button(role: .destructive) {
-                            onDelete(at: IndexSet(integer: index))
-                        } label: {
-                            Label(NSLocalizedString("DELETE"), systemImage: "trash")
-                        }
-                        Button {
-                            editingGroupTitle = .init(value: group.title)
-                        } label: {
-                            Label(NSLocalizedString("EDIT"), systemImage: "pencil")
-                        }
-                        .tint(.indigo)
+                HStack {
+                    Text(group.title)
+                    Spacer()
+                    Button {
+                        editingGroupTitle = .init(value: group.title)
+                    } label: {
+                        Image(systemName: "pencil.circle")
+                            .scaleEffect(1.2)
                     }
+                    .buttonStyle(.borderless)
+                    .padding(.trailing, 6)
+                }
+                .contextMenu {
+                    Button {
+                        editingGroupTitle = .init(value: group.title)
+                    } label: {
+                        Label(NSLocalizedString("EDIT"), systemImage: "pencil")
+                    }
+                    Button(role: .destructive) {
+                        onDelete(at: IndexSet(integer: index))
+                    } label: {
+                        Label(NSLocalizedString("DELETE"), systemImage: "trash")
+                    }
+                }
             }
             .onDelete(perform: onDelete)
             .onMove(perform: onMove)
