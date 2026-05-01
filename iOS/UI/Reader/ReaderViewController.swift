@@ -52,6 +52,12 @@ class ReaderViewController: BaseObservingViewController {
     private lazy var toolbarView = ReaderToolbarView()
     private var toolbarViewWidthConstraint: NSLayoutConstraint?
 
+    private var squeezeTimer: Timer?
+    private var longSqueezeTimer: Timer?
+    private var squeezeStartTime: Date?
+    private let doubleSqueezeInterval: TimeInterval = 0.3
+    private let longSqueezeThreshold: TimeInterval = 0.5
+
     private lazy var descriptionButtonController: UIHostingController<ReaderPageDescriptionButtonView> = {
         let buttonView = ReaderPageDescriptionButtonView(source: source, pages: [])
         let hostingController = UIHostingController(rootView: buttonView)
@@ -210,6 +216,12 @@ class ReaderViewController: BaseObservingViewController {
         let readingModeKey = "Reader.readingMode.\(manga.identifier)"
         UserDefaults.standard.register(defaults: [readingModeKey: "default"])
         setReadingMode(UserDefaults.standard.string(forKey: readingModeKey))
+
+        // set up apple pencil squeeze handler
+        if #available(iOS 17.5, *) {
+            let pencilInteraction = UIPencilInteraction(delegate: self)
+            view.addInteraction(pencilInteraction)
+        }
 
         // load current tap zone
         updateTapZone()
@@ -942,6 +954,77 @@ extension ReaderViewController {
             }
         } else {
             toggleBarVisibility()
+        }
+    }
+}
+
+// MARK: - Apple Pencil Squeeze
+extension ReaderViewController: UIPencilInteractionDelegate {
+    @available(iOS 17.5, *)
+    func pencilInteraction(_ interaction: UIPencilInteraction, didReceiveSqueeze squeeze: UIPencilInteraction.Squeeze) {
+        // if pencil squeezing is disabled globally, ignore interaction (hig)
+        guard UIPencilInteraction.preferredSqueezeAction != .ignore else { return }
+
+        switch squeeze.phase {
+            case .began:
+                squeezeStartTime = Date()
+                longSqueezeTimer = Timer.scheduledTimer(
+                    withTimeInterval: longSqueezeThreshold,
+                    repeats: false
+                ) { [weak self] _ in
+                    Task { @MainActor in
+                        self?.longSqueezeTimer = nil
+                        self?.openChapterList()
+                    }
+                }
+            case .ended:
+                guard let startTime = squeezeStartTime else { return }
+                let duration = Date().timeIntervalSince(startTime)
+                squeezeStartTime = nil
+                longSqueezeTimer?.invalidate()
+                longSqueezeTimer = nil
+
+                if duration >= longSqueezeThreshold {
+                    // long squeeze: chapter selector
+                    squeezeTimer?.invalidate()
+                    squeezeTimer = nil
+                    return
+                } else {
+                    if let timer = squeezeTimer {
+                        // double squeeze: previous page
+                        timer.invalidate()
+                        squeezeTimer = nil
+                        previousPage()
+                    } else {
+                        // single squeeze: next page
+                        squeezeTimer = Timer.scheduledTimer(
+                            withTimeInterval: doubleSqueezeInterval,
+                            repeats: false
+                        ) { [weak self] _ in
+                            Task { @MainActor in
+                                self?.squeezeTimer = nil
+                                self?.nextPage()
+                            }
+                        }
+                    }
+                }
+            default:
+                break
+        }
+
+    }
+
+    private func nextPage() {
+        switch readingMode {
+            case .rtl: reader?.moveLeft()
+            default: reader?.moveRight()
+        }
+    }
+
+    private func previousPage() {
+        switch readingMode {
+            case .rtl: reader?.moveRight()
+            default: reader?.moveLeft()
         }
     }
 }
