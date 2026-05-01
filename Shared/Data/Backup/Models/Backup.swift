@@ -18,7 +18,7 @@ struct Backup: Codable, Hashable, Identifiable, Sendable {
     var readingSessions: [BackupReadingSession]?
     var updates: [BackupUpdate]?
     var categories: [BackupCategory]?
-    var sources: [String]?
+    var sources: [BackupSource]?
     var sourceLists: [String]?
     var settings: [String: JsonAnyValue]?
     var date: Date

@@ -158,13 +158,11 @@ actor BackupManager {
             } else {
                 []
             }
-            let sources = SourceManager.shared.sources.compactMap {
-                $0.id
-            }
+            let sources: [BackupSource] = CoreDataManager.shared.getSources(context: context).compactMap(BackupSource.init)
             let sourceLists = options.sourceLists ? SourceManager.shared.sourceListsStrings : []
 
             let settings: [String: JsonAnyValue]? = if options.settings {
-                self.exportSettings(includeSensitive: options.sensitiveSettings, sourceKeys: sources)
+                self.exportSettings(includeSensitive: options.sensitiveSettings, sourceKeys: sources.map(\.id))
             } else {
                 nil
             }
@@ -234,7 +232,10 @@ actor BackupManager {
     func removeBackup(url: URL) {
         try? FileManager.default.removeItem(at: url)
     }
+}
 
+// MARK: Restoring
+extension BackupManager {
     enum BackupError: Error {
         case manga
         case categories
@@ -244,6 +245,7 @@ actor BackupManager {
         case sessions
         case updates
         case track
+        case sources
 
         var stringValue: String {
             switch self {
@@ -255,6 +257,7 @@ actor BackupManager {
                 case .sessions: NSLocalizedString("READING_SESSIONS")
                 case .updates: NSLocalizedString("UPDATES")
                 case .track: NSLocalizedString("TRACKERS")
+                case .sources: NSLocalizedString("SOURCES")
             }
         }
     }
@@ -276,7 +279,11 @@ actor BackupManager {
         Task {
             // restore settings
             if let settings = backup.settings {
-                let sourceKeyPrefixes = SourceManager.shared.sources.map { "\($0.key)." }
+                // only restore source settings for sources installed, or built-in sources that will be added from the backup restore
+                var sourceKeyPrefixes = SourceManager.shared.sources.map { "\($0.key)." }
+                for additionalSource in backup.sources ?? [] where additionalSource.config != nil {
+                    sourceKeyPrefixes.append("\(additionalSource.id).")
+                }
                 for (key, value) in settings {
                     let hasAllowedPrefix = Self.allowedSettingsPrefixes.contains(where: { key.hasPrefix($0) })
                         || sourceKeyPrefixes.contains(where: { key.hasPrefix($0) })
@@ -497,6 +504,31 @@ actor BackupManager {
                 }
             }
         }
+        let sourceTask = Task {
+            if let sourceItems = backup.sources {
+                let (result, needsRefresh) = await CoreDataManager.shared.container.performBackgroundTask { context in
+                    var needsRefresh = false
+                    for item in sourceItems {
+                        guard item.config != nil else { continue }
+                        CoreDataManager.shared.removeSource(id: item.id, context: context)
+                        _ = item.toObject(context: context)
+                        needsRefresh = true
+                    }
+                    do {
+                        try context.save()
+                        return (true, needsRefresh)
+                    } catch {
+                        return (false, false)
+                    }
+                }
+                if !result {
+                    throw BackupError.sources
+                }
+                if needsRefresh {
+                    await SourceManager.shared.reloadSources()
+                }
+            }
+        }
 
         var backupError: Error?
 
@@ -505,6 +537,7 @@ actor BackupManager {
             try await updatesTask.value
             try await sessionsTask.value
             try await trackTask.value
+            try await sourceTask.value
         } catch {
             backupError = error
         }
@@ -515,7 +548,6 @@ actor BackupManager {
         NotificationCenter.default.post(name: .updateLibrary, object: nil)
 
 #if !os(macOS)
-
         await Task { @MainActor [backupError] in
             let delegate = UIApplication.shared.delegate as? AppDelegate
             await delegate?.hideLoadingIndicator()
@@ -534,7 +566,7 @@ actor BackupManager {
             } else {
                 // show missing sources alert if there are any
                 let missingSources = (backup.sources ?? []).filter {
-                    !CoreDataManager.shared.hasSource(id: $0)
+                    !CoreDataManager.shared.hasSource(id: $0.id)
                 }
                 if !missingSources.isEmpty {
                     delegate?.presentAlert(
@@ -550,6 +582,7 @@ actor BackupManager {
     }
 }
 
+// MARK: Automatic Backups
 extension BackupManager {
     nonisolated func register() {
 #if !os(macOS) && !targetEnvironment(simulator)
@@ -564,9 +597,7 @@ extension BackupManager {
         }
 #endif
     }
-}
 
-extension BackupManager {
     func scheduleAutoBackup() {
         guard UserDefaults.standard.bool(forKey: "AutomaticBackups.enabled") else {
 #if !os(macOS) && !targetEnvironment(simulator)

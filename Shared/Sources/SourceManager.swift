@@ -56,10 +56,12 @@ class SourceManager {
         // load installed sources
         sources = await getInstalledSources()
         sortSources()
-        for source in sources {
-            NotificationCenter.default.post(name: .sourceLoaded, object: source.key)
+        await MainActor.run {
+            for source in sources {
+                NotificationCenter.default.post(name: .sourceLoaded, object: source.key)
+            }
+            NotificationCenter.default.post(name: .updateSourceList, object: nil)
         }
-        NotificationCenter.default.post(name: .updateSourceList, object: nil)
 
         // load source filters
         await withTaskGroup(of: Void.self) { group in
@@ -71,7 +73,9 @@ class SourceManager {
                 }
             }
         }
-        NotificationCenter.default.post(name: .loadedSourceFilters, object: nil)
+        await MainActor.run {
+            NotificationCenter.default.post(name: .loadedSourceFilters, object: nil)
+        }
     }
 
     func waitForSourcesLoad() async {

@@ -191,6 +191,8 @@
 		FB31AD0B27AE180300D50410 /* WasmHtml.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31AD0A27AE180300D50410 /* WasmHtml.swift */; };
 		FB31AD0C27AE180300D50410 /* WasmHtml.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB31AD0A27AE180300D50410 /* WasmHtml.swift */; };
 		FB3737D12D17458400AB1551 /* AidokuRunner in Frameworks */ = {isa = PBXBuildFile; productRef = FB3737D02D17458400AB1551 /* AidokuRunner */; };
+		FB3D20782FA4A1A1004DAC5E /* BackupSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3D20772FA4A19E004DAC5E /* BackupSource.swift */; };
+		FB3D20792FA4A1A1004DAC5E /* BackupSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3D20772FA4A19E004DAC5E /* BackupSource.swift */; };
 		FB3DDA082ECE37570081232F /* SourceSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3DDA072ECE37510081232F /* SourceSearchViewController.swift */; };
 		FB3DDA0A2ECE4D3A0081232F /* SourceSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3DDA092ECE4D360081232F /* SourceSearchViewModel.swift */; };
 		FB3DDA0C2ECE60A30081232F /* SourceErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3DDA0B2ECE60A20081232F /* SourceErrorView.swift */; };
@@ -739,6 +741,7 @@
 		FB3796A22B1417BD005E6264 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FB3796A32B14180F005E6264 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FB3796A42B14183C005E6264 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
+		FB3D20772FA4A19E004DAC5E /* BackupSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSource.swift; sourceTree = "<group>"; };
 		FB3DDA072ECE37510081232F /* SourceSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceSearchViewController.swift; sourceTree = "<group>"; };
 		FB3DDA092ECE4D360081232F /* SourceSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceSearchViewModel.swift; sourceTree = "<group>"; };
 		FB3DDA0B2ECE60A20081232F /* SourceErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceErrorView.swift; sourceTree = "<group>"; };
@@ -1932,6 +1935,7 @@
 				FBCA1B2C2889AEE0007149C5 /* BackupTrackItem.swift */,
 				FBF059C72EF8330700907B0E /* BackupUpdate.swift */,
 				FBF059CA2EF8330E00907B0E /* BackupReadingSession.swift */,
+				FB3D20772FA4A19E004DAC5E /* BackupSource.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2598,6 +2602,7 @@
 				FBE3E4992DD4047100EF8145 /* ReaderTextViewModel.swift in Sources */,
 				FB0AB8942F50B98300AF1451 /* BackupCategory.swift in Sources */,
 				FBED232927BDF4C90095D0C0 /* TextInputTableViewCell.swift in Sources */,
+				FB3D20792FA4A1A1004DAC5E /* BackupSource.swift in Sources */,
 				FB2E024D286606FC00786F21 /* JsonAnyValue.swift in Sources */,
 				FBF925B62F4F6FF20049CB43 /* FilterGroupsView.swift in Sources */,
 				FBF059C82EF8330B00907B0E /* BackupUpdate.swift in Sources */,
@@ -2973,6 +2978,7 @@
 				FB716DEB283D5F3E00F1BB5D /* LogManager.swift in Sources */,
 				FB3F49E62B7C3BA500D3CC75 /* ChapterSortOption.swift in Sources */,
 				FB3F49EC2B7C6B7700D3CC75 /* ChapterFlagMask.swift in Sources */,
+				FB3D20782FA4A1A1004DAC5E /* BackupSource.swift in Sources */,
 				FB034EA52EAC27600072EEEB /* MangaIdentifier.swift in Sources */,
 				FBE7A5952DE35AC400CA5B60 /* CustomSourceConfig.swift in Sources */,
 				FB58C6B32999B4AA00A6F49F /* WasmNetWebViewHandler.swift in Sources */,
