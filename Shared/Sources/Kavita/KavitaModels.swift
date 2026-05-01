@@ -230,6 +230,7 @@ struct KavitaVolume: Codable, Sendable {
         let id: Int
         let number: String
         let title: String
+        let titleName: String?
         let createdUtc: Date
         let language: String?
         let pages: Int
@@ -255,7 +256,7 @@ extension KavitaVolume {
             let noChapter = chapterNumber < 0 || chapterNumber >= 100000
             return .init(
                 key: "\(chapter.id)",
-                title: noChapter && noVolume ? chapter.title : nil,
+                title: (chapter.titleName?.isEmpty ?? true) ? nil : chapter.titleName,
                 chapterNumber: noChapter ? nil : chapterNumber,
                 volumeNumber: noVolume ? nil : Float(number),
                 dateUploaded: chapter.createdUtc,
