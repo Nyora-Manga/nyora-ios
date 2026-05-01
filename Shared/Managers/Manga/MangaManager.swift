@@ -24,6 +24,7 @@ actor MangaManager {
     private var onLibraryRefreshProgress: (@MainActor (Progress) -> Void)?
 
     private var targetCategory: String?
+    private var skipReachabilityCheck: Bool = false
 
     private static let maxConcurrentLibraryUpdateTasks = 10
 
@@ -325,8 +326,9 @@ extension MangaManager {
         }
     }
 
-    func backgroundRefreshLibrary(category: String? = nil) async {
+    func backgroundRefreshLibrary(category: String? = nil, skipReachabilityCheck: Bool = false) async {
         targetCategory = category
+        self.skipReachabilityCheck = skipReachabilityCheck
 
 #if !os(macOS) && !targetEnvironment(simulator)
         if #available(iOS 26.0, *), UserDefaults.standard.bool(forKey: "Library.backgroundRefresh"), !ProcessInfo.processInfo.isMacCatalystApp {
@@ -365,6 +367,7 @@ extension MangaManager {
             libraryRefreshTask = Task {
                 await doLibraryRefresh(
                     category: category,
+                    skipReachabilityCheck: skipReachabilityCheck,
                     forceAll: forceAll,
                     task: task,
                     refreshStarted: {
@@ -391,6 +394,7 @@ extension MangaManager {
         }
 
         self.targetCategory = nil
+        self.skipReachabilityCheck = false
 
 #if !os(macOS)
         // wait 0.5s for final progress animation to complete
@@ -467,6 +471,7 @@ extension MangaManager {
 
     private func doLibraryRefresh(
         category: String?,
+        skipReachabilityCheck: Bool,
         forceAll: Bool,
         task: ProgressReporting? = nil,
         refreshStarted: (() async -> Void)? = nil
@@ -489,7 +494,11 @@ extension MangaManager {
         }
 
         // check if connected to wi-fi
-        if UserDefaults.standard.bool(forKey: "Library.updateOnlyOnWifi") && Reachability.getConnectionType() != .wifi {
+        if
+            !skipReachabilityCheck,
+            UserDefaults.standard.bool(forKey: "Library.updateOnlyOnWifi"),
+            Reachability.getConnectionType() != .wifi
+        {
             return
         }
 

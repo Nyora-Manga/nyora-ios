@@ -632,12 +632,34 @@ extension LibraryViewController {
     }
 
     @objc func updateLibraryRefresh(refreshControl: UIRefreshControl? = nil) {
+        let isBlockedByNoWifi = UserDefaults.standard.bool(forKey: "Library.updateOnlyOnWifi") && Reachability.getConnectionType() != .wifi
+
         Task {
             // delay hiding refresh control to avoid buggy animation
             try? await Task.sleep(nanoseconds: 1_000_000_000)
             refreshControl?.endRefreshing()
+
+            if isBlockedByNoWifi {
+                self.presentAlert(
+                    title: NSLocalizedString("REFRESH_NO_WIFI"),
+                    message: NSLocalizedString("REFRESH_NO_WIFI_TEXT"),
+                    actions: [
+                        UIAlertAction(title: NSLocalizedString("OK"), style: .cancel),
+                        UIAlertAction(title: NSLocalizedString("REFRESH_ANYWAYS"), style: .default) { _ in
+                            Task {
+                                await MangaManager.shared.backgroundRefreshLibrary(
+                                    category: self.viewModel.isInRealCategory ? self.viewModel.currentCategory : nil,
+                                    skipReachabilityCheck: true
+                                )
+                            }
+                        }
+                    ]
+                )
+            }
         }
 
+        // trigger library refresh
+        guard !isBlockedByNoWifi else { return }
         Task {
             await MangaManager.shared.backgroundRefreshLibrary(
                 category: viewModel.isInRealCategory ? viewModel.currentCategory : nil
