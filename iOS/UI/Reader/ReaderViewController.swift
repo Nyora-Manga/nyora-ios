@@ -78,16 +78,17 @@ class ReaderViewController: BaseObservingViewController {
             }()
         )
 
+    // fake zoom gesture so that the bar toggle gesture doesn't conflict with zooming
+    private lazy var fakeZoomTapGesture: UITapGestureRecognizer = {
+        let doubleTap = UITapGestureRecognizer(target: self, action: nil)
+        doubleTap.numberOfTapsRequired = 2
+        return doubleTap
+    }()
+
     private lazy var barToggleTapGesture: UITapGestureRecognizer = {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         tap.numberOfTapsRequired = 1
-
-        let doubleTap = UITapGestureRecognizer(target: self, action: nil)
-        doubleTap.numberOfTapsRequired = 2
-        view.addGestureRecognizer(doubleTap)
-
-        tap.require(toFail: doubleTap)
-
+        tap.require(toFail: fakeZoomTapGesture)
         return tap
     }()
 
@@ -204,6 +205,8 @@ class ReaderViewController: BaseObservingViewController {
         view.addSubview(activityIndicator)
 
         // bar toggle tap gesture
+        fakeZoomTapGesture.isEnabled = !UserDefaults.standard.bool(forKey: "Reader.disableDoubleTap")
+        view.addGestureRecognizer(fakeZoomTapGesture)
         view.addGestureRecognizer(barToggleTapGesture)
 
         // page offset tap gesture
@@ -249,6 +252,9 @@ class ReaderViewController: BaseObservingViewController {
             self.reader?.setChapter(self.chapter, startPage: self.currentPage)
             // if the tap zone is auto, it will changed based on the current reader
             self.updateTapZone()
+        }
+        addObserver(forName: "Reader.disableDoubleTap") { [weak self] notification in
+            self?.fakeZoomTapGesture.isEnabled = !(notification.object as? Bool ?? UserDefaults.standard.bool(forKey: "Reader.disableDoubleTap"))
         }
         let reloadBlock: (Notification) -> Void = { [weak self] _ in
             guard let self else { return }

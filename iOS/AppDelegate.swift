@@ -154,6 +154,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Reader.upscaleMaxHeight": 2000,
                 "Reader.cropBorders": false,
                 "Reader.disableQuickActions": false,
+                "Reader.disableDoubleTap": false,
                 "Reader.liveText": false,
                 "Reader.hideBarsOnSwipe": false,
                 "Reader.tapZones": "disabled",

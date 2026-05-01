@@ -26,6 +26,11 @@ class ZoomableScrollView: UIScrollView {
 
     var onZoomScaleChanged: ((CGFloat) -> Void)?
 
+    var doubleTapEnabled: Bool {
+        get { zoomingTap.isEnabled }
+        set { zoomingTap.isEnabled = newValue }
+    }
+
     private lazy var zoomingTap: UITapGestureRecognizer = {
         let zoomingTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
         zoomingTap.numberOfTapsRequired = 2

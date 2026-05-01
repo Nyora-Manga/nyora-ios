@@ -12,13 +12,22 @@ import UIKit
 import VisionKit
 
 class ZoomableCollectionView: ASDisplayNode {
-
     let collectionNode: ASCollectionNode
     let scrollNode = ASScrollNode()
-    private let dummyZoomView: UIView
     let layout: UICollectionViewLayout
+    private let dummyZoomView: UIView
 
     var onZoomScaleChanged: ((CGFloat) -> Void)?
+    var doubleTapEnabled: Bool {
+        get { zoomingTap.isEnabled }
+        set { zoomingTap.isEnabled = newValue }
+    }
+
+    private lazy var zoomingTap: UITapGestureRecognizer = {
+        let zoomingTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
+        zoomingTap.numberOfTapsRequired = 2
+        return zoomingTap
+    }()
 
     private var tempGestures: [(parent: UIView, gesture: UIGestureRecognizer)] = []
     private var lastHit = Date.distantPast
@@ -45,9 +54,6 @@ class ZoomableCollectionView: ASDisplayNode {
         // bounce not supported since it doesn't call scrollViewDidZoom
         scrollNode.view.bouncesZoom = false
         scrollNode.view.addSubview(dummyZoomView)
-
-        let zoomingTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
-        zoomingTap.numberOfTapsRequired = 2
 
         dummyZoomView.addGestureRecognizer(zoomingTap)
         dummyZoomView.isUserInteractionEnabled = true

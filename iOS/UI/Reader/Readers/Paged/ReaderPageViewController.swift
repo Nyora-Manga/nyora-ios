@@ -112,6 +112,7 @@ class ReaderPageViewController: BaseObservingViewController {
                 zoomView.onZoomScaleChanged = { [weak self] scale in
                     self?.pageView?.setLiveTextHidden(scale != 1 || (self?.delegate?.barsHidden ?? false))
                 }
+                zoomView.doubleTapEnabled = !UserDefaults.standard.bool(forKey: "Reader.disableDoubleTap")
                 view.addSubview(reloadButton)
 
                 self.zoomView = zoomView
@@ -145,6 +146,9 @@ class ReaderPageViewController: BaseObservingViewController {
     override func observe() {
         addObserver(forName: "Reader.backgroundColor") { [weak self] _ in
             self?.loadPageBackground()
+        }
+        addObserver(forName: "Reader.disableDoubleTap") { [weak self] notification in
+            self?.zoomView?.doubleTapEnabled = !(notification.object as? Bool ?? UserDefaults.standard.bool(forKey: "Reader.disableDoubleTap"))
         }
 
         addObserver(forName: .orientationDidChange) { [weak self] _ in

@@ -521,6 +521,7 @@
 "DOWNSAMPLE_IMAGES" = "Downsample Images";
 "CROP_BORDERS" = "Crop Borders";
 "DISABLE_QUICK_ACTIONS" = "Disable Quick Actions";
+"DISABLE_DOUBLE_TAP_ZOOM" = "Disable Double Tap Zoom";
 "LIVE_TEXT" = "Live Text";
 "HIDE_BARS_ON_SWIPE" = "Hide Bars on Swipe";
 "READER_BG_COLOR" = "Background Color";

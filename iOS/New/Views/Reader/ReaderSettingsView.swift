@@ -101,6 +101,13 @@ struct ReaderSettingsView: View {
                         )
                         SettingView(
                             setting: .init(
+                                key: "Reader.disableDoubleTap",
+                                title: NSLocalizedString("DISABLE_DOUBLE_TAP_ZOOM"),
+                                value: .toggle(.init())
+                            )
+                        )
+                        SettingView(
+                            setting: .init(
                                 key: "Reader.liveText",
                                 title: NSLocalizedString("LIVE_TEXT"),
                                 value: .toggle(.init())

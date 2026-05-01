@@ -83,6 +83,7 @@ class ReaderWebtoonViewController: ZoomableCollectionViewController {
         scrollView.minimumZoomScale = 1
         scrollView.maximumZoomScale = 5
 
+        zoomView.doubleTapEnabled = !UserDefaults.standard.bool(forKey: "Reader.disableDoubleTap")
         zoomView.onZoomScaleChanged = { [weak self] scale in
             self?.setLiveTextButtonHidden(scale != 1)
         }
@@ -90,8 +91,10 @@ class ReaderWebtoonViewController: ZoomableCollectionViewController {
 
     override func observe() {
         addObserver(forName: "Reader.verticalInfiniteScroll") { [weak self] notification in
-            self?.infinite = notification.object as? Bool
-                ?? UserDefaults.standard.bool(forKey: "Reader.verticalInfiniteScroll")
+            self?.infinite = notification.object as? Bool ?? UserDefaults.standard.bool(forKey: "Reader.verticalInfiniteScroll")
+        }
+        addObserver(forName: "Reader.disableDoubleTap") { [weak self] notification in
+            self?.zoomView.doubleTapEnabled = !(notification.object as? Bool ?? UserDefaults.standard.bool(forKey: "Reader.disableDoubleTap"))
         }
         addObserver(forName: .readerShowingBars) { [weak self] _ in
             self?.setLiveTextButtonHidden(false)
