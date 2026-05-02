@@ -99,7 +99,6 @@
 // Settings
 "SETTINGS" = "Paramètres";
 "USE_SYSTEM_APPEARANCE" = "Utiliser l'apparence du système";
-"MANGA_PER_ROW" = "Mangas par rangée";
 "SKIP_TITLES" = "Ignorer les titres";
 "ONLY_UPDATE_ON_WIFI" = "Mettre à jour uniquement en Wi-Fi";
 "EVERY_12_HOURS" = "Toutes les 12 heures";

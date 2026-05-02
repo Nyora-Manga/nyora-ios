@@ -98,7 +98,6 @@
 "APPEARANCE_LIGHT" = "Claro";
 "APPEARANCE_DARK" = "Oscuro";
 "USE_SYSTEM_APPEARANCE" = "Usar apariencia del sistema";
-"MANGA_PER_ROW" = "Manga por fila";
 "PORTRAIT" = "Vertical";
 "LANDSCAPE" = "Horizontal";
 "OPEN_READER_VIEW" = "Abrir vista del lector";

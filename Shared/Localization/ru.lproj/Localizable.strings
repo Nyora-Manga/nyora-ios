@@ -222,7 +222,6 @@
 "SEARCH" = "Поиск";
 "AUTH_TO_DISABLE" = "Аутентификация для отключения.";
 "INCOGNITO_MODE_TEXT" = "Приостанавливает запись истории, если включено";
-"MANGA_PER_ROW" = "Манга в ряд";
 "UPDATE_INTERVAL" = "Интервал обновлений";
 "WITH_COMPLETED_STATUS" = "С завершенным статусом";
 "SOURCE_LIST_URL" = "URL-адрес списка источников";

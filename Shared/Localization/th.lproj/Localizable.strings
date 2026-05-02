@@ -100,7 +100,6 @@
 "APPEARANCE_LIGHT" = "สว่าง";
 "APPEARANCE_DARK" = "มืด";
 "USE_SYSTEM_APPEARANCE" = "ใช้ธีมตามเครื่อง";
-"MANGA_PER_ROW" = "จำนวนมังงะต่อแถว";
 "PORTRAIT" = "แนวตั้ง";
 "LANDSCAPE" = "แนวนอน";
 "READER" = "ตัวอ่าน";

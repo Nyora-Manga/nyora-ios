@@ -151,7 +151,6 @@
 "APPEARANCE_LIGHT" = "浅色";
 "APPEARANCE_DARK" = "深色";
 "USE_SYSTEM_APPEARANCE" = "使用系统外观";
-"MANGA_PER_ROW" = "每行漫画数量";
 "PORTRAIT" = "竖屏";
 "LANDSCAPE" = "横屏";
 "READER" = "阅读";

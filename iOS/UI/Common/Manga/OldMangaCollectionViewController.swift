@@ -40,14 +40,12 @@ class OldMangaCollectionViewController: BaseCollectionViewController {
     }
 
     override func observe() {
-        addObserver(forName: "General.portraitRows") { [weak self] _ in
-            Task { @MainActor in
-                self?.collectionView.collectionViewLayout.invalidateLayout()
-            }
-        }
-        addObserver(forName: "General.landscapeRows") { [weak self] _ in
-            Task { @MainActor in
-                self?.collectionView.collectionViewLayout.invalidateLayout()
+        let keys = ["Appearance.layout", "Appearance.customPortraitRows", "Appearance.customLandscapeRows"]
+        for key in keys {
+            addObserver(forName: key) { [weak self] _ in
+                Task { @MainActor in
+                    self?.collectionView.collectionViewLayout.invalidateLayout()
+                }
             }
         }
     }
@@ -119,11 +117,22 @@ extension OldMangaCollectionViewController {
     }
 
     static func makeGridLayoutSection(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        let itemsPerRow = UserDefaults.standard.integer(
-            forKey: environment.container.contentSize.width > environment.container.contentSize.height
-                ? "General.landscapeRows"
-                : "General.portraitRows"
-        )
+        let layout = UserDefaults.standard.string(forKey: "Appearance.layout")
+        let containerWidth = environment.container.contentSize.width
+
+        let itemsPerRow: Int
+        switch layout {
+            case "standard":
+                let idealWidth: CGFloat = 200
+                itemsPerRow = max(1, Int(floor(containerWidth / idealWidth)))
+            case "compact":
+                let idealWidth: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 150 : 120
+                itemsPerRow = max(1, Int(floor(containerWidth / idealWidth)))
+            default: // custom
+                let isLandscape = containerWidth > environment.container.contentSize.height
+                let key = isLandscape ? "Appearance.customLandscapeRows" : "Appearance.customPortraitRows"
+                itemsPerRow = UserDefaults.standard.integer(forKey: key)
+        }
 
         let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1 / CGFloat(itemsPerRow)),
@@ -133,7 +142,7 @@ extension OldMangaCollectionViewController {
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
-                heightDimension: .estimated(environment.container.contentSize.width * 3 / (2 * CGFloat(itemsPerRow)))
+                heightDimension: .estimated(containerWidth * 3 / (2 * CGFloat(itemsPerRow)))
             ),
             subitem: item,
             count: itemsPerRow
@@ -350,8 +359,8 @@ extension OldMangaCollectionViewController {
         var section = focusedIndexPath.section
         let itemsPerRow = UserDefaults.standard.integer(
             forKey: UIScreen.main.bounds.width > UIScreen.main.bounds.height
-                ? "General.landscapeRows"
-                : "General.portraitRows"
+                ? "Appearance.customLandscapeRows"
+                : "Appearance.customPortraitRows"
         )
         switch sender.input {
             case UIKeyCommand.inputLeftArrow: position -= 1

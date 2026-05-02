@@ -185,7 +185,6 @@
 "APPEARANCE_LIGHT" = "Claro";
 "APPEARANCE_DARK" = "Escuro";
 "USE_SYSTEM_APPEARANCE" = "Usar Aparência do Sistema";
-"MANGA_PER_ROW" = "Mangás por Linha";
 "PORTRAIT" = "Retrato";
 "LANDSCAPE" = "Paisagem";
 "OPEN_READER_VIEW" = "Abrir Visualização do Leitor";

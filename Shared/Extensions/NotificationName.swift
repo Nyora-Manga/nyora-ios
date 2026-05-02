@@ -68,7 +68,8 @@ extension Notification.Name {
     static let readerOrientation = Self("Reader.orientation")
 
     // settings
-    static let portraitRowsSetting = Self("General.portraitRows")
-    static let landscapeRowsSetting = Self("General.landscapeRows")
+    static let layoutSetting = Self("Appearance.layout")
+    static let portraitRowsSetting = Self("Appearance.customPortraitRows")
+    static let landscapeRowsSetting = Self("Appearance.customLandscapeRows")
     static let historyLockTabSetting = Self("History.lockHistoryTab")
 }

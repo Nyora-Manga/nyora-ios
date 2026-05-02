@@ -158,17 +158,12 @@ extension Settings {
             )
         ]))),
         .init(
-            title: NSLocalizedString("MANGA_PER_ROW"),
+            title: NSLocalizedString("LAYOUT"),
             value: .group(.init(items: [
                 .init(
-                    key: "General.portraitRows",
-                    title: NSLocalizedString("PORTRAIT"),
-                    value: .stepper(.init(minimumValue: 1, maximumValue: 15))
-                ),
-                .init(
-                    key: "General.landscapeRows",
-                    title: NSLocalizedString("LANDSCAPE"),
-                    value: .stepper(.init(minimumValue: 1, maximumValue: 15))
+                    key: "Appearance.layout",
+                    title: NSLocalizedString("LAYOUT"),
+                    value: .custom
                 )
             ]))
         )

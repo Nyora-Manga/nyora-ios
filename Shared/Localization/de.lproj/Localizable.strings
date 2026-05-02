@@ -167,7 +167,6 @@
 "LANDSCAPE" = "Querformat";
 "USE_SYSTEM_APPEARANCE" = "Systemerscheinungsbild verwenden";
 "PORTRAIT" = "Hochformat";
-"MANGA_PER_ROW" = "Manga pro Zeile";
 "OPEN_READER_VIEW" = "Leseransicht öffnen";
 "READER" = "Leser";
 "BACKUP_INFO" = "Drücke lange auf ein Backup, um es zu exportieren oder wische nach links, um es zu löschen.";

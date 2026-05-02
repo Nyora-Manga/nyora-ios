@@ -118,7 +118,6 @@
 "APPEARANCE_LIGHT" = "淺色";
 "APPEARANCE_DARK" = "深色";
 "USE_SYSTEM_APPEARANCE" = "使用系統外觀";
-"MANGA_PER_ROW" = "漫畫欄數";
 "PORTRAIT" = "直向";
 "ONLY_UPDATE_ON_WIFI" = "只在使用Wi-Fi時更新";
 "NEVER" = "永不";

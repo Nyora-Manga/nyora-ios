@@ -159,7 +159,6 @@
 "APPEARANCE_LIGHT" = "ライト";
 "APPEARANCE_DARK" = "ダーク";
 "USE_SYSTEM_APPEARANCE" = "システムの外観を使用する";
-"MANGA_PER_ROW" = "一行に表示されるタイトルの数";
 "UNREAD_CHAPTER_BADGES" = "未読通知ドット";
 "READER" = "リーダー";
 "PIN_UNREAD" = "未読";

@@ -114,8 +114,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "General.icloudSync": false,
                 "General.appearance": 0,
                 "General.useSystemAppearance": true,
-                "General.portraitRows": UIDevice.current.userInterfaceIdiom == .pad ? 5 : 2,
-                "General.landscapeRows": UIDevice.current.userInterfaceIdiom == .pad ? 6 : 4,
+                "Appearance.layout": "standard",
+                "Appearance.customPortraitRows": UIDevice.current.userInterfaceIdiom == .pad ? 5 : 2,
+                "Appearance.customLandscapeRows": UIDevice.current.userInterfaceIdiom == .pad ? 6 : 4,
 
                 "Library.sortOption": 2, // lastOpened
                 "Library.sortAscending": false,
@@ -354,6 +355,22 @@ extension AppDelegate {
         if let chaptersToBeDeleted = UserDefaults.standard.data(forKey: "chaptersToBeDeleted") {
             UserDefaults.standard.set(chaptersToBeDeleted, forKey: "Data.chaptersToBeDeleted")
             UserDefaults.standard.removeObject(forKey: "chaptersToBeDeleted")
+        }
+
+        // migrate to layout appearance setting
+        let portraitRows = UserDefaults.standard.integer(forKey: "General.portraitRows")
+        let landscapeRows = UserDefaults.standard.integer(forKey: "General.landscapeRows")
+        let defaultPortraitRows = UIDevice.current.userInterfaceIdiom == .pad ? 5 : 2
+        let defaultLandscapeRows = UIDevice.current.userInterfaceIdiom == .pad ? 6 : 4
+        if portraitRows != defaultPortraitRows {
+            UserDefaults.standard.set("custom", forKey: "Appearance.layout")
+            UserDefaults.standard.set(portraitRows, forKey: "Appearance.customPortraitRows")
+            UserDefaults.standard.removeObject(forKey: "General.portraitRows")
+        }
+        if landscapeRows != defaultLandscapeRows {
+            UserDefaults.standard.set("custom", forKey: "Appearance.layout")
+            UserDefaults.standard.set(landscapeRows, forKey: "Appearance.customLandscapeRows")
+            UserDefaults.standard.removeObject(forKey: "General.landscapeRows")
         }
 
         UserDefaults.standard.set(currentVersion, forKey: "Flag.currentVersion")
