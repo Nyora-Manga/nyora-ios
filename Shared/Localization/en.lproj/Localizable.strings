@@ -691,6 +691,7 @@
 "TOTAL_CHAPTERS" = "Total Chapters";
 "FAILED_CHAPTER_LOAD_INFO" = "You might be offline or the source may be having issues.";
 "WEBTOON" = "Webtoon";
+"CONTINUOUS_WITH_GAPS" = "Continuous with Gaps";
 "REMOVE_FROM_CATEGORY" = "Remove from Category";
 "PINNED" = "Pinned";
 "%i_CHAPTERS" = "%i Chapters";

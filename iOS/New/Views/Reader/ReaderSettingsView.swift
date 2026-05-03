@@ -51,14 +51,23 @@ struct ReaderSettingsView: View {
                             title: NSLocalizedString("READING_MODE"),
                             notification: .init(readingModeKey),
                             value: .select(.init(
-                                values: ["default", "auto", "rtl", "ltr", "vertical", "webtoon"],
+                                values: [
+                                    "default",
+                                    "auto",
+                                    "rtl",
+                                    "ltr",
+                                    "vertical",
+                                    "webtoon",
+                                    "continuous"
+                                ],
                                 titles: [
                                     NSLocalizedString("DEFAULT"),
                                     NSLocalizedString("AUTOMATIC"),
                                     NSLocalizedString("RTL"),
                                     NSLocalizedString("LTR"),
                                     NSLocalizedString("VERTICAL"),
-                                    NSLocalizedString("WEBTOON")
+                                    NSLocalizedString("WEBTOON"),
+                                    NSLocalizedString("CONTINUOUS_WITH_GAPS")
                                 ]
                             ))
                         )

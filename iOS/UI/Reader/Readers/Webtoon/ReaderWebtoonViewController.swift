@@ -16,7 +16,13 @@ class ReaderWebtoonViewController: ZoomableCollectionViewController {
     weak var delegate: ReaderHoldingDelegate?
 
     var chapter: AidokuRunner.Chapter?
-    var readingMode: ReadingMode = .webtoon
+    var readingMode: ReadingMode = .webtoon {
+        didSet {
+            let layout = collectionNode.collectionViewLayout as? VerticalContentOffsetPreservingLayout
+            layout?.spacing = readingMode == .webtoon ? 0 : 15
+            collectionNode.invalidateCalculatedLayout()
+        }
+    }
 
 //    private let prefetcher = ImagePrefetcher()
 

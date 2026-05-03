@@ -19,6 +19,11 @@ class VerticalContentOffsetPreservingLayout: UICollectionViewFlowLayout {
         }
     }
 
+    var spacing: CGFloat {
+        get { minimumLineSpacing }
+        set { minimumLineSpacing = newValue }
+    }
+
     private var contentSizeBeforeInsertingAbove: CGSize?
     private var scale: CGFloat = 1
 
@@ -32,9 +37,8 @@ class VerticalContentOffsetPreservingLayout: UICollectionViewFlowLayout {
     override init() {
         super.init()
         scrollDirection = .vertical
-        minimumLineSpacing = 0
         minimumInteritemSpacing = 0
-        minimumLineSpacing = 0 // TODO: custom spacing setting
+        minimumLineSpacing = 0
         sectionInset = .zero
     }
 
@@ -61,7 +65,7 @@ class VerticalContentOffsetPreservingLayout: UICollectionViewFlowLayout {
                 attributes.frame = CGRect(origin: CGPoint(x: 0, y: origin), size: size)
                 currentAttributes[indexPath] = attributes
 
-                origin += attributes.frame.size.height
+                origin += attributes.frame.size.height + minimumLineSpacing
             }
         }
 
