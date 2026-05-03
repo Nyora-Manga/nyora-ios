@@ -248,17 +248,37 @@ extension MangaCollectionViewController {
                     image: UIImage(systemName: "trash"),
                     attributes: .destructive
                 ) { _ in
-                    // remove bookmark icon
-                    self.bookmarkedItems.remove(entry.key)
-                    var snapshot = self.dataSource.snapshot()
-                    snapshot.reloadItems([entry])
-                    self.dataSource.apply(snapshot)
-                    // remove from library
-                    Task {
-                        await MangaManager.shared.removeFromLibrary(
-                            sourceId: entry.sourceKey,
-                            mangaId: entry.key
+                    let isTracking = TrackerManager.shared.isTracking(
+                        sourceId: entry.sourceKey,
+                        mangaId: entry.key
+                    )
+                    func commit() {
+                        // remove bookmark icon
+                        self.bookmarkedItems.remove(entry.key)
+                        var snapshot = self.dataSource.snapshot()
+                        snapshot.reloadItems([entry])
+                        self.dataSource.apply(snapshot)
+                        // remove from library
+                        Task {
+                            await MangaManager.shared.removeFromLibrary(
+                                sourceId: entry.sourceKey,
+                                mangaId: entry.key
+                            )
+                        }
+                    }
+                    if isTracking {
+                        self.presentAlert(
+                            title: NSLocalizedString("REMOVE_FROM_LIBRARY_CONFIRM"),
+                            message: NSLocalizedString("REMOVE_FROM_LIBRARY_CONFIRM_TEXT"),
+                            actions: [
+                                UIAlertAction(title: NSLocalizedString("CANCEL"), style: .cancel),
+                                UIAlertAction(title: NSLocalizedString("REMOVE"), style: .destructive) { _ in
+                                    commit()
+                                }
+                            ]
                         )
+                    } else {
+                        commit()
                     }
                 })
             } else {

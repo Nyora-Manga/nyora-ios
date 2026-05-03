@@ -1672,8 +1672,7 @@ extension LibraryViewController {
                         categories: categories)
                 }
 
-                NotificationCenter.default.post(
-                    name: Notification.Name("updateLibrary"), object: nil)
+                NotificationCenter.default.post(name: .updateLibrary, object: nil)
             }
         }
 
@@ -1710,9 +1709,7 @@ extension LibraryViewController {
                     await target.viewModel.addToCurrentCategory(manga: manga)
                 }
 
-                NotificationCenter.default.post(
-                    name: NSNotification.Name("updateMangaCategories"),
-                    object: nil)
+                NotificationCenter.default.post(name: .updateMangaCategories, object: nil)
             }
         }
 

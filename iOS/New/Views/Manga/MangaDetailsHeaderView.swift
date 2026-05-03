@@ -48,6 +48,7 @@ struct MangaDetailsHeaderView: View {
     @State private var longHeldSafari = false
     @State private var isTracking = false
     @State private var hasAvailableTrackers = false
+    @State private var showLibraryRemoveConfirm = false
 
     static let coverWidth: CGFloat = 114
 
@@ -295,8 +296,13 @@ struct MangaDetailsHeaderView: View {
                     longHeldBookmark = false
                     return
                 }
-                Task {
-                    await toggleBookmarked()
+                if isTracking {
+                    // show confirm prompt
+                    showLibraryRemoveConfirm = true
+                } else {
+                    Task {
+                        await toggleBookmarked()
+                    }
                 }
             } label: {
                 Image(systemName: "bookmark.fill")
@@ -321,6 +327,17 @@ struct MangaDetailsHeaderView: View {
                         }
                     }
             )
+            .alert(NSLocalizedString("REMOVE_FROM_LIBRARY_CONFIRM"), isPresented: $showLibraryRemoveConfirm) {
+                Button(NSLocalizedString("CANCEL"), role: .cancel) {}
+                Button(NSLocalizedString("REMOVE"), role: .destructive) {
+                    guard bookmarked else { return }
+                    Task {
+                        await toggleBookmarked()
+                    }
+                }
+            } message: {
+                Text(NSLocalizedString("REMOVE_FROM_LIBRARY_CONFIRM_TEXT"))
+            }
 
             if hasAvailableTrackers {
                 Button {
