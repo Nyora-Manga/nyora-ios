@@ -206,6 +206,7 @@
 "SAVED_SEARCH_NAME" = "Name";
 "SAVE_SEARCH_FAIL" = "Save Failed";
 "SAVE_SEARCH_FAIL_INFO" = "An existing saved search with this name already exists. Please choose a unique name.";
+"INCOGNITO_FILTERS_NOTICE" = "Modified filters do not persist in Incognito Mode.";
 
 // Local Source
 "LOCAL_FILES" = "Local Files";

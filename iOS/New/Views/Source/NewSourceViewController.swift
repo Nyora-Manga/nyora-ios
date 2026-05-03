@@ -743,6 +743,8 @@ extension NewSourceViewController {
 
 extension NewSourceViewController {
     private func saveEnabledFilters() {
+        guard !UserDefaults.standard.bool(forKey: "General.incognitoMode") else { return }
+
         let filtersData = try? JSONEncoder().encode(enabledFilters)
         if let filtersData {
             SettingsStore.shared.set(key: "\(source.id).filters", value: filtersData)

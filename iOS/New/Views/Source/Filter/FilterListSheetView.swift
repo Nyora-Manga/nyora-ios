@@ -21,6 +21,7 @@ struct FilterListSheetView: View {
     @State private var showConfirm = false
     @State private var showSaveErrorAlert = false
     @State private var discardChanges = false
+    @StateObject private var incognitoMode = UserDefaultsBool(key: "General.incognitoMode")
 
     @Environment(\.dismiss) private var dismiss
 
@@ -48,12 +49,19 @@ struct FilterListSheetView: View {
     var body: some View {
         PlatformNavigationStack {
             let scrollView = ScrollView(.vertical) {
-                FilterListView(
-                    filters: filters,
-                    newSearch: $newSearch,
-                    enabledFilters: $newEnabledFilters,
-                    savedSearches: $savedSearches
-                )
+                VStack(spacing: 22) {
+                    if incognitoMode.value {
+                        Text(NSLocalizedString("INCOGNITO_FILTERS_NOTICE"))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    FilterListView(
+                        filters: filters,
+                        newSearch: $newSearch,
+                        enabledFilters: $newEnabledFilters,
+                        savedSearches: $savedSearches
+                    )
+                }
             }
             .scrollDismissesKeyboardInteractively()
             .navigationTitle(NSLocalizedString("FILTERS"))
