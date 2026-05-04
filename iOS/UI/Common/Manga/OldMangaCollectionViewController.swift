@@ -123,7 +123,7 @@ extension OldMangaCollectionViewController {
         let itemsPerRow: Int
         switch layout {
             case "standard":
-                let idealWidth: CGFloat = 200
+                let idealWidth: CGFloat = 180
                 itemsPerRow = max(1, Int(floor(containerWidth / idealWidth)))
             case "compact":
                 let idealWidth: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 150 : 120

@@ -362,12 +362,12 @@ extension AppDelegate {
         let landscapeRows = UserDefaults.standard.integer(forKey: "General.landscapeRows")
         let defaultPortraitRows = UIDevice.current.userInterfaceIdiom == .pad ? 5 : 2
         let defaultLandscapeRows = UIDevice.current.userInterfaceIdiom == .pad ? 6 : 4
-        if portraitRows != defaultPortraitRows {
+        if portraitRows > 0 && portraitRows != defaultPortraitRows {
             UserDefaults.standard.set("custom", forKey: "Appearance.layout")
             UserDefaults.standard.set(portraitRows, forKey: "Appearance.customPortraitRows")
             UserDefaults.standard.removeObject(forKey: "General.portraitRows")
         }
-        if landscapeRows != defaultLandscapeRows {
+        if landscapeRows > 0 && landscapeRows != defaultLandscapeRows {
             UserDefaults.standard.set("custom", forKey: "Appearance.layout")
             UserDefaults.standard.set(landscapeRows, forKey: "Appearance.customLandscapeRows")
             UserDefaults.standard.removeObject(forKey: "General.landscapeRows")
