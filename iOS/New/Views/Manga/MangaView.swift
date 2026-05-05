@@ -378,6 +378,105 @@ extension MangaView {
         last: Bool,
         secondSection: Bool
     ) -> some View {
+        let identifier = ChapterIdentifier(
+            sourceKey: viewModel.manga.sourceKey,
+            mangaKey: viewModel.manga.key,
+            chapterKey: chapter.key
+        )
+
+        let hasDownloadButton = viewModel.source != nil && !viewModel.manga.isLocal() && downloadStatus != .finished && downloadStatus != .downloading
+        let hasShareButton = downloadStatus == .finished || chapter.url != nil
+        Section {
+            let inControlGroup = hasDownloadButton && hasShareButton
+            let buttons = Group {
+                if hasDownloadButton {
+                    Button {
+                        let downloadOnlyOnWifi = UserDefaults.standard.bool(forKey: "Library.downloadOnlyOnWifi")
+                        if
+                            downloadOnlyOnWifi && Reachability.getConnectionType() == .wifi
+                                || !downloadOnlyOnWifi
+                        {
+                            Task {
+                                await DownloadManager.shared.download(
+                                    manga: viewModel.manga,
+                                    chapters: [chapter]
+                                )
+                            }
+                        } else {
+                            showConnectionAlert = true
+                        }
+                    } label: {
+                        Label(
+                            NSLocalizedString("DOWNLOAD"),
+                            systemImage: inControlGroup ? "arrow.down.circle.fill" : "arrow.down.circle"
+                        )
+                    }
+                }
+                if hasShareButton {
+                    Button {
+                        showShareSheet(chapter: chapter)
+                    } label: {
+                        Label(
+                            NSLocalizedString("SHARE"),
+                            systemImage: inControlGroup ? "square.and.arrow.up.fill" : "square.and.arrow.up"
+                        )
+                    }
+                }
+            }
+            if inControlGroup {
+                ControlGroup {
+                    buttons
+                }
+            } else {
+                buttons
+            }
+        }
+
+        Section {
+            if viewModel.readingHistory[chapter.key]?.page != nil {
+                Button {
+                    Task {
+                        await viewModel.markUnread(chapters: [chapter])
+                    }
+                } label: {
+                    Label(NSLocalizedString("MARK_UNREAD"), systemImage: "minus.circle")
+                }
+            }
+            if viewModel.readingHistory[chapter.key]?.page != -1 {
+                Button {
+                    Task {
+                        await viewModel.markRead(chapters: [chapter])
+                    }
+                } label: {
+                    Label(NSLocalizedString("MARK_READ"), systemImage: "checkmark.circle")
+                }
+            }
+            if !last && !secondSection {
+                Menu(NSLocalizedString("MARK_PREVIOUS")) {
+                    Button {
+                        let chapters = [AidokuRunner.Chapter](viewModel.chapters[
+                            index + 1..<viewModel.chapters.count
+                        ])
+                        Task {
+                            await viewModel.markRead(chapters: chapters)
+                        }
+                    } label: {
+                        Label(NSLocalizedString("READ"), systemImage: "checkmark.circle")
+                    }
+                    Button {
+                        let chapters = [AidokuRunner.Chapter](viewModel.chapters[
+                            index + 1..<viewModel.chapters.count
+                        ])
+                        Task {
+                            await viewModel.markUnread(chapters: chapters)
+                        }
+                    } label: {
+                        Label(NSLocalizedString("UNREAD"), systemImage: "minus.circle")
+                    }
+                }
+            }
+        }
+
         Section {
             if viewModel.manga.isLocal() {
                 // if the chapter is from the local source, add a button to remove it instead of download
@@ -397,11 +496,6 @@ extension MangaView {
                     Label(NSLocalizedString("REMOVE"), systemImage: "trash")
                 }
             } else {
-                let identifier = ChapterIdentifier(
-                    sourceKey: viewModel.manga.sourceKey,
-                    mangaKey: viewModel.manga.key,
-                    chapterKey: chapter.key
-                )
                 if downloadStatus == .finished {
                     Button(role: .destructive) {
                         Task {
@@ -411,87 +505,13 @@ extension MangaView {
                         Label(NSLocalizedString("REMOVE_DOWNLOAD"), systemImage: "trash")
                     }
                 } else if downloadStatus == .downloading {
-                    Button(role: .destructive) {
+                    Button {
                         Task {
                             await DownloadManager.shared.cancelDownload(for: identifier)
                         }
                     } label: {
                         Label(NSLocalizedString("CANCEL_DOWNLOAD"), systemImage: "xmark")
                     }
-                } else if viewModel.source != nil {
-                    Button {
-                        let downloadOnlyOnWifi = UserDefaults.standard.bool(forKey: "Library.downloadOnlyOnWifi")
-                        if
-                            downloadOnlyOnWifi && Reachability.getConnectionType() == .wifi
-                                || !downloadOnlyOnWifi
-                        {
-                            Task {
-                                await DownloadManager.shared.download(
-                                    manga: viewModel.manga,
-                                    chapters: [chapter]
-                                )
-                            }
-                        } else {
-                            showConnectionAlert = true
-                        }
-                    } label: {
-                        Label(NSLocalizedString("DOWNLOAD"), systemImage: "arrow.down.circle")
-                    }
-                }
-            }
-        }
-        Divider()
-        Section {
-            if viewModel.readingHistory[chapter.key]?.page != nil {
-                Button {
-                    Task {
-                        await viewModel.markUnread(chapters: [chapter])
-                    }
-                } label: {
-                    Label(NSLocalizedString("MARK_UNREAD"), systemImage: "eye.slash")
-                }
-            }
-            if viewModel.readingHistory[chapter.key]?.page != -1 {
-                Button {
-                    Task {
-                        await viewModel.markRead(chapters: [chapter])
-                    }
-                } label: {
-                    Label(NSLocalizedString("MARK_READ"), systemImage: "eye")
-                }
-            }
-            if !last && !secondSection {
-                Menu(NSLocalizedString("MARK_PREVIOUS")) {
-                    Button {
-                        let chapters = [AidokuRunner.Chapter](viewModel.chapters[
-                            index + 1..<viewModel.chapters.count
-                        ])
-                        Task {
-                            await viewModel.markRead(chapters: chapters)
-                        }
-                    } label: {
-                        Label(NSLocalizedString("READ"), systemImage: "eye")
-                    }
-                    Button {
-                        let chapters = [AidokuRunner.Chapter](viewModel.chapters[
-                            index + 1..<viewModel.chapters.count
-                        ])
-                        Task {
-                            await viewModel.markUnread(chapters: chapters)
-                        }
-                    } label: {
-                        Label(NSLocalizedString("UNREAD"), systemImage: "eye.slash")
-                    }
-                }
-            }
-        }
-        if downloadStatus == .finished || chapter.url != nil {
-            Divider()
-            Section {
-                Button {
-                    showShareSheet(chapter: chapter)
-                } label: {
-                    Label(NSLocalizedString("SHARE"), systemImage: "square.and.arrow.up")
                 }
             }
         }
@@ -621,7 +641,7 @@ extension MangaView {
                         editMode = .inactive
                     }
                 } label: {
-                    Label(NSLocalizedString("UNREAD"), systemImage: "eye.slash")
+                    Label(NSLocalizedString("UNREAD"), systemImage: "minus.circle")
                 }
                 Button {
                     let markChapters = selectedChapters.compactMap { id in
@@ -634,7 +654,7 @@ extension MangaView {
                         editMode = .inactive
                     }
                 } label: {
-                    Label(NSLocalizedString("READ"), systemImage: "eye")
+                    Label(NSLocalizedString("READ"), systemImage: "checkmark.circle")
                 }
             }
         }
@@ -853,56 +873,62 @@ private struct RightNavbarButton: View, Equatable {
     var body: some View {
         if editMode == .inactive {
             Menu {
-                Menu(NSLocalizedString("MARK_ALL")) {
-                    Button {
-                        markAllRead()
-                    } label: {
-                        Label(NSLocalizedString("READ"), systemImage: "eye")
-                    }
-                    Button {
-                        markAllUnread()
-                    } label: {
-                        Label(NSLocalizedString("UNREAD"), systemImage: "eye.slash")
-                    }
-                }
-                Button {
-                    withAnimation {
-                        editMode = .active
-                    }
-                } label: {
-                    Label(NSLocalizedString("SELECT_CHAPTERS"), systemImage: "checkmark.circle")
-                }
-                if bookmarked {
-                    if hasCategories {
+                if let url {
+                    Section {
                         Button {
-                            editCategories()
+                            showShareSheet(url)
                         } label: {
-                            Label(NSLocalizedString("EDIT_CATEGORIES"), systemImage: "folder.badge.gearshape")
+                            Label(NSLocalizedString("SHARE"), systemImage: "square.and.arrow.up")
+                        }
+                    }
+                }
+
+                Section {
+                    Menu(NSLocalizedString("MARK_ALL")) {
+                        Button {
+                            markAllRead()
+                        } label: {
+                            Label(NSLocalizedString("READ"), systemImage: "checkmark.circle")
+                        }
+                        Button {
+                            markAllUnread()
+                        } label: {
+                            Label(NSLocalizedString("UNREAD"), systemImage: "minus.circle")
                         }
                     }
                     Button {
-                        migrate()
+                        withAnimation {
+                            editMode = .active
+                        }
                     } label: {
-                        Label(NSLocalizedString("MIGRATE"), systemImage: "arrow.left.arrow.right")
+                        Label(NSLocalizedString("SELECT_CHAPTERS"), systemImage: "checkmark.circle")
                     }
-                }
-                if let url {
-                    Button {
-                        showShareSheet(url)
-                    } label: {
-                        Label(NSLocalizedString("SHARE"), systemImage: "square.and.arrow.up")
+                    if bookmarked {
+                        if hasCategories {
+                            Button {
+                                editCategories()
+                            } label: {
+                                Label(NSLocalizedString("EDIT_CATEGORIES"), systemImage: "folder.badge.gearshape")
+                            }
+                        }
+                        Button {
+                            migrate()
+                        } label: {
+                            Label(NSLocalizedString("MIGRATE"), systemImage: "arrow.left.arrow.right")
+                        }
                     }
                 }
 
                 if hasDownloads {
-                    Divider()
-                    Button(role: .destructive) {
-                        removeDownloads()
-                    } label: {
-                        Label(
-                            NSLocalizedString("REMOVE_ALL_DOWNLOADS"),
-                            systemImage: "trash"
-                        )
+                    Section {
+                        Button(role: .destructive) {
+                            removeDownloads()
+                        } label: {
+                            Label(
+                                NSLocalizedString("REMOVE_ALL_DOWNLOADS"),
+                                systemImage: "trash"
+                            )
+                        }
                     }
                 }
             } label: {

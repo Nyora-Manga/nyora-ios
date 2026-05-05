@@ -1502,7 +1502,7 @@ extension LibraryViewController {
 
             bottomMenuChildren.append(UIMenu(title: NSLocalizedString("MARK_ALL"), image: nil, children: [
                 // read chapters
-                UIAction(title: NSLocalizedString("READ"), image: UIImage(systemName: "eye")) { _ in
+                UIAction(title: NSLocalizedString("READ"), image: UIImage(systemName: "checkmark.circle")) { _ in
                     (UIApplication.shared.delegate as? AppDelegate)?.showLoadingIndicator()
 
                     Task {
@@ -1521,7 +1521,7 @@ extension LibraryViewController {
                     }
                 },
                 // unread chapters
-                UIAction(title: NSLocalizedString("UNREAD"), image: UIImage(systemName: "eye.slash")) { _ in
+                UIAction(title: NSLocalizedString("UNREAD"), image: UIImage(systemName: "minus.circle")) { _ in
                     (UIApplication.shared.delegate as? AppDelegate)?.showLoadingIndicator()
 
                     Task {

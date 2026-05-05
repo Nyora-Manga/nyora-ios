@@ -1127,17 +1127,8 @@ extension ReaderPagedViewController: UIContextMenuInteractionDelegate {
             return nil
         }
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { _ in
-            let saveToPhotosAction = UIAction(
-                title: NSLocalizedString("SAVE_TO_PHOTOS", comment: ""),
-                image: UIImage(systemName: "photo")
-            ) { _ in
-                if let image = pageView.image {
-                    image.saveToAlbum(viewController: self)
-                }
-            }
-
             let shareAction = UIAction(
-                title: NSLocalizedString("SHARE", comment: ""),
+                title: NSLocalizedString("SHARE"),
                 image: UIImage(systemName: "square.and.arrow.up")
             ) { _ in
                 if let image = pageView.image {
@@ -1151,8 +1142,17 @@ extension ReaderPagedViewController: UIContextMenuInteractionDelegate {
                 }
             }
 
+            let saveToPhotosAction = UIAction(
+                title: NSLocalizedString("SAVE_TO_PHOTOS"),
+                image: UIImage(systemName: "square.and.arrow.down")
+            ) { _ in
+                if let image = pageView.image {
+                    image.saveToAlbum(viewController: self)
+                }
+            }
+
             let reloadAction = UIAction(
-                title: NSLocalizedString("RELOAD", comment: ""),
+                title: NSLocalizedString("RELOAD"),
                 image: UIImage(systemName: "arrow.clockwise")
             ) { _ in
                 Task { @MainActor in
@@ -1160,7 +1160,7 @@ extension ReaderPagedViewController: UIContextMenuInteractionDelegate {
                 }
             }
 
-            var actions = [saveToPhotosAction, shareAction, reloadAction]
+            var actions = [shareAction, saveToPhotosAction, reloadAction]
 
             if self.usesDoublePages {
                 for (index, pageViewController) in self.pageViewControllers.enumerated() {

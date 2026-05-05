@@ -284,7 +284,7 @@ extension MangaCollectionViewController {
             } else {
                 actions.append(UIAction(
                     title: NSLocalizedString("ADD_TO_LIBRARY"),
-                    image: UIImage(systemName: "books.vertical.fill")
+                    image: UIImage(systemName: "plus.circle")
                 ) { _ in
                     if MangaManager.shouldAskForCategories() {
                         // open category select view

@@ -336,7 +336,8 @@ extension SourceViewController {
 
             // library option
             actions.append(UIDeferredMenuElement { [weak self] completion in
-                guard let self = self else { return }
+                guard let self else { return }
+
                 Task {
                     let inLibrary = await CoreDataManager.shared.container.performBackgroundTask { context in
                         CoreDataManager.shared.hasLibraryManga(
@@ -347,7 +348,7 @@ extension SourceViewController {
                     }
                     if inLibrary {
                         completion([UIAction(
-                            title: NSLocalizedString("REMOVE_FROM_LIBRARY", comment: ""),
+                            title: NSLocalizedString("REMOVE_FROM_LIBRARY"),
                             image: UIImage(systemName: "trash"),
                             attributes: .destructive
                         ) { _ in
@@ -361,8 +362,8 @@ extension SourceViewController {
                         }])
                     } else {
                         completion([UIAction(
-                            title: NSLocalizedString("ADD_TO_LIBRARY", comment: ""),
-                            image: UIImage(systemName: "books.vertical.fill")
+                            title: NSLocalizedString("ADD_TO_LIBRARY"),
+                            image: UIImage(systemName: "plus.circle")
                         ) { _ in
                             let entry = mangaInfo.toManga().toNew()
                             if MangaManager.shouldAskForCategories() { // open category select view
@@ -386,7 +387,7 @@ extension SourceViewController {
             // share option
             if let url = mangaInfo.url {
                 actions.append(UIAction(
-                    title: NSLocalizedString("SHARE", comment: ""),
+                    title: NSLocalizedString("SHARE"),
                     image: UIImage(systemName: "square.and.arrow.up")
                 ) { [weak self] _ in
                     guard let self = self else { return }
@@ -401,6 +402,7 @@ extension SourceViewController {
                     self.present(activityViewController, animated: true)
                 })
             }
+
             return UIMenu(title: "", children: actions)
         }
     }

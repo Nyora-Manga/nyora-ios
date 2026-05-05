@@ -164,7 +164,7 @@ struct HomeGridView: View {
                         }
                     }
                 } label: {
-                    Label(NSLocalizedString("ADD_TO_LIBRARY"), systemImage: "books.vertical.fill")
+                    Label(NSLocalizedString("ADD_TO_LIBRARY"), systemImage: "plus.circle")
                 }
             }
         }
