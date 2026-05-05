@@ -30,6 +30,8 @@ struct MangaView: View {
 
     @State private var openChapter: AidokuRunner.Chapter?
 
+    @StateObject private var refreshController = RefreshController()
+
     private var path: NavigationCoordinator
 
     @Namespace private var transitionNamespace
@@ -107,6 +109,9 @@ struct MangaView: View {
             .listStyle(.plain)
             .refreshable {
                 await viewModel.refresh()
+            }
+            .introspect(.list, on: .iOS(.v18, .v26)) { list in
+                refreshController.list = list
             }
             .navigationBarTitleDisplayMode(.inline)
             .confirmationDialogOrAlert(
@@ -521,6 +526,7 @@ extension MangaView {
     var rightNavbarButton: some View {
         RightNavbarButton(
             viewModel: viewModel,
+            refreshController: refreshController,
             markAllRead: {
                 // only show loading indicator for a larger number of chapters
                 if viewModel.chapters.count > 100 {
@@ -831,11 +837,12 @@ private struct ChapterCellView<T: View>: View, Equatable {
 }
 
 private struct RightNavbarButton: View, Equatable {
-    let bookmarked: Bool
-    let hasCategories: Bool
-    let url: URL?
-    let hasDownloads: Bool
-    let isEditing: Bool
+    private let bookmarked: Bool
+    private let hasCategories: Bool
+    private let url: URL?
+    private let hasDownloads: Bool
+    private let isEditing: Bool
+    private let refresh: () async -> Void
 
     let markAllRead: () -> Void
     let markAllUnread: () -> Void
@@ -848,6 +855,7 @@ private struct RightNavbarButton: View, Equatable {
 
     init(
         viewModel: MangaView.ViewModel,
+        refreshController: RefreshController,
         markAllRead: @escaping () -> Void,
         markAllUnread: @escaping () -> Void,
         editCategories: @escaping () -> Void,
@@ -860,12 +868,15 @@ private struct RightNavbarButton: View, Equatable {
         self.hasCategories = !CoreDataManager.shared.getCategoryTitles(sorted: false).isEmpty
         self.url = viewModel.manga.url
         self.hasDownloads = viewModel.downloadStatus.contains(where: { $0.value == .finished })
+        self.refresh = refreshController.refresh
+
         self.markAllRead = markAllRead
         self.markAllUnread = markAllUnread
         self.editCategories = editCategories
         self.migrate = migrate
         self.showShareSheet = showShareSheet
         self.removeDownloads = removeDownloads
+
         self.isEditing = editMode.wrappedValue == .active
         self._editMode = editMode
     }
@@ -916,6 +927,15 @@ private struct RightNavbarButton: View, Equatable {
                         } label: {
                             Label(NSLocalizedString("MIGRATE"), systemImage: "arrow.left.arrow.right")
                         }
+                        if #available(iOS 18.0, *) { // only for system versions supporting swipe down to dismiss
+                            Button {
+                                Task {
+                                    await refresh()
+                                }
+                            } label: {
+                                Label(NSLocalizedString("REFRESH_DETAILS"), systemImage: "arrow.clockwise")
+                            }
+                        }
                     }
                 }
 
@@ -950,5 +970,21 @@ private struct RightNavbarButton: View, Equatable {
             && lhs.url == rhs.url
             && lhs.hasDownloads == rhs.hasDownloads
             && lhs.isEditing == rhs.isEditing
+    }
+}
+
+// hack for programmatically starting the refresh control from swiftui
+@MainActor
+private class RefreshController: ObservableObject {
+    weak var list: UIScrollView?
+
+    func refresh() {
+        guard let list, let refreshControl = list.refreshControl else { return }
+        if #available(iOS 17.4, *) {
+            list.stopScrollingAndZooming() // fixes not scrolling down after refresh finishes
+        }
+        list.setContentOffset(CGPoint(x: 0, y: -list.safeAreaInsets.top - refreshControl.frame.height), animated: true)
+        refreshControl.beginRefreshing()
+        refreshControl.sendActions(for: .valueChanged)
     }
 }
