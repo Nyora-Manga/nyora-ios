@@ -560,6 +560,8 @@
 // Reader Settings
 "DOWNSAMPLE_IMAGES" = "Downsample Images";
 "CROP_BORDERS" = "Crop Borders";
+"ENHANCED_COLORS" = "32-bit Color Mode";
+"ENHANCED_COLORS_SUBTITLE" = "Reduces banding, but may impact performance.";
 "GRAYSCALE" = "Grayscale";
 "BRIGHTNESS" = "Brightness";
 "COLOR_FILTER" = "Color Filter";

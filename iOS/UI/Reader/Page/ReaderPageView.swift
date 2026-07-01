@@ -177,6 +177,9 @@ class ReaderPageView: UIView {
                 if !cfSettings.isNeutral {
                     image = ColorFilterEngine.apply(image, settings: cfSettings)
                 }
+                if UserDefaults.standard.bool(forKey: "Reader.enhancedColors") {
+                    image = EnhancedColorsProcessor.apply(image) ?? image
+                }
             }
             imageView.image = image
             fixImageSize()
@@ -257,6 +260,9 @@ class ReaderPageView: UIView {
             let cfSettings = ReaderColorFilterSettings.current
             if !cfSettings.isNeutral {
                 processors.append(ColorFilterProcessor(settings: cfSettings))
+            }
+            if UserDefaults.standard.bool(forKey: "Reader.enhancedColors") {
+                processors.append(EnhancedColorsProcessor())
             }
 
             request = ImageRequest(
@@ -390,6 +396,9 @@ class ReaderPageView: UIView {
             if !cfSettings.isNeutral {
                 image = ColorFilterEngine.apply(image, settings: cfSettings)
             }
+            if UserDefaults.standard.bool(forKey: "Reader.enhancedColors") {
+                image = EnhancedColorsProcessor.apply(image) ?? image
+            }
 
             return image
         }.value
@@ -485,6 +494,9 @@ class ReaderPageView: UIView {
             let cfSettings = ReaderColorFilterSettings.current
             if !cfSettings.isNeutral {
                 image = ColorFilterEngine.apply(image, settings: cfSettings)
+            }
+            if UserDefaults.standard.bool(forKey: "Reader.enhancedColors") {
+                image = EnhancedColorsProcessor.apply(image) ?? image
             }
 
             return image

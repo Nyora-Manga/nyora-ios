@@ -23,6 +23,7 @@ enum ImageProcessingSettingsKey {
         let cfBook = defaults.bool(forKey: "Reader.cfBookBackground")
         let cfMultitone = defaults.integer(forKey: "Reader.cfMultitone")
         let colorFilter = "\(cfBrightness)-\(cfContrast)-\(cfInvert)-\(cfGrayscale)-\(cfBook)-\(cfMultitone)"
-        return "\(crop)-\(downsample)-\(upscale)-\(maxHeight)-\(colorFilter)"
+        let enhancedColors = defaults.bool(forKey: "Reader.enhancedColors")
+        return "\(crop)-\(downsample)-\(upscale)-\(maxHeight)-\(colorFilter)-\(enhancedColors)"
     }
 }

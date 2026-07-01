@@ -398,6 +398,7 @@ class ReaderViewController: BaseObservingViewController {
         addObserver(forName: "Reader.downsampleImages", using: reloadBlock)
         addObserver(forName: "Reader.upscaleImages", using: reloadBlock)
         addObserver(forName: "Reader.cropBorders", using: reloadBlock)
+        addObserver(forName: "Reader.enhancedColors", using: reloadBlock)
         addObserver(forName: "Reader.cfGrayscale", using: reloadBlock)
         addObserver(forName: "Reader.cfBrightness", using: reloadBlock)
         addObserver(forName: "Reader.colorFilter", using: reloadBlock)

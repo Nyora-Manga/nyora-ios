@@ -107,6 +107,14 @@ struct ReaderSettingsView: View {
                         )
                         SettingView(
                             setting: .init(
+                                key: "Reader.enhancedColors",
+                                title: NSLocalizedString("ENHANCED_COLORS"),
+                                notification: .init("Reader.enhancedColors"),
+                                value: .toggle(.init(subtitle: NSLocalizedString("ENHANCED_COLORS_SUBTITLE")))
+                            )
+                        )
+                        SettingView(
+                            setting: .init(
                                 key: "Reader.cfGrayscale",
                                 title: NSLocalizedString("GRAYSCALE"),
                                 notification: .init("Reader.cfGrayscale"),

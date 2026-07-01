@@ -418,6 +418,12 @@ extension Settings {
                 value: .toggle(.init())
             ),
             .init(
+                key: "Reader.enhancedColors",
+                title: NSLocalizedString("ENHANCED_COLORS"),
+                notification: .init("Reader.enhancedColors"),
+                value: .toggle(.init(subtitle: NSLocalizedString("ENHANCED_COLORS_SUBTITLE")))
+            ),
+            .init(
                 key: "Reader.disableQuickActions",
                 title: NSLocalizedString("DISABLE_QUICK_ACTIONS"),
                 value: .toggle(.init())

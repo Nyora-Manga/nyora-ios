@@ -58,6 +58,7 @@
 		72D7D349B54F376B6197F22D /* NyoraSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E880AAAE669C883263D2A7 /* NyoraSource.swift */; };
 		742DDD08314C06C1DC1C5DE2 /* KitsuLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */; };
 		74387C470A4ACBE3D165605E /* NyoraAltTitleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */; };
+		76B69A65C0CD98B0993A4F0B /* EnhancedColorsProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F929ECB6129D6A935832CA47 /* EnhancedColorsProcessor.swift */; };
 		7C63F0D72F48FD4B007D1811 /* TextDoublePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C63F0D52F48FD4B007D1811 /* TextDoublePageViewController.swift */; };
 		7C63F0D82F48FD4B007D1811 /* TextSinglePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C63F0D62F48FD4B007D1811 /* TextSinglePageViewController.swift */; };
 		7C63F0D92F48FD4B007D1811 /* ChapterTransitionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C63F0D42F48FD4B007D1811 /* ChapterTransitionViewController.swift */; };
@@ -69,6 +70,7 @@
 		A0A9BB9C56C836C786EF4FA1 /* NyoraAltTitleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */; };
 		A1D3D6D382085367109ED25B /* NyoraRatingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B622854854C3846D734AED79 /* NyoraRatingStore.swift */; };
 		A436FFEBDFA37033CE627BDA /* VolumeButtonHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501E78B384245931983B9C1C /* VolumeButtonHandler.swift */; };
+		A4BD99AC0A465E2D1865A74E /* EnhancedColorsProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F929ECB6129D6A935832CA47 /* EnhancedColorsProcessor.swift */; };
 		ABB803807E5E9E03B5B795E2 /* NyoraLanguageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8350600443A42A7B3E16EEB /* NyoraLanguageStore.swift */; };
 		ABDA9BE702D7EBD9ED57D88F /* LibraryDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */; };
 		AC9B01027AD590641D751535 /* ReaderControlsConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA102C0AB6E77B78488FA74 /* ReaderControlsConfigView.swift */; };
@@ -714,6 +716,7 @@
 		E86FCD4C820B864346BDB2A4 /* TapGrid.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGrid.swift; sourceTree = "<group>"; };
 		F8350600443A42A7B3E16EEB /* NyoraLanguageStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraLanguageStore.swift; sourceTree = "<group>"; };
 		F869329BD4B66D09F2D7FCA4 /* AutoScrollController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AutoScrollController.swift; sourceTree = "<group>"; };
+		F929ECB6129D6A935832CA47 /* EnhancedColorsProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EnhancedColorsProcessor.swift; sourceTree = "<group>"; };
 		F9724D8E3412C42844B315DC /* TranslationOverlayView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationOverlayView.swift; sourceTree = "<group>"; };
 		FB0051212FAF053F004B4A6F /* MigrateSelectSeriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrateSelectSeriesView.swift; sourceTree = "<group>"; };
 		FB0051252FAF056E004B4A6F /* MigrateResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrateResultsView.swift; sourceTree = "<group>"; };
@@ -1482,6 +1485,7 @@
 				FB7983A02E0074B80044BC71 /* PopupWebViewHandler.swift */,
 				FB4275182961203100131377 /* SemanticVersion.swift */,
 				FB14B1252DF4CFDC0067E4D4 /* UIKitShim.swift */,
+				F929ECB6129D6A935832CA47 /* EnhancedColorsProcessor.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -3169,6 +3173,7 @@
 				B06F4BEFAF23244C3262D02D /* NyoraLanguageStore.swift in Sources */,
 				049F8D83FEAD2104540BFB31 /* NavSection.swift in Sources */,
 				3B0299147D7CA03B983C727D /* NavConfigView.swift in Sources */,
+				76B69A65C0CD98B0993A4F0B /* EnhancedColorsProcessor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3349,6 +3354,7 @@
 				69B01BE9689B16769EB8FE1F /* NyoraRatingStore.swift in Sources */,
 				ABB803807E5E9E03B5B795E2 /* NyoraLanguageStore.swift in Sources */,
 				C9E7B4224661C3BDA0E3371B /* NavSection.swift in Sources */,
+				A4BD99AC0A465E2D1865A74E /* EnhancedColorsProcessor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -296,6 +296,9 @@ extension ReaderWebtoonPageNode {
         if !cfSettings.isNeutral {
             processors.append(ColorFilterProcessor(settings: cfSettings))
         }
+        if UserDefaults.standard.bool(forKey: "Reader.enhancedColors") {
+            processors.append(EnhancedColorsProcessor())
+        }
 
         let request = ImageRequest(
             urlRequest: urlRequest,
@@ -413,6 +416,9 @@ extension ReaderWebtoonPageNode {
             if !cfSettings.isNeutral {
                 image = ColorFilterEngine.apply(image, settings: cfSettings)
             }
+            if UserDefaults.standard.bool(forKey: "Reader.enhancedColors") {
+                image = EnhancedColorsProcessor.apply(image) ?? image
+            }
 
             return image
         }.value
@@ -495,6 +501,9 @@ extension ReaderWebtoonPageNode {
                 let cfSettings = ReaderColorFilterSettings.current
                 if !cfSettings.isNeutral {
                     image = ColorFilterEngine.apply(image, settings: cfSettings)
+                }
+                if UserDefaults.standard.bool(forKey: "Reader.enhancedColors") {
+                    image = EnhancedColorsProcessor.apply(image) ?? image
                 }
 
                 return image
