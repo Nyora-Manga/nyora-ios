@@ -92,6 +92,11 @@ struct DiscoverView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
 
+                if let hero = home.heroManga {
+                    DiscoverHeroCard(source: source, manga: hero)
+                        .padding(.horizontal, 16)
+                }
+
                 ForEach(home.components.indices, id: \.self) { index in
                     let component = home.components[index]
                     VStack(alignment: .leading, spacing: 6) {
@@ -136,6 +141,31 @@ struct DiscoverView: View {
         } catch {
             state = .failed(error)
         }
+    }
+}
+
+private extension Home {
+    /// The first manga entry across the home components, used as the hero.
+    var heroManga: AidokuRunner.Manga? {
+        for component in components {
+            switch component.value {
+                case let .bigScroller(entries, _):
+                    if let first = entries.first { return first }
+                case let .scroller(entries, _):
+                    for entry in entries {
+                        if case let .manga(manga) = entry.value { return manga }
+                    }
+                case let .mangaList(_, _, entries, _):
+                    for entry in entries {
+                        if case let .manga(manga) = entry.value { return manga }
+                    }
+                case let .mangaChapterList(_, entries, _):
+                    if let first = entries.first?.manga { return first }
+                default:
+                    continue
+            }
+        }
+        return nil
     }
 }
 
