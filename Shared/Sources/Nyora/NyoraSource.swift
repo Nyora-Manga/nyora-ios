@@ -37,7 +37,7 @@ extension AidokuRunner.Source {
             key: key,
             name: name,
             version: 1,
-            languages: [lang.isEmpty ? "multi" : lang],
+            languages: [(lang.isEmpty || lang == "all") ? "multi" : lang],
             urls: URL(string: server).map { [$0] } ?? [],
             contentRating: .safe,
             config: .init(
@@ -85,6 +85,20 @@ actor NyoraSourceRunner: Runner {
         self.helper = NyoraHelper(server: URL(string: server) ?? URL(string: "https://api.hasanraza.tech")!)
     }
 
+    /// GET a helper endpoint for this source; if it fails because the source
+    /// isn't installed on the helper yet, install it and retry once.
+    private func getEnsuringInstalled<T: Decodable & Sendable>(
+        _ path: String,
+        items: [URLQueryItem]
+    ) async throws -> T {
+        do {
+            return try await helper.get(path, items: items)
+        } catch SourceError.message(let msg) where msg.lowercased().contains("not installed") {
+            await helper.install(parserSource)
+            return try await helper.get(path, items: items)
+        }
+    }
+
     // MARK: Browse
 
     func getListings() async throws -> [AidokuRunner.Listing] {
@@ -99,7 +113,7 @@ actor NyoraSourceRunner: Runner {
     /// makes browsing a source actually show content. Throws if Popular fails so
     /// the UI shows an error + retry instead of a silent blank screen.
     func getHome() async throws -> AidokuRunner.Home {
-        let popularRes: NyoraBrowseResponse = try await helper.get(
+        let popularRes: NyoraBrowseResponse = try await getEnsuringInstalled(
             "sources/popular",
             items: [.init(name: "id", value: parserSource), .init(name: "page", value: "1")]
         )
@@ -117,7 +131,7 @@ actor NyoraSourceRunner: Runner {
         }
 
         // Latest is best-effort — some sources don't support it.
-        if let latestRes: NyoraBrowseResponse = try? await helper.get(
+        if let latestRes: NyoraBrowseResponse = try? await getEnsuringInstalled(
             "sources/latest",
             items: [.init(name: "id", value: parserSource), .init(name: "page", value: "1")]
         ) {
@@ -138,7 +152,7 @@ actor NyoraSourceRunner: Runner {
 
     func getMangaList(listing: AidokuRunner.Listing, page: Int) async throws -> AidokuRunner.MangaPageResult {
         let endpoint = listing.id == "latest" ? "sources/latest" : "sources/popular"
-        let res: NyoraBrowseResponse = try await helper.get(
+        let res: NyoraBrowseResponse = try await getEnsuringInstalled(
             endpoint,
             items: [.init(name: "id", value: parserSource), .init(name: "page", value: String(page))]
         )
@@ -156,7 +170,7 @@ actor NyoraSourceRunner: Runner {
         guard let query, !query.isEmpty else {
             return .init(entries: [], hasNextPage: false)
         }
-        let res: NyoraBrowseResponse = try await helper.get(
+        let res: NyoraBrowseResponse = try await getEnsuringInstalled(
             "sources/search",
             items: [
                 .init(name: "id", value: parserSource),
@@ -185,7 +199,7 @@ actor NyoraSourceRunner: Runner {
     ) async throws -> AidokuRunner.Manga {
         guard needsDetails || needsChapters else { return manga }
         // manga.key is the opaque manga url for this source (source id is fixed).
-        let res: NyoraDetailsResponse = try await helper.get(
+        let res: NyoraDetailsResponse = try await getEnsuringInstalled(
             "manga/details",
             items: [.init(name: "id", value: parserSource), .init(name: "url", value: manga.key)]
         )
@@ -218,7 +232,7 @@ actor NyoraSourceRunner: Runner {
     }
 
     func getPageList(manga: AidokuRunner.Manga, chapter: AidokuRunner.Chapter) async throws -> [AidokuRunner.Page] {
-        let res: NyoraPagesResponse = try await helper.get(
+        let res: NyoraPagesResponse = try await getEnsuringInstalled(
             "manga/pages",
             items: [.init(name: "id", value: parserSource), .init(name: "url", value: chapter.key)]
         )
@@ -279,6 +293,20 @@ actor NyoraHelper {
     func catalog() async throws -> [NyoraCatalogEntry] {
         let res: NyoraCatalogResponse = try await get("sources/catalog")
         return res.entries
+    }
+
+    /// Tell the helper to install (load) a parser source. Many catalog sources
+    /// are `isInstalled=false` and reject browse/search with "… is not installed"
+    /// until this is called. Best-effort.
+    func install(_ parserSource: String) async {
+        guard
+            var comps = URLComponents(url: server.appendingPathComponent("sources/install"), resolvingAgainstBaseURL: false)
+        else { return }
+        comps.queryItems = [.init(name: "id", value: parserSource)]
+        guard let url = comps.url else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        _ = try? await session.data(for: request)
     }
 
     /// The helper rewrites cover/page URLs to its own loopback proxy

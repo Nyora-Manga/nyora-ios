@@ -59,10 +59,11 @@ class SourceManager {
     /// A few popular parser sources pre-installed on first launch so the app is
     /// usable out of the box. The user adds/removes more from Browse → Add source
     /// (which lists the helper's full ~960-source catalog like a repository).
+    // Real, already-installed catalog ids (verified against /sources/catalog).
     private static let defaultNyoraSources: [(id: String, name: String, lang: String)] = [
-        ("parser:MANGADEX", "MangaDex", "en"),
-        ("parser:WEEBCENTRAL", "Weeb Central", "en"),
-        ("parser:BATOTO", "Bato.to", "en"),
+        ("parser:MANGADEX", "MangaDex", "multi"),
+        ("parser:TOONILY", "Toonily", "en"),
+        ("parser:COMICK_FUN", "ComicK", "multi"),
     ]
 
     /// Nyora fork: pre-install a curated default set once (first launch), only if
@@ -117,6 +118,13 @@ class SourceManager {
 
         UserDefaults.standard.setValue(Self.nyoraServer, forKey: "\(key).server")
         UserDefaults.standard.setValue(parserSource, forKey: "\(key).parserSource")
+
+        // Tell the helper to load this source now (many catalog sources are
+        // isInstalled=false and reject browse until installed). Best-effort;
+        // the runner also self-heals on a "not installed" error.
+        if let server = URL(string: Self.nyoraServer) {
+            await NyoraHelper(server: server).install(parserSource)
+        }
 
         sources.append(source)
         sortSources()
