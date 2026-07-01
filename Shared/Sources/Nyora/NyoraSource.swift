@@ -338,7 +338,7 @@ enum NyoraCatalog {
     /// instead of the many dead/Cloudflare-blocked catalog mirrors. Ordered.
     static let recommended: [String] = [
         "parser:MANGADEX",
-        "parser:COMICK_FUN",
+        // ComicK dropped: cover CDN is Cloudflare-blocked (covers won't load)
         "parser:ASURASCANS",     // AsuraComic (the working AsuraScans)
         "parser:FLAMECOMICS",
         "parser:MANGAPILL",

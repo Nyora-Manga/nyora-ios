@@ -62,7 +62,6 @@ class SourceManager {
     // Real, already-installed catalog ids (verified against /sources/catalog).
     private static let defaultNyoraSources: [(id: String, name: String, lang: String)] = [
         ("parser:MANGADEX", "MangaDex", "multi"),
-        ("parser:COMICK_FUN", "ComicK", "multi"),
         ("parser:ASURASCANS", "AsuraComic", "en"),
         ("parser:FLAMECOMICS", "FlameComics", "en"),
     ]
