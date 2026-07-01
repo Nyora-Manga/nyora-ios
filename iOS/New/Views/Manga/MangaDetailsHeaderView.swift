@@ -53,6 +53,8 @@ struct MangaDetailsHeaderView: View {
     @State private var altTitles: [String] = []
     @State private var rating: Float?
     @State private var language: String?
+    @State private var categoryNames: [String] = []
+    @State private var bookmarkScale: CGFloat = 1
 
     static let coverWidth: CGFloat = 114
 
@@ -258,6 +260,20 @@ struct MangaDetailsHeaderView: View {
             altTitles = NyoraAltTitleStore.shared.get(for: manga.key)
             rating = NyoraRatingStore.shared.get(for: manga.key)
             language = NyoraLanguageStore.shared.get(for: manga.key)
+            loadCategories()
+        }
+        .onChange(of: bookmarked) { newValue in
+            if newValue {
+                loadCategories()
+            } else {
+                categoryNames = []
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("updateMangaCategories"))) { notification in
+            if let info = notification.object as? MangaInfo {
+                guard info.mangaId == manga.key, info.sourceId == manga.sourceKey else { return }
+            }
+            loadCategories()
         }
         .onChange(of: nextChapter) { _ in
             updateReadButtonText()
@@ -285,6 +301,7 @@ struct MangaDetailsHeaderView: View {
             altTitles = NyoraAltTitleStore.shared.get(for: manga.key)
             rating = NyoraRatingStore.shared.get(for: manga.key)
             language = NyoraLanguageStore.shared.get(for: manga.key)
+            loadCategories()
             hasAvailableTrackers = await TrackerManager.shared.hasAvailableTrackers(sourceKey: manga.sourceKey, mangaKey: manga.key)
         }
     }
@@ -380,9 +397,16 @@ struct MangaDetailsHeaderView: View {
         return name
     }
 
+    // Joined favourite-category names shown while the manga is in the library, mirroring
+    // nyora-android DetailsActivity onFavoritesChanged (favourite category names on the library button).
+    private var categoryLabelText: String? {
+        guard bookmarked, !categoryNames.isEmpty else { return nil }
+        return categoryNames.joined(separator: ", ")
+    }
+
     @ViewBuilder
     var labelsView: some View {
-        if ratingText != nil || languageText != nil || manga.status != .unknown || (manga.contentRating != .unknown && manga.contentRating != .safe) || (bookmarked && source != nil) {
+        if ratingText != nil || languageText != nil || manga.status != .unknown || (manga.contentRating != .unknown && manga.contentRating != .safe) || (bookmarked && source != nil) || categoryLabelText != nil {
             HStack(spacing: 6) {
                 if let ratingText {
                     LabelView(
@@ -405,7 +429,13 @@ struct MangaDetailsHeaderView: View {
                             : .red.opacity(0.3)
                     )
                 }
-                if let source, bookmarked {
+                if let categoryLabelText {
+                    LabelView(
+                        text: categoryLabelText,
+                        systemImage: "folder.fill",
+                        background: .accentColor.opacity(0.25)
+                    )
+                } else if let source, bookmarked {
                     LabelView(
                         text: source.name,
                         background: Color(red: 0.25, green: 0.55, blue: 1).opacity(0.3)
@@ -417,6 +447,7 @@ struct MangaDetailsHeaderView: View {
             .animation(.default, value: bookmarked)
             .animation(.default, value: rating)
             .animation(.default, value: language)
+            .animation(.default, value: categoryNames)
         }
     }
 
@@ -438,6 +469,7 @@ struct MangaDetailsHeaderView: View {
                 }
             } label: {
                 Image(systemName: "bookmark.fill")
+                    .scaleEffect(bookmarkScale)
             }
             .buttonStyle(MangaActionButtonStyle(selected: bookmarked))
             .simultaneousGesture(
@@ -540,7 +572,39 @@ struct MangaDetailsHeaderView: View {
         }
     }
 
+    // Spring-scale pop + selection haptic when the library state changes, mirroring
+    // nyora-android's animated favourite button feedback.
+    private func playBookmarkFeedback() {
+        UISelectionFeedbackGenerator().selectionChanged()
+        bookmarkScale = 0.7
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.45)) {
+            bookmarkScale = 1
+        }
+    }
+
+    // Load the favourite-category titles for the current manga off the main actor.
+    private func loadCategories() {
+        let sourceId = manga.sourceKey
+        let mangaId = manga.key
+        Task {
+            let names = await CoreDataManager.shared.container.performBackgroundTask { context in
+                CoreDataManager.shared.getCategories(
+                    sourceId: sourceId,
+                    mangaId: mangaId,
+                    context: context
+                )
+                .sorted { $0.sort < $1.sort }
+                .compactMap { $0.title }
+            }
+            await MainActor.run {
+                guard manga.key == mangaId, manga.sourceKey == sourceId else { return }
+                categoryNames = names
+            }
+        }
+    }
+
     func toggleBookmarked() async {
+        playBookmarkFeedback()
         let sourceId = manga.sourceKey
         let mangaId = manga.key
         let inLibrary = await CoreDataManager.shared.container.performBackgroundTask { context in
