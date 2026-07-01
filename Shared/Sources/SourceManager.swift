@@ -306,6 +306,18 @@ extension SourceManager {
         username: String? = nil,
         password: String? = nil,
     ) async -> String {
+        // Nyora fork: exactly one hosted Nyora source may exist. It's
+        // auto-installed on launch (ensureDefaultNyoraSource), but the "Add
+        // source" flow (AddSourceView → NyoraSetupView → Connect) also calls
+        // this — without a guard that path creates duplicate `nyora.nyora-1`,
+        // `nyora.nyora-2`… sources, cluttering the source list. Make it
+        // idempotent: if a Nyora source is already installed, return its key
+        // instead of adding a duplicate.
+        if kind == .nyora,
+           let existing = sources.first(where: { $0.key.hasPrefix("\(NyoraSourceRunner.sourceKeyPrefix).") }) {
+            return existing.key
+        }
+
         let keyPrefix = switch kind {
             case .komga: KomgaSourceRunner.sourceKeyPrefix
             case .kavita: KavitaSourceRunner.sourceKeyPrefix
