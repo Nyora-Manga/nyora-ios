@@ -167,6 +167,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Reader.hideBarsOnSwipe": false,
                 "Reader.keepScreenOn": true,
                 "Reader.volumeButtons": false,
+                "Reader.invertNavigation": false,
                 "Reader.autoScrollSpeed": 0.5,
                 "Reader.fullscreen": true,
                 "Reader.infoBar": true,

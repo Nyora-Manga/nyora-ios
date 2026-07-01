@@ -178,6 +178,16 @@ struct ReaderSettingsView: View {
                     )
                     SettingView(
                         setting: .init(
+                            key: "Reader.invertNavigation",
+                            title: NSLocalizedString("READER_INVERT_NAVIGATION"),
+                            notification: .init("Reader.invertNavigation"),
+                            value: .toggle(.init(
+                                subtitle: NSLocalizedString("READER_INVERT_NAVIGATION_SUBTITLE")
+                            ))
+                        )
+                    )
+                    SettingView(
+                        setting: .init(
                             key: "Reader.fullscreen",
                             title: NSLocalizedString("READER_FULLSCREEN"),
                             notification: .init("Reader.fullscreen"),

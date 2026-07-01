@@ -58,8 +58,8 @@ class ReaderViewController: BaseObservingViewController {
 
     private lazy var volumeButtonHandler: VolumeButtonHandler = {
         let handler = VolumeButtonHandler(containerView: view)
-        handler.onVolumeUp = { [weak self] in self?.previousPage() }
-        handler.onVolumeDown = { [weak self] in self?.nextPage() }
+        handler.onVolumeUp = { [weak self] in self?.navigateBackward() }
+        handler.onVolumeDown = { [weak self] in self?.navigateForward() }
         return handler
     }()
 
@@ -1436,6 +1436,19 @@ extension ReaderViewController: UIPencilInteractionDelegate {
             default: reader?.moveLeft()
         }
     }
+
+    // NP-031: invert forward/back for volume + directional-key navigation (not tap zones)
+    private var invertNavigation: Bool {
+        UserDefaults.standard.bool(forKey: "Reader.invertNavigation")
+    }
+
+    func navigateForward() {
+        if invertNavigation { previousPage() } else { nextPage() }
+    }
+
+    func navigateBackward() {
+        if invertNavigation { nextPage() } else { previousPage() }
+    }
 }
 
 // MARK: - Bar Visibility
@@ -1567,12 +1580,12 @@ extension ReaderViewController {
         let commands = [
             UIKeyCommand(
                 title: NSLocalizedString("TURN_PAGE_LEFT"),
-                action: #selector(moveLeft),
+                action: #selector(keyMoveLeft),
                 input: UIKeyCommand.inputLeftArrow
             ),
             UIKeyCommand(
                 title: NSLocalizedString("TURN_PAGE_RIGHT"),
-                action: #selector(moveRight),
+                action: #selector(keyMoveRight),
                 input: UIKeyCommand.inputRightArrow
             ),
             UIKeyCommand(
@@ -1616,6 +1629,15 @@ extension ReaderViewController {
 
     @objc func moveRight() {
         reader?.moveRight()
+    }
+
+    // NP-031: directional arrow keys swap when navigation is inverted
+    @objc func keyMoveLeft() {
+        if invertNavigation { reader?.moveRight() } else { reader?.moveLeft() }
+    }
+
+    @objc func keyMoveRight() {
+        if invertNavigation { reader?.moveLeft() } else { reader?.moveRight() }
     }
 
     @objc func toggleOffset() {

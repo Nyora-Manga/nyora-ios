@@ -624,6 +624,8 @@
 "INVERT_TAP_ZONES" = "Invert Tap Zones";
 "READER_CONTROL_LTR" = "Left-to-Right Controls";
 "READER_CONTROL_LTR_SUBTITLE" = "Keep tap and control direction left-to-right even in right-to-left mode";
+"READER_INVERT_NAVIGATION" = "Invert Navigation Controls";
+"READER_INVERT_NAVIGATION_SUBTITLE" = "Swap the direction of volume button and arrow key page navigation";
 "ANIMATE_PAGE_TRANSITIONS" = "Animate Page Transitions";
 "PAGE_ANIMATION" = "Page Animation";
 "PAGE_ANIMATION_NONE" = "None";
