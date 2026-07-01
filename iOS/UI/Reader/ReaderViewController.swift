@@ -121,14 +121,20 @@ class ReaderViewController: BaseObservingViewController {
 
     var statusBarHidden = false
 
+    /// When fullscreen is disabled (NP-017), the system status bar / home indicator stay visible
+    /// even while the reader bars are hidden, mirroring nyora-android's `reader_fullscreen` behaviour.
+    private var fullscreenEnabled: Bool {
+        UserDefaults.standard.bool(forKey: "Reader.fullscreen")
+    }
+
     override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
         UIStatusBarAnimation.fade
     }
     override var prefersStatusBarHidden: Bool {
-        statusBarHidden
+        statusBarHidden && fullscreenEnabled
     }
     override var prefersHomeIndicatorAutoHidden: Bool {
-        statusBarHidden
+        statusBarHidden && fullscreenEnabled
     }
 
     init(
@@ -317,6 +323,12 @@ class ReaderViewController: BaseObservingViewController {
         }
         addObserver(forName: "Reader.volumeButtons") { [weak self] _ in
             self?.updateVolumeButtons()
+        }
+        // fullscreen / display-cutout toggle (NP-017): refresh status bar & home indicator visibility live
+        addObserver(forName: "Reader.fullscreen") { [weak self] _ in
+            guard let self else { return }
+            self.setNeedsStatusBarAppearanceUpdate()
+            self.setNeedsUpdateOfHomeIndicatorAutoHidden()
         }
         // Switch text reader style (paged <-> scroll) without restart
         addObserver(forName: "Reader.textReaderStyle") { [weak self] _ in

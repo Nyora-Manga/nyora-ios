@@ -178,6 +178,14 @@ struct ReaderSettingsView: View {
                     )
                     SettingView(
                         setting: .init(
+                            key: "Reader.fullscreen",
+                            title: NSLocalizedString("READER_FULLSCREEN"),
+                            notification: .init("Reader.fullscreen"),
+                            value: .toggle(.init())
+                        )
+                    )
+                    SettingView(
+                        setting: .init(
                             key: "Reader.backgroundColor",
                             title: NSLocalizedString("READER_BG_COLOR"),
                             value: .select(.init(

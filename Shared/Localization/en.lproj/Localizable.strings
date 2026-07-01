@@ -564,6 +564,7 @@
 "HIDE_BARS_ON_SWIPE" = "Hide Bars on Swipe";
 "KEEP_SCREEN_ON" = "Keep Screen On";
 "VOLUME_BUTTON_PAGING" = "Volume Button Paging";
+"READER_FULLSCREEN" = "Fullscreen";
 "READER_BG_COLOR" = "Background Color";
 "READER_BG_COLOR_SYSTEM" = "System";
 "READER_BG_COLOR_AUTO" = "Automatic";
