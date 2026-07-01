@@ -40,7 +40,7 @@ class OldMangaCollectionViewController: BaseCollectionViewController {
     }
 
     override func observe() {
-        let keys = ["Appearance.layout", "Appearance.customPortraitRows", "Appearance.customLandscapeRows"]
+        let keys = ["Appearance.layout", "Appearance.customPortraitRows", "Appearance.customLandscapeRows", "Appearance.gridSize"]
         for key in keys {
             addObserver(forName: key) { [weak self] _ in
                 Task { @MainActor in
@@ -127,13 +127,18 @@ extension OldMangaCollectionViewController {
         let layout = UserDefaults.standard.string(forKey: "Appearance.layout")
         let containerWidth = environment.container.contentSize.width
 
+        // grid size percentage (50-150%) scales cover cell size
+        let gridSizeRaw = UserDefaults.standard.object(forKey: "Appearance.gridSize") as? Int ?? 100
+        let gridScale = CGFloat(max(50, min(150, gridSizeRaw))) / 100
+
         let itemsPerRow: Int
         switch layout {
             case "standard":
-                let idealWidth: CGFloat = 180
+                let idealWidth: CGFloat = 180 * gridScale
                 itemsPerRow = max(1, Int(floor(containerWidth / idealWidth)))
             case "compact":
-                let idealWidth: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 150 : 120
+                let base: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 150 : 120
+                let idealWidth: CGFloat = base * gridScale
                 itemsPerRow = max(1, Int(floor(containerWidth / idealWidth)))
             default: // custom
                 let isLandscape = containerWidth > environment.container.contentSize.height

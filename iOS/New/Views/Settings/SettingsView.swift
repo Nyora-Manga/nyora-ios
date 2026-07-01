@@ -533,11 +533,14 @@ private extension Setting {
 private struct LayoutSettingView: View {
     @State private var selection: Layout
     @State private var showCustomSettings: Bool
+    @State private var gridSize: Double
 
     init() {
         let layout = UserDefaults.standard.string(forKey: "Appearance.layout").flatMap(Layout.init) ?? .standard
         self._selection = State(initialValue: layout)
         self._showCustomSettings = State(initialValue: layout == .custom)
+        let stored = UserDefaults.standard.object(forKey: "Appearance.gridSize") as? Int ?? 100
+        self._gridSize = State(initialValue: Double(max(50, min(150, stored))))
     }
 
     enum Layout: String, CaseIterable {
@@ -611,10 +614,25 @@ private struct LayoutSettingView: View {
                     title: NSLocalizedString("LANDSCAPE_ROWS"),
                     value: .stepper(.init(minimumValue: 1, maximumValue: 15))
                 ))
+            } else {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(NSLocalizedString("GRID_SIZE"))
+                            .foregroundStyle(Color(uiColor: .label))
+                        Spacer()
+                        Text("\(Int(gridSize))%")
+                            .foregroundStyle(Color(uiColor: .secondaryLabel))
+                    }
+                    Slider(value: $gridSize, in: 50...150, step: 5)
+                }
             }
         }
         .onChange(of: selection) { newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Appearance.layout")
+        }
+        .onChange(of: gridSize) { newValue in
+            UserDefaults.standard.set(Int(newValue), forKey: "Appearance.gridSize")
+            NotificationCenter.default.post(name: .init("Appearance.gridSize"), object: nil)
         }
     }
 

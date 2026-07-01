@@ -450,6 +450,7 @@
 "CUSTOM" = "Custom";
 "PORTRAIT_ROWS" = "Portrait Rows";
 "LANDSCAPE_ROWS" = "Landscape Rows";
+"GRID_SIZE" = "Grid Size";
 "PORTRAIT" = "Portrait";
 "LANDSCAPE" = "Landscape";
 "READER" = "Reader";

@@ -120,6 +120,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Appearance.layout": "standard",
                 "Appearance.customPortraitRows": UIDevice.current.userInterfaceIdiom == .pad ? 5 : 2,
                 "Appearance.customLandscapeRows": UIDevice.current.userInterfaceIdiom == .pad ? 6 : 4,
+                "Appearance.gridSize": 100,
 
                 "Library.sortOption": 2, // lastOpened
                 "Library.sortAscending": false,
