@@ -53,7 +53,7 @@ enum AccentColor: String, CaseIterable, Identifiable {
     /// Primary color in light mode (hex).
     private var lightHex: String {
         switch self {
-        case .default: "FF2D55" // systemPink-ish
+        case .default: "6366F1" // Nyora indigo
         case .totoro: "3C6090"
         case .miku: "00696D"
         case .asuka: "904A40"
@@ -70,7 +70,7 @@ enum AccentColor: String, CaseIterable, Identifiable {
     /// Primary color in dark mode (hex).
     private var darkHex: String {
         switch self {
-        case .default: "FF375F"
+        case .default: "818CF8" // Nyora indigo (lighter for dark mode)
         case .totoro: "A6C8FF"
         case .miku: "6FDDE2"
         case .asuka: "FFB4A8"

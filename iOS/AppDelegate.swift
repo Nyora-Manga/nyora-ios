@@ -106,6 +106,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        // Nyora design foundation: Poppins app-wide + nav/tab fonts.
+        NyoraTheme.applyGlobally()
+
         UserDefaults.standard.register(
             defaults: [
                 "Flag.isSideloaded": Self.isSideloaded, // for icloud sync setting

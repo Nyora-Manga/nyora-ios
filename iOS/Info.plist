@@ -69,6 +69,14 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Poppins-Regular.ttf</string>
+		<string>Poppins-Medium.ttf</string>
+		<string>Poppins-SemiBold.ttf</string>
+		<string>Poppins-Bold.ttf</string>
+		<string>Poppins-Black.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

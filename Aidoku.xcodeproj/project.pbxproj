@@ -26,6 +26,7 @@
 		1EB95D165E6EB8B6D2BA7452 /* ReaderAnimationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1118EED6E55A56A960F20A /* ReaderAnimationMode.swift */; };
 		2690B12D90028F56F1EB4F61 /* AutoScrollController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F869329BD4B66D09F2D7FCA4 /* AutoScrollController.swift */; };
 		2954DCCC05A0E7F45A9DC37F /* TranslationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91157E161122819CBE01C634 /* TranslationModels.swift */; };
+		2BA47C03FC754A4516603E44 /* Poppins-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5FFC4D99017502C24B718EF7 /* Poppins-Regular.ttf */; };
 		30EAB0012FC051B5000BFEDF /* CoverRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */; };
 		327147DDABB9F319C8591880 /* LanguagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08445594D90A53709E9CD7C5 /* LanguagePickerView.swift */; };
 		33D9D21480475186A7CBC5D9 /* ReaderToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDC154ABFA4CE599400D8C2 /* ReaderToastView.swift */; };
@@ -46,6 +47,7 @@
 		56815D982FBC7078001486C8 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56815D972FBC7078001486C8 /* NotificationManager.swift */; };
 		56815D992FBC7078001486C8 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56815D972FBC7078001486C8 /* NotificationManager.swift */; };
 		58EABF91C7B1C74B0383ED16 /* UsernamePasswordTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A394EB074C10FD7002E24C6E /* UsernamePasswordTracker.swift */; };
+		5A1EF26D022AC7ECB1916938 /* Poppins-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3DB9E48E6CBDF80037AE731E /* Poppins-SemiBold.ttf */; };
 		5D6E964A75144C864A98CD90 /* TapGridConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */; };
 		627AE6E6211B2B61EB98FA5E /* TranslationOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9724D8E3412C42844B315DC /* TranslationOverlayView.swift */; };
 		636D050278564B080A955458 /* NyoraDeviceRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C073DAF8B78415A1EB6A0691 /* NyoraDeviceRelay.swift */; };
@@ -69,6 +71,8 @@
 		87402B78F801CF24039ED759 /* KitsuApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3447DE77858D7745F1E077EE /* KitsuApi.swift */; };
 		87A404D42AD9AF718C7366A8 /* KitsuModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3965F14F6A6C1E800310550 /* KitsuModels.swift */; };
 		892F2733E12D908A19A4197B /* MangaTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC957E858BF86E567DE49FA4 /* MangaTranslator.swift */; };
+		90B021E2A66BC190A5F985F2 /* Poppins-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 705EFF46218F7C9567BD43D4 /* Poppins-Bold.ttf */; };
+		A03B7C25A6EC6519C9D51A2A /* Poppins-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E4E8285D41654FEE6D51441A /* Poppins-Black.ttf */; };
 		A0A9BB9C56C836C786EF4FA1 /* NyoraAltTitleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */; };
 		A1D3D6D382085367109ED25B /* NyoraRatingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B622854854C3846D734AED79 /* NyoraRatingStore.swift */; };
 		A436FFEBDFA37033CE627BDA /* VolumeButtonHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501E78B384245931983B9C1C /* VolumeButtonHandler.swift */; };
@@ -83,9 +87,11 @@
 		C9E7B4224661C3BDA0E3371B /* NavSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259AEEA262A257B43E68179D /* NavSection.swift */; };
 		D25477168BD5C13D55CFD9D6 /* TranslationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E41E90BB517AF2ABC308D9B /* TranslationController.swift */; };
 		D6063582C3824F3C8DAD1886 /* KitsuTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866B83B509B09A6591CB704D /* KitsuTracker.swift */; };
+		D82B64BAB7C7EB52757C6D08 /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5638448380D73A97E952206F /* Poppins-Medium.ttf */; };
 		DC4F70CA47A4AFD3B3C0A0E0 /* ColorFilterProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0724DE86CCBF1987A523779A /* ColorFilterProcessor.swift */; };
 		DFA62BB8ADFA6C7D4AD53D2F /* GoogleTranslate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */; };
 		E02BB0548DF87A744D0F26C4 /* ReaderZoomMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763ADD6FC150FB34E07A909D /* ReaderZoomMode.swift */; };
+		E585B2917B37652052FE5F43 /* NyoraTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5980D478D9C0DE81DEA39865 /* NyoraTheme.swift */; };
 		E9906D9F543D99D683D909D0 /* AppleIntelligenceRefiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */; };
 		EC6804FB5AA04B797947D29D /* OcrProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344A1286965DEF3002F0D97B /* OcrProvider.swift */; };
 		FB0051222FAF054D004B4A6F /* MigrateSelectSeriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0051212FAF053F004B4A6F /* MigrateSelectSeriesView.swift */; };
@@ -670,6 +676,7 @@
 		344A1286965DEF3002F0D97B /* OcrProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OcrProvider.swift; sourceTree = "<group>"; };
 		36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraAltTitleStore.swift; sourceTree = "<group>"; };
 		37F3E66C2850F62100A944E0 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
+		3DB9E48E6CBDF80037AE731E /* Poppins-SemiBold.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "Poppins-SemiBold.ttf"; sourceTree = "<group>"; };
 		43E298DAD3D47DB5A4B144DE /* NavConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NavConfigView.swift; sourceTree = "<group>"; };
 		48177B8D2B75C40400AD41B4 /* MangaUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaUpdatesView.swift; sourceTree = "<group>"; };
 		48177B8F2B75C63700AD41B4 /* CoreDataManager+MangaUpdates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreDataManager+MangaUpdates.swift"; sourceTree = "<group>"; };
@@ -680,9 +687,13 @@
 		4875B8242BA6F2C3001E39CA /* MangaUpdateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaUpdateManager.swift; sourceTree = "<group>"; };
 		48E20A262B78420E00BFFED8 /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
 		501E78B384245931983B9C1C /* VolumeButtonHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VolumeButtonHandler.swift; sourceTree = "<group>"; };
+		5638448380D73A97E952206F /* Poppins-Medium.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "Poppins-Medium.ttf"; sourceTree = "<group>"; };
 		56815D972FBC7078001486C8 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		5980D478D9C0DE81DEA39865 /* NyoraTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraTheme.swift; sourceTree = "<group>"; };
+		5FFC4D99017502C24B718EF7 /* Poppins-Regular.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "Poppins-Regular.ttf"; sourceTree = "<group>"; };
 		66C7E95A2ED77BB50026FD6C /* ImageProcessingSettingsKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessingSettingsKey.swift; sourceTree = "<group>"; };
 		6DA102C0AB6E77B78488FA74 /* ReaderControlsConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderControlsConfigView.swift; sourceTree = "<group>"; };
+		705EFF46218F7C9567BD43D4 /* Poppins-Bold.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "Poppins-Bold.ttf"; sourceTree = "<group>"; };
 		723D3AF82E0DC5A5003ED4CF /* DownloadedMangaInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadedMangaInfo.swift; sourceTree = "<group>"; };
 		723D3AFB2E0DC5C4003ED4CF /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		723D3AFC2E0DC5C4003ED4CF /* DownloadedMangaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadedMangaView.swift; sourceTree = "<group>"; };
@@ -716,6 +727,7 @@
 		CBAC496ECD1A591AFA82EFC6 /* ProgressIndicatorMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressIndicatorMode.swift; sourceTree = "<group>"; };
 		D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuLoginView.swift; sourceTree = "<group>"; };
 		D855E127D4FA3E40C740BF7A /* ReaderControl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderControl.swift; sourceTree = "<group>"; };
+		E4E8285D41654FEE6D51441A /* Poppins-Black.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "Poppins-Black.ttf"; sourceTree = "<group>"; };
 		E86FCD4C820B864346BDB2A4 /* TapGrid.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGrid.swift; sourceTree = "<group>"; };
 		ECDC154ABFA4CE599400D8C2 /* ReaderToastView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ReaderToastView.swift; path = ReaderToastView.swift; sourceTree = "<group>"; };
 		F8350600443A42A7B3E16EEB /* NyoraLanguageStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraLanguageStore.swift; sourceTree = "<group>"; };
@@ -1286,6 +1298,19 @@
 			path = Sync;
 			sourceTree = "<group>";
 		};
+		AE52CE9473DEAF4F4F951162 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				5FFC4D99017502C24B718EF7 /* Poppins-Regular.ttf */,
+				5638448380D73A97E952206F /* Poppins-Medium.ttf */,
+				3DB9E48E6CBDF80037AE731E /* Poppins-SemiBold.ttf */,
+				705EFF46218F7C9567BD43D4 /* Poppins-Bold.ttf */,
+				E4E8285D41654FEE6D51441A /* Poppins-Black.ttf */,
+			);
+			name = Fonts;
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 		EAA89B5FDE6FF8F5F591CC4A /* kitsu */ = {
 			isa = PBXGroup;
 			children = (
@@ -1587,6 +1612,7 @@
 				FB4EEBDE27A4F5AF005081A3 /* iOS.entitlements */,
 				25DB8FF2010354EDB5EEEC3A /* Translation */,
 				AE3573A46B8F4B55911C2650 /* Sync */,
+				AE52CE9473DEAF4F4F951162 /* Fonts */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
@@ -1869,6 +1895,7 @@
 				FB662EFC2DA81B8200007514 /* Extensions */,
 				FB662F092DA81B8200007514 /* Utilities */,
 				FB662EB72DA813E300007514 /* Views */,
+				5980D478D9C0DE81DEA39865 /* NyoraTheme.swift */,
 			);
 			path = New;
 			sourceTree = "<group>";
@@ -2693,6 +2720,11 @@
 				FB4ADCA72815A75700F6D7FB /* InfoPlist.strings in Resources */,
 				FB4ADCA22814DD4600F6D7FB /* Localizable.strings in Resources */,
 				FB1DD89D2EF1A6BC0007FC78 /* AppIcon.icon in Resources */,
+				2BA47C03FC754A4516603E44 /* Poppins-Regular.ttf in Resources */,
+				D82B64BAB7C7EB52757C6D08 /* Poppins-Medium.ttf in Resources */,
+				5A1EF26D022AC7ECB1916938 /* Poppins-SemiBold.ttf in Resources */,
+				90B021E2A66BC190A5F985F2 /* Poppins-Bold.ttf in Resources */,
+				A03B7C25A6EC6519C9D51A2A /* Poppins-Black.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3182,6 +3214,7 @@
 				76B69A65C0CD98B0993A4F0B /* EnhancedColorsProcessor.swift in Sources */,
 				33D9D21480475186A7CBC5D9 /* ReaderToastView.swift in Sources */,
 				636D050278564B080A955458 /* NyoraDeviceRelay.swift in Sources */,
+				E585B2917B37652052FE5F43 /* NyoraTheme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
