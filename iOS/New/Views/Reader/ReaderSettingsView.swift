@@ -170,6 +170,14 @@ struct ReaderSettingsView: View {
                     )
                     SettingView(
                         setting: .init(
+                            key: "Reader.volumeButtons",
+                            title: NSLocalizedString("VOLUME_BUTTON_PAGING"),
+                            notification: .init("Reader.volumeButtons"),
+                            value: .toggle(.init())
+                        )
+                    )
+                    SettingView(
+                        setting: .init(
                             key: "Reader.backgroundColor",
                             title: NSLocalizedString("READER_BG_COLOR"),
                             value: .select(.init(

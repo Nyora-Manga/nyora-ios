@@ -52,6 +52,13 @@ class ReaderViewController: BaseObservingViewController {
     private lazy var toolbarView = ReaderToolbarView()
     private var toolbarViewWidthConstraint: NSLayoutConstraint?
 
+    private lazy var volumeButtonHandler: VolumeButtonHandler = {
+        let handler = VolumeButtonHandler(containerView: view)
+        handler.onVolumeUp = { [weak self] in self?.previousPage() }
+        handler.onVolumeDown = { [weak self] in self?.nextPage() }
+        return handler
+    }()
+
     private var squeezeTimer: Timer?
     private var longSqueezeTimer: Timer?
     private var squeezeStartTime: Date?
@@ -281,6 +288,9 @@ class ReaderViewController: BaseObservingViewController {
         addObserver(forName: "Reader.keepScreenOn") { [weak self] _ in
             self?.updateIdleTimer()
         }
+        addObserver(forName: "Reader.volumeButtons") { [weak self] _ in
+            self?.updateVolumeButtons()
+        }
         // Switch text reader style (paged <-> scroll) without restart
         addObserver(forName: "Reader.textReaderStyle") { [weak self] _ in
             guard let self else { return }
@@ -342,6 +352,7 @@ class ReaderViewController: BaseObservingViewController {
         disableSwipeGestures()
 
         updateIdleTimer()
+        updateVolumeButtons()
     }
 
     /// Prevents the device from auto-locking while the reader is on screen, if enabled.
@@ -349,11 +360,23 @@ class ReaderViewController: BaseObservingViewController {
         UIApplication.shared.isIdleTimerDisabled = UserDefaults.standard.bool(forKey: "Reader.keepScreenOn")
     }
 
+    /// Starts or stops hardware volume-button page turning based on the current setting.
+    private func updateVolumeButtons() {
+        if UserDefaults.standard.bool(forKey: "Reader.volumeButtons") {
+            volumeButtonHandler.start()
+        } else {
+            volumeButtonHandler.stop()
+        }
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
         // restore normal auto-lock behaviour when leaving the reader
         UIApplication.shared.isIdleTimerDisabled = false
+
+        // stop intercepting hardware volume buttons when leaving the reader
+        volumeButtonHandler.stop()
 
         if !chaptersToRemoveDownload.isEmpty {
             Task {
