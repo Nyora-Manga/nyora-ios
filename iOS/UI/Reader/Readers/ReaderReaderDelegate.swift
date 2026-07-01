@@ -21,10 +21,19 @@ protocol ReaderReaderDelegate: UIViewController {
     func sliderMoved(value: CGFloat)
     func sliderStopped(value: CGFloat)
     func setChapter(_ chapter: AidokuRunner.Chapter, startPage: Int)
+
+    /// Advance the reader by `points` for auto-scroll (NP-019).
+    /// Returns `false` when there is no more content to scroll.
+    func autoScrollBy(_ points: CGFloat) -> Bool
 }
 
 extension ReaderReaderDelegate {
     func toggleOffset() {
         // do nothing by default
+    }
+
+    func autoScrollBy(_ points: CGFloat) -> Bool {
+        // only supported by scrolling readers
+        false
     }
 }

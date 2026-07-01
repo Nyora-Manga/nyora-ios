@@ -564,6 +564,8 @@
 "HIDE_BARS_ON_SWIPE" = "Hide Bars on Swipe";
 "KEEP_SCREEN_ON" = "Keep Screen On";
 "VOLUME_BUTTON_PAGING" = "Volume Button Paging";
+"AUTO_SCROLL" = "Auto-scroll";
+"AUTO_SCROLL_SPEED" = "Auto-scroll Speed";
 "READER_FULLSCREEN" = "Fullscreen";
 "READER_INFO_BAR" = "Information Bar";
 "READER_INFO_BAR_SUBTITLE" = "Show the current time and reading progress while the reader controls are hidden";

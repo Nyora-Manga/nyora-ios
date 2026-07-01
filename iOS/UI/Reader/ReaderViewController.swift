@@ -63,6 +63,36 @@ class ReaderViewController: BaseObservingViewController {
         return handler
     }()
 
+    // timed auto-scroll for webtoon mode (NP-019)
+    private lazy var autoScrollController: AutoScrollController = {
+        let controller = AutoScrollController()
+        controller.scrollHandler = { [weak self] delta in
+            self?.reader?.autoScrollBy(delta) ?? false
+        }
+        controller.onActiveChanged = { [weak self] active in
+            self?.autoScrollControlView.setActive(active)
+        }
+        return controller
+    }()
+    private lazy var autoScrollControlView: AutoScrollControlView = {
+        let view = AutoScrollControlView()
+        view.onToggle = { [weak self] in self?.autoScrollController.toggle() }
+        view.onClose = { [weak self] in self?.hideAutoScrollControl() }
+        view.onSpeedChanged = { [weak self] value in
+            self?.autoScrollController.speed = Double(value)
+        }
+        view.isHidden = true
+        view.alpha = 0
+        return view
+    }()
+    private var autoScrollControlVisible = false
+    private lazy var autoScrollButton = UIBarButtonItem(
+        image: UIImage(systemName: "timer"),
+        style: .plain,
+        target: self,
+        action: #selector(toggleAutoScrollControl)
+    )
+
     private var squeezeTimer: Timer?
     private var longSqueezeTimer: Timer?
     private var squeezeStartTime: Date?
@@ -260,6 +290,9 @@ class ReaderViewController: BaseObservingViewController {
         infoBarView.isHidden = true
         view.addSubview(infoBarView)
 
+        // auto-scroll on-screen control (NP-019)
+        view.addSubview(autoScrollControlView)
+
         // bar toggle tap gesture
         fakeZoomTapGesture.isEnabled = !UserDefaults.standard.bool(forKey: "Reader.disableDoubleTap")
         view.addGestureRecognizer(fakeZoomTapGesture)
@@ -300,6 +333,25 @@ class ReaderViewController: BaseObservingViewController {
             infoBarView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             infoBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             infoBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
+            autoScrollControlView.bottomAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                constant: -16
+            ),
+            autoScrollControlView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            autoScrollControlView.leadingAnchor.constraint(
+                greaterThanOrEqualTo: view.safeAreaLayoutGuide.leadingAnchor,
+                constant: 16
+            ),
+            autoScrollControlView.trailingAnchor.constraint(
+                lessThanOrEqualTo: view.safeAreaLayoutGuide.trailingAnchor,
+                constant: -16
+            ),
+            {
+                let width = autoScrollControlView.widthAnchor.constraint(equalToConstant: 460)
+                width.priority = .defaultHigh
+                return width
+            }(),
 
             descriptionButtonController.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             pageDescriptionButtonBottomConstraint
@@ -438,6 +490,9 @@ class ReaderViewController: BaseObservingViewController {
 
         // stop intercepting hardware volume buttons when leaving the reader
         volumeButtonHandler.stop()
+
+        // stop auto-scroll when leaving the reader (NP-019)
+        autoScrollController.stop()
 
         if !chaptersToRemoveDownload.isEmpty {
             Task {
@@ -658,6 +713,60 @@ class ReaderViewController: BaseObservingViewController {
         generator.selectionChanged()
     }
 
+    // MARK: - Auto-scroll control (NP-019)
+
+    @objc func toggleAutoScrollControl() {
+        if autoScrollControlVisible {
+            hideAutoScrollControl()
+        } else {
+            showAutoScrollControl()
+        }
+    }
+
+    private func showAutoScrollControl() {
+        guard reader is ReaderWebtoonViewController else { return }
+        autoScrollControlVisible = true
+        autoScrollControlView.setActive(autoScrollController.isActive)
+        autoScrollButton.tintColor = .tintColor
+        view.bringSubviewToFront(autoScrollControlView)
+        autoScrollControlView.isHidden = false
+        autoScrollControlView.transform = CGAffineTransform(translationX: 0, y: 20)
+        UIView.animate(withDuration: CATransaction.animationDuration()) {
+            self.autoScrollControlView.alpha = 1
+            self.autoScrollControlView.transform = .identity
+        }
+    }
+
+    private func hideAutoScrollControl() {
+        autoScrollControlVisible = false
+        autoScrollController.stop()
+        autoScrollButton.tintColor = nil
+        UIView.animate(withDuration: CATransaction.animationDuration()) {
+            self.autoScrollControlView.alpha = 0
+            self.autoScrollControlView.transform = CGAffineTransform(translationX: 0, y: 20)
+        } completion: { _ in
+            if !self.autoScrollControlVisible {
+                self.autoScrollControlView.isHidden = true
+                self.autoScrollControlView.transform = .identity
+            }
+        }
+    }
+
+    /// Adds or removes the auto-scroll navbar button depending on the active reader.
+    private func updateAutoScrollButton() {
+        let isScrollReader = reader is ReaderWebtoonViewController
+        var items = navigationItem.rightBarButtonItems ?? []
+        let hasButton = items.contains(autoScrollButton)
+        if isScrollReader && !hasButton {
+            items.append(autoScrollButton)
+            navigationItem.rightBarButtonItems = items
+        } else if !isScrollReader && hasButton {
+            items.removeAll { $0 == autoScrollButton }
+            navigationItem.rightBarButtonItems = items
+            hideAutoScrollControl()
+        }
+    }
+
     @objc func openReaderSettings() {
         let currentReader: Reader
         switch reader {
@@ -811,6 +920,7 @@ extension ReaderViewController {
         }
         reader?.readingMode = readingMode
         disableSwipeGestures()
+        updateAutoScrollButton()
     }
 }
 

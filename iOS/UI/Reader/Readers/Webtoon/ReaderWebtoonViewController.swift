@@ -603,6 +603,31 @@ extension ReaderWebtoonViewController: ReaderReaderDelegate {
         scrollViewDidScroll(collectionNode.view)
     }
 
+    /// Advance the scroll position by `points` for auto-scroll (NP-019).
+    /// Returns `false` once the end of the loaded content is reached.
+    func autoScrollBy(_ points: CGFloat) -> Bool {
+        // pause advancing while the user is interacting so they can fling/drag freely
+        if scrollView.isTracking || scrollView.isDragging || isZooming {
+            return true
+        }
+        let maxOffset = scrollView.contentSize.height - scrollView.bounds.height
+        guard maxOffset > 0 else { return false }
+        let currentY = collectionNode.contentOffset.y
+        if currentY >= maxOffset - 0.5 {
+            // try to append the next chapter when infinite scroll is on, then stop
+            if infinite {
+                checkInfiniteLoad()
+            }
+            return false
+        }
+        let newY = min(currentY + points, maxOffset)
+        scrollView.setContentOffset(
+            CGPoint(x: collectionNode.contentOffset.x, y: newY),
+            animated: false
+        )
+        return true
+    }
+
     func setChapter(_ chapter: AidokuRunner.Chapter, startPage: Int) {
         self.chapter = chapter
         chapters = [chapter]
