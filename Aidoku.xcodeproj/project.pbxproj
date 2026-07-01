@@ -54,6 +54,7 @@
 		72B441A44F9DBC7456D9FEF0 /* NyoraSyncClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182FEAFBF2A567E7315C454A /* NyoraSyncClient.swift */; };
 		72D7D349B54F376B6197F22D /* NyoraSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E880AAAE669C883263D2A7 /* NyoraSource.swift */; };
 		742DDD08314C06C1DC1C5DE2 /* KitsuLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */; };
+		74387C470A4ACBE3D165605E /* NyoraAltTitleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */; };
 		7C63F0D72F48FD4B007D1811 /* TextDoublePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C63F0D52F48FD4B007D1811 /* TextDoublePageViewController.swift */; };
 		7C63F0D82F48FD4B007D1811 /* TextSinglePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C63F0D62F48FD4B007D1811 /* TextSinglePageViewController.swift */; };
 		7C63F0D92F48FD4B007D1811 /* ChapterTransitionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C63F0D42F48FD4B007D1811 /* ChapterTransitionViewController.swift */; };
@@ -62,6 +63,7 @@
 		87402B78F801CF24039ED759 /* KitsuApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3447DE77858D7745F1E077EE /* KitsuApi.swift */; };
 		87A404D42AD9AF718C7366A8 /* KitsuModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3965F14F6A6C1E800310550 /* KitsuModels.swift */; };
 		892F2733E12D908A19A4197B /* MangaTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC957E858BF86E567DE49FA4 /* MangaTranslator.swift */; };
+		A0A9BB9C56C836C786EF4FA1 /* NyoraAltTitleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */; };
 		A436FFEBDFA37033CE627BDA /* VolumeButtonHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501E78B384245931983B9C1C /* VolumeButtonHandler.swift */; };
 		ABDA9BE702D7EBD9ED57D88F /* LibraryDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */; };
 		AC9B01027AD590641D751535 /* ReaderControlsConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA102C0AB6E77B78488FA74 /* ReaderControlsConfigView.swift */; };
@@ -654,6 +656,7 @@
 		30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverRecovery.swift; sourceTree = "<group>"; };
 		3447DE77858D7745F1E077EE /* KitsuApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuApi.swift; sourceTree = "<group>"; };
 		344A1286965DEF3002F0D97B /* OcrProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OcrProvider.swift; sourceTree = "<group>"; };
+		36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraAltTitleStore.swift; sourceTree = "<group>"; };
 		37F3E66C2850F62100A944E0 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		48177B8D2B75C40400AD41B4 /* MangaUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaUpdatesView.swift; sourceTree = "<group>"; };
 		48177B8F2B75C63700AD41B4 /* CoreDataManager+MangaUpdates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreDataManager+MangaUpdates.swift"; sourceTree = "<group>"; };
@@ -1237,6 +1240,7 @@
 			isa = PBXGroup;
 			children = (
 				A1E880AAAE669C883263D2A7 /* NyoraSource.swift */,
+				36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */,
 			);
 			name = Nyora;
 			path = Nyora;
@@ -3145,6 +3149,7 @@
 				742DDD08314C06C1DC1C5DE2 /* KitsuLoginView.swift in Sources */,
 				01567DD342480215B95DE060 /* ReaderControl.swift in Sources */,
 				AC9B01027AD590641D751535 /* ReaderControlsConfigView.swift in Sources */,
+				74387C470A4ACBE3D165605E /* NyoraAltTitleStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3321,6 +3326,7 @@
 				87402B78F801CF24039ED759 /* KitsuApi.swift in Sources */,
 				1AFA4B9ECEF58ADA23497450 /* KitsuTracker.swift in Sources */,
 				3D261020E8F5780A9CCA1D95 /* ReaderControl.swift in Sources */,
+				A0A9BB9C56C836C786EF4FA1 /* NyoraAltTitleStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

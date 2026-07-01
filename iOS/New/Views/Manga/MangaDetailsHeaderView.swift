@@ -49,6 +49,7 @@ struct MangaDetailsHeaderView: View {
     @State private var isTracking = false
     @State private var hasAvailableTrackers = false
     @State private var showLibraryRemoveConfirm = false
+    @State private var altTitles: [String] = []
 
     static let coverWidth: CGFloat = 114
 
@@ -134,6 +135,16 @@ struct MangaDetailsHeaderView: View {
                         .minimumScaleFactor(0.75)
                         .contentTransitionDisabledPlease()
                         .padding(.bottom, 4)
+
+                    if !altTitles.isEmpty {
+                        Text(altTitles.prefix(3).joined(separator: " • "))
+                            .lineLimit(2)
+                            .foregroundStyle(.secondary)
+                            .font(.subheadline)
+                            .textSelection(.enabled)
+                            .padding(.bottom, 6)
+                            .transition(.opacity)
+                    }
 
                     if let authors = manga.authors, !authors.isEmpty {
                         let label = Text(authors.joined(separator: ", "))
@@ -236,6 +247,7 @@ struct MangaDetailsHeaderView: View {
         .padding(.top, 10)
         .onChange(of: manga) { _ in
             animationTrigger.toggle()
+            altTitles = NyoraAltTitleStore.shared.get(for: manga.key)
         }
         .onChange(of: nextChapter) { _ in
             updateReadButtonText()
@@ -260,6 +272,7 @@ struct MangaDetailsHeaderView: View {
         }
         .task {
             updateReadButtonText()
+            altTitles = NyoraAltTitleStore.shared.get(for: manga.key)
             hasAvailableTrackers = await TrackerManager.shared.hasAvailableTrackers(sourceKey: manga.sourceKey, mangaKey: manga.key)
         }
     }

@@ -131,6 +131,8 @@ actor NyoraSourceRunner: Runner {
         )
         var updated = manga
         if needsDetails {
+            // Stash alternate titles in the side store (the Manga model has no field for them).
+            NyoraAltTitleStore.shared.set(res.manga.altTitles ?? [], for: manga.key)
             let mapped = res.manga.intoManga(sourceKey: sourceKey, parserSource: parserSource, helper: helper)
             // Rebuild with the original encoded key preserved (it carries the
             // parser source id needed by later detail/page calls).
@@ -254,6 +256,7 @@ private struct NyoraTag: Decodable, Sendable {
 private struct NyoraManga: Decodable, Sendable {
     let id: String
     let title: String
+    let altTitles: [String]?
     let url: String?
     let coverUrl: String?
     let authors: [String]?
