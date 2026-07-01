@@ -52,6 +52,7 @@ struct MangaDetailsHeaderView: View {
     @State private var showLibraryRemoveConfirm = false
     @State private var altTitles: [String] = []
     @State private var rating: Float?
+    @State private var language: String?
 
     static let coverWidth: CGFloat = 114
 
@@ -256,6 +257,7 @@ struct MangaDetailsHeaderView: View {
             animationTrigger.toggle()
             altTitles = NyoraAltTitleStore.shared.get(for: manga.key)
             rating = NyoraRatingStore.shared.get(for: manga.key)
+            language = NyoraLanguageStore.shared.get(for: manga.key)
         }
         .onChange(of: nextChapter) { _ in
             updateReadButtonText()
@@ -282,6 +284,7 @@ struct MangaDetailsHeaderView: View {
             updateReadButtonText()
             altTitles = NyoraAltTitleStore.shared.get(for: manga.key)
             rating = NyoraRatingStore.shared.get(for: manga.key)
+            language = NyoraLanguageStore.shared.get(for: manga.key)
             hasAvailableTrackers = await TrackerManager.shared.hasAvailableTrackers(sourceKey: manga.sourceKey, mangaKey: manga.key)
         }
     }
@@ -365,9 +368,21 @@ struct MangaDetailsHeaderView: View {
         return String(format: "%.1f", rating * 5)
     }
 
+    // Translation language shown as an emoji flag + display name, mirroring
+    // nyora-android DetailsActivity textViewTranslation (details.getLocale() + emoji flag).
+    private var languageText: String? {
+        guard let language, let name = NyoraLanguageStore.displayName(forLanguageCode: language) else {
+            return nil
+        }
+        if let flag = NyoraLanguageStore.emojiFlag(forLanguageCode: language) {
+            return "\(flag) \(name)"
+        }
+        return name
+    }
+
     @ViewBuilder
     var labelsView: some View {
-        if ratingText != nil || manga.status != .unknown || (manga.contentRating != .unknown && manga.contentRating != .safe) || (bookmarked && source != nil) {
+        if ratingText != nil || languageText != nil || manga.status != .unknown || (manga.contentRating != .unknown && manga.contentRating != .safe) || (bookmarked && source != nil) {
             HStack(spacing: 6) {
                 if let ratingText {
                     LabelView(
@@ -375,6 +390,9 @@ struct MangaDetailsHeaderView: View {
                         systemImage: "star.fill",
                         background: .yellow.opacity(0.25)
                     )
+                }
+                if let languageText {
+                    LabelView(text: languageText)
                 }
                 if manga.status != .unknown {
                     LabelView(text: manga.status.title)
@@ -398,6 +416,7 @@ struct MangaDetailsHeaderView: View {
             .animation(.default, value: manga.status)
             .animation(.default, value: bookmarked)
             .animation(.default, value: rating)
+            .animation(.default, value: language)
         }
     }
 

@@ -67,8 +67,10 @@
 		A0A9BB9C56C836C786EF4FA1 /* NyoraAltTitleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */; };
 		A1D3D6D382085367109ED25B /* NyoraRatingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B622854854C3846D734AED79 /* NyoraRatingStore.swift */; };
 		A436FFEBDFA37033CE627BDA /* VolumeButtonHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501E78B384245931983B9C1C /* VolumeButtonHandler.swift */; };
+		ABB803807E5E9E03B5B795E2 /* NyoraLanguageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8350600443A42A7B3E16EEB /* NyoraLanguageStore.swift */; };
 		ABDA9BE702D7EBD9ED57D88F /* LibraryDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */; };
 		AC9B01027AD590641D751535 /* ReaderControlsConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA102C0AB6E77B78488FA74 /* ReaderControlsConfigView.swift */; };
+		B06F4BEFAF23244C3262D02D /* NyoraLanguageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8350600443A42A7B3E16EEB /* NyoraLanguageStore.swift */; };
 		B2260FD21C1E03EC27FE7011 /* ColorFilterConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 938868F450FEB8271A8B23A9 /* ColorFilterConfigView.swift */; };
 		C410B501630CDA838A6409E8 /* NyoraSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E880AAAE669C883263D2A7 /* NyoraSource.swift */; };
 		C618055CD8D1AFF0D6BCC967 /* ReaderInfoBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */; };
@@ -705,6 +707,7 @@
 		D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuLoginView.swift; sourceTree = "<group>"; };
 		D855E127D4FA3E40C740BF7A /* ReaderControl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderControl.swift; sourceTree = "<group>"; };
 		E86FCD4C820B864346BDB2A4 /* TapGrid.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGrid.swift; sourceTree = "<group>"; };
+		F8350600443A42A7B3E16EEB /* NyoraLanguageStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraLanguageStore.swift; sourceTree = "<group>"; };
 		F869329BD4B66D09F2D7FCA4 /* AutoScrollController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AutoScrollController.swift; sourceTree = "<group>"; };
 		F9724D8E3412C42844B315DC /* TranslationOverlayView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationOverlayView.swift; sourceTree = "<group>"; };
 		FB0051212FAF053F004B4A6F /* MigrateSelectSeriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrateSelectSeriesView.swift; sourceTree = "<group>"; };
@@ -1245,6 +1248,7 @@
 				A1E880AAAE669C883263D2A7 /* NyoraSource.swift */,
 				36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */,
 				B622854854C3846D734AED79 /* NyoraRatingStore.swift */,
+				F8350600443A42A7B3E16EEB /* NyoraLanguageStore.swift */,
 			);
 			name = Nyora;
 			path = Nyora;
@@ -3155,6 +3159,7 @@
 				AC9B01027AD590641D751535 /* ReaderControlsConfigView.swift in Sources */,
 				74387C470A4ACBE3D165605E /* NyoraAltTitleStore.swift in Sources */,
 				A1D3D6D382085367109ED25B /* NyoraRatingStore.swift in Sources */,
+				B06F4BEFAF23244C3262D02D /* NyoraLanguageStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3333,6 +3338,7 @@
 				3D261020E8F5780A9CCA1D95 /* ReaderControl.swift in Sources */,
 				A0A9BB9C56C836C786EF4FA1 /* NyoraAltTitleStore.swift in Sources */,
 				69B01BE9689B16769EB8FE1F /* NyoraRatingStore.swift in Sources */,
+				ABB803807E5E9E03B5B795E2 /* NyoraLanguageStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

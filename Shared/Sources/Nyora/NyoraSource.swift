@@ -61,6 +61,10 @@ actor NyoraSourceRunner: Runner {
     private let name: String
     private let helper: NyoraHelper
 
+    /// Cached mapping of parser source id -> language code, populated from the catalog.
+    /// Used to derive a title's translation language for the details header.
+    private var sourceLangs: [String: String] = [:]
+
     let features = SourceFeatures(
         providesListings: true,
         dynamicListings: true,
@@ -78,9 +82,25 @@ actor NyoraSourceRunner: Runner {
 
     func getListings() async throws -> [AidokuRunner.Listing] {
         let catalog: NyoraCatalogResponse = try await helper.get("sources/catalog")
+        cacheSourceLangs(catalog.entries)
         return catalog.entries.map {
             .init(id: $0.id, name: $0.lang.isEmpty ? $0.name : "\($0.name) (\($0.lang))", kind: .default)
         }
+    }
+
+    private func cacheSourceLangs(_ entries: [NyoraCatalogEntry]) {
+        for entry in entries where !entry.lang.isEmpty {
+            sourceLangs[entry.id] = entry.lang
+        }
+    }
+
+    /// Language code for a parser source, fetching (and caching) the catalog on first miss.
+    private func languageCode(for parserSource: String) async -> String? {
+        if let lang = sourceLangs[parserSource] { return lang }
+        if let catalog: NyoraCatalogResponse = try? await helper.get("sources/catalog") {
+            cacheSourceLangs(catalog.entries)
+        }
+        return sourceLangs[parserSource]
     }
 
     func getMangaList(listing: AidokuRunner.Listing, page: Int) async throws -> AidokuRunner.MangaPageResult {
@@ -135,6 +155,8 @@ actor NyoraSourceRunner: Runner {
             NyoraAltTitleStore.shared.set(res.manga.altTitles ?? [], for: manga.key)
             // Stash the numeric rating too (the Manga model only has a content-rating enum).
             NyoraRatingStore.shared.set(res.manga.rating, for: manga.key)
+            // Stash the translation language derived from the parser source's catalog lang.
+            NyoraLanguageStore.shared.set(await languageCode(for: parserSource), for: manga.key)
             let mapped = res.manga.intoManga(sourceKey: sourceKey, parserSource: parserSource, helper: helper)
             // Rebuild with the original encoded key preserved (it carries the
             // parser source id needed by later detail/page calls).
