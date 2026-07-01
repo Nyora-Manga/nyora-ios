@@ -48,6 +48,7 @@
 		58EABF91C7B1C74B0383ED16 /* UsernamePasswordTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A394EB074C10FD7002E24C6E /* UsernamePasswordTracker.swift */; };
 		5D6E964A75144C864A98CD90 /* TapGridConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */; };
 		627AE6E6211B2B61EB98FA5E /* TranslationOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9724D8E3412C42844B315DC /* TranslationOverlayView.swift */; };
+		636D050278564B080A955458 /* NyoraDeviceRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C073DAF8B78415A1EB6A0691 /* NyoraDeviceRelay.swift */; };
 		66B9F8A49F92C21E35DCB4F0 /* ProgressIndicatorMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBAC496ECD1A591AFA82EFC6 /* ProgressIndicatorMode.swift */; };
 		66C7E95B2ED77BBD0026FD6C /* ImageProcessingSettingsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C7E95A2ED77BB50026FD6C /* ImageProcessingSettingsKey.swift */; };
 		69B01BE9689B16769EB8FE1F /* NyoraRatingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B622854854C3846D734AED79 /* NyoraRatingStore.swift */; };
@@ -710,6 +711,7 @@
 		B3965F14F6A6C1E800310550 /* KitsuModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuModels.swift; sourceTree = "<group>"; };
 		B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderInfoBarView.swift; sourceTree = "<group>"; };
 		B622854854C3846D734AED79 /* NyoraRatingStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraRatingStore.swift; sourceTree = "<group>"; };
+		C073DAF8B78415A1EB6A0691 /* NyoraDeviceRelay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraDeviceRelay.swift; sourceTree = "<group>"; };
 		C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGridConfigView.swift; sourceTree = "<group>"; };
 		CBAC496ECD1A591AFA82EFC6 /* ProgressIndicatorMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressIndicatorMode.swift; sourceTree = "<group>"; };
 		D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuLoginView.swift; sourceTree = "<group>"; };
@@ -1278,6 +1280,7 @@
 			children = (
 				182FEAFBF2A567E7315C454A /* NyoraSyncClient.swift */,
 				88D04FA91678DC60A6F95C3F /* NyoraAccountView.swift */,
+				C073DAF8B78415A1EB6A0691 /* NyoraDeviceRelay.swift */,
 			);
 			name = Sync;
 			path = Sync;
@@ -3178,6 +3181,7 @@
 				3B0299147D7CA03B983C727D /* NavConfigView.swift in Sources */,
 				76B69A65C0CD98B0993A4F0B /* EnhancedColorsProcessor.swift in Sources */,
 				33D9D21480475186A7CBC5D9 /* ReaderToastView.swift in Sources */,
+				636D050278564B080A955458 /* NyoraDeviceRelay.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

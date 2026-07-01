@@ -322,6 +322,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             object: nil
         )
 
+        // Device-as-egress relay: lets the Nyora helper delegate Cloudflare
+        // Turnstile fetches to this device (solved in a WebView from the phone's IP).
+        NyoraDeviceRelay.shared.start()
+
         return true
     }
 
