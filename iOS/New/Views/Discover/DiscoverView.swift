@@ -29,6 +29,8 @@ struct DiscoverView: View {
 
     var body: some View {
         content
+            .navigationTitle(NSLocalizedString("DISCOVER", comment: ""))
+            .navigationBarTitleDisplayMode(.automatic)
             .task {
                 guard !hasLoaded else { return }
                 hasLoaded = true

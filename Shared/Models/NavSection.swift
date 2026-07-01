@@ -10,6 +10,7 @@ import Foundation
 /// A bottom-tab section in the main screen. Mirrors nyora-android's `NavItem`,
 /// mapped onto Aidoku's tab set (Library / Browse / History / Search / Settings).
 enum NavSection: String, CaseIterable {
+    case discover
     case library
     case browse
     case history
@@ -18,6 +19,7 @@ enum NavSection: String, CaseIterable {
 
     var title: String {
         switch self {
+            case .discover: NSLocalizedString("DISCOVER")
             case .library: NSLocalizedString("LIBRARY")
             case .browse: NSLocalizedString("BROWSE")
             case .history: NSLocalizedString("HISTORY")
@@ -28,6 +30,7 @@ enum NavSection: String, CaseIterable {
 
     var systemImage: String {
         switch self {
+            case .discover: "sparkles"
             case .library: "books.vertical.fill"
             case .browse: "globe"
             case .history: "clock.fill"
@@ -50,7 +53,7 @@ enum NavConfig {
     static let key = "Appearance.navSections"
 
     /// Default ordering matches the historical hardcoded tab order.
-    static let defaultSections: [NavSection] = [.library, .browse, .history, .search, .settings]
+    static let defaultSections: [NavSection] = [.discover, .library, .browse, .history, .search, .settings]
 
     /// The ordered list of enabled sections, always guaranteeing the required
     /// sections are present and at least one browsable section exists.

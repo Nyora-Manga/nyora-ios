@@ -90,6 +90,12 @@ class TabBarController: UITabBarController {
     private func setUpTabs() {
         enabledSections = NavConfig.enabledSections
 
+        let discoverPath = NavigationCoordinator(rootViewController: nil)
+        let discoverHostingController = UIHostingController(rootView: DiscoverView()
+            .environmentObject(discoverPath))
+        discoverPath.rootViewController = discoverHostingController
+        let discoverViewController = NavigationController(rootViewController: discoverHostingController)
+
         let libraryViewController = NavigationController(rootViewController: LibraryViewController())
         let browseViewController = NavigationController(rootViewController: BrowseViewController())
         let searchViewController = NavigationController(rootViewController: SearchViewController())
@@ -121,6 +127,7 @@ class TabBarController: UITabBarController {
         }
         self.settingsPath = settingsPath
 
+        discoverViewController.navigationBar.prefersLargeTitles = true
         libraryViewController.navigationBar.prefersLargeTitles = true
         browseViewController.navigationBar.prefersLargeTitles = true
         historyViewController.navigationBar.prefersLargeTitles = true
@@ -128,6 +135,7 @@ class TabBarController: UITabBarController {
 
         func viewController(for section: NavSection) -> UIViewController {
             switch section {
+                case .discover: discoverViewController
                 case .library: libraryViewController
                 case .browse: browseViewController
                 case .history: historyViewController
