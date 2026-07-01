@@ -6,7 +6,7 @@ Build check: `cd /Users/hasanraza/Desktop/kotatsu/Nyora/Aidoku && xcodebuild -pr
 
 ## Phase 2 — Reusable style primitives (foundational, low-risk)
 - [x] ND-001 | Nyora pill ButtonStyle (fully-rounded, indigo fill / white variant) | area:library | android:res/values/styles.xml Widget.Nyora.Button.Pill | target:iOS/New/Utilities/ButtonStyles/NyoraPillButtonStyle.swift | new SwiftUI ButtonStyle renders a cornerPill capsule with Poppins SemiBold label; compiles and previews ✓ .nyoraPill / .nyoraPillWhite Capsule styles w/ Poppins SemiBold, press scale; registered + BUILD SUCCEEDED
-- [ ] ND-002 | Tinted-card ViewModifier (flat, surface tint + 1px outline, cornerCard) | area:library | android:res/values/styles.xml Widget.Nyora.Card.Tinted | target:iOS/New/Utilities/NyoraCardStyle.swift | `.nyoraTintedCard()` modifier applies slateOnSurface fill, 1px indigo-tint border, 20pt corners, 0 shadow
+- [x] ND-002 | Tinted-card ViewModifier (flat, surface tint + 1px outline, cornerCard) | area:library | android:res/values/styles.xml Widget.Nyora.Card.Tinted | target:iOS/New/Utilities/NyoraCardStyle.swift | `.nyoraTintedCard()` modifier applies slateOnSurface fill, 1px indigo-tint border, 20pt corners, 0 shadow ✓ NyoraTintedCardModifier + .nyoraTintedCard(cornerRadius:padding:); adaptive tinted surface (slate 100/800) + 1px indigo outline, 0 shadow; registered + BUILD SUCCEEDED
 
 ## Phase 3 — Library grid restyle
 - [ ] ND-003 | Library grid card restyle to tinted card + 12pt cover | area:library | android:item_manga_grid.xml | target:iOS/New/Views/Common/MangaGridItem.swift | grid item uses nyoraTintedCard, cover clipped 13:18 at cornerCover, Poppins SemiBold title; grid still scrolls/taps

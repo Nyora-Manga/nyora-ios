@@ -53,6 +53,7 @@
 		636D050278564B080A955458 /* NyoraDeviceRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C073DAF8B78415A1EB6A0691 /* NyoraDeviceRelay.swift */; };
 		66B9F8A49F92C21E35DCB4F0 /* ProgressIndicatorMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBAC496ECD1A591AFA82EFC6 /* ProgressIndicatorMode.swift */; };
 		66C7E95B2ED77BBD0026FD6C /* ImageProcessingSettingsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C7E95A2ED77BB50026FD6C /* ImageProcessingSettingsKey.swift */; };
+		68D289DEC2E215066DE7BCBE /* NyoraCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2709857F2ABDF9DD3137E33C /* NyoraCardStyle.swift */; };
 		69B01BE9689B16769EB8FE1F /* NyoraRatingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B622854854C3846D734AED79 /* NyoraRatingStore.swift */; };
 		723D3AF92E0DC5A5003ED4CF /* DownloadedMangaInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723D3AF82E0DC5A5003ED4CF /* DownloadedMangaInfo.swift */; };
 		723D3AFA2E0DC5A5003ED4CF /* DownloadedMangaInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723D3AF82E0DC5A5003ED4CF /* DownloadedMangaInfo.swift */; };
@@ -672,6 +673,7 @@
 		10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoogleTranslate.swift; sourceTree = "<group>"; };
 		182FEAFBF2A567E7315C454A /* NyoraSyncClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSyncClient.swift; sourceTree = "<group>"; };
 		259AEEA262A257B43E68179D /* NavSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavSection.swift; path = NavSection.swift; sourceTree = "<group>"; };
+		2709857F2ABDF9DD3137E33C /* NyoraCardStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraCardStyle.swift; sourceTree = "<group>"; };
 		2A3A5D830DD2C2ED379A4359 /* NyoraPillButtonStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraPillButtonStyle.swift; sourceTree = "<group>"; };
 		30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverRecovery.swift; sourceTree = "<group>"; };
 		3447DE77858D7745F1E077EE /* KitsuApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuApi.swift; sourceTree = "<group>"; };
@@ -2096,6 +2098,7 @@
 				FBD796692ED270B100BD05F4 /* PageBackground.swift */,
 				FB8E48D62DBFCFFF002A3621 /* NavigationCoordinator.swift */,
 				FB792F752DC90C84001EC616 /* UserDefaultsObserver.swift */,
+				2709857F2ABDF9DD3137E33C /* NyoraCardStyle.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -3219,6 +3222,7 @@
 				636D050278564B080A955458 /* NyoraDeviceRelay.swift in Sources */,
 				E585B2917B37652052FE5F43 /* NyoraTheme.swift in Sources */,
 				D0B3C1FF868C77D62E6A9C11 /* NyoraPillButtonStyle.swift in Sources */,
+				68D289DEC2E215066DE7BCBE /* NyoraCardStyle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
