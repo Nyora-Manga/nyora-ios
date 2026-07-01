@@ -250,11 +250,159 @@ final class NyoraSyncClient: ObservableObject {
         return added
     }
 
+    // MARK: - Tracking push / pull
+
+    /// iOS TrackStatus.rawValue -> canonical status string (see NYORA_TRACKING_SCHEMA.md §2).
+    private nonisolated static func canonicalStatus(_ rawValue: Int) -> String {
+        switch rawValue {
+            case 1: "reading"
+            case 2: "planning"
+            case 3: "completed"
+            case 4: "paused"
+            case 5: "dropped"
+            case 6: "rereading"
+            default: "" // .none (7) / unknown -> no status
+        }
+    }
+
+    /// Pushes linked trackers (CoreData `TrackObject`) plus their live `TrackState`
+    /// to `nyora_tracking` using the canonical snake_case schema + LWW `updated_at`.
+    ///
+    /// The server upserts the full row (missing keys become column defaults), so every
+    /// canonical column is emitted. When a tracker is logged in but its live state can't
+    /// be fetched (transient/network error), that row is skipped this cycle rather than
+    /// clobbering richer remote state with zero defaults.
+    @discardableResult
+    func pushTracking() async throws -> Int {
+        let now = Self.iso.string(from: Date())
+
+        let items: [TrackItem] = await CoreDataManager.shared.container.performBackgroundTask { context in
+            CoreDataManager.shared.getTracks(context: context).map { $0.toItem() }
+        }
+        guard !items.isEmpty else { return 0 }
+
+        var rows: [[String: Any]] = []
+        for item in items {
+            // Base link fields — always present.
+            var row: [String: Any] = [
+                "tracker_id": item.trackerId,
+                "remote_id": item.id,
+                "source_id": item.sourceId,
+                "manga_id": item.mangaId,
+                "title": item.title ?? "",
+                "chapter_offset": item.chapterOffset,
+                "comment": "",
+                // canonical state defaults (overwritten below if we have live state)
+                "status": "",
+                "score": 0.0,
+                "last_read_chapter": 0.0,
+                "last_read_volume": 0,
+                "total_chapters": 0,
+                "total_volumes": 0,
+                "started_at": "",
+                "finished_at": "",
+                "updated_at": now
+            ]
+
+            // Fetch live state from the tracker service, if reachable.
+            if let tracker = TrackerManager.getTracker(id: item.trackerId), tracker.isLoggedIn {
+                let state: TrackState
+                do {
+                    state = try await tracker.getState(trackId: item.id)
+                } catch {
+                    // Don't overwrite good remote state with empty defaults on a transient failure.
+                    continue
+                }
+                if let status = state.status {
+                    row["status"] = Self.canonicalStatus(status.rawValue)
+                }
+                row["score"] = Double(state.score ?? 0)
+                row["last_read_chapter"] = Double(state.lastReadChapter ?? 0)
+                row["last_read_volume"] = state.lastReadVolume ?? 0
+                row["total_chapters"] = state.totalChapters ?? 0
+                row["total_volumes"] = state.totalVolumes ?? 0
+                if let d = state.startReadDate { row["started_at"] = Self.iso.string(from: d) }
+                if let d = state.finishReadDate { row["finished_at"] = Self.iso.string(from: d) }
+            }
+
+            rows.append(row)
+        }
+
+        return try await upsert(table: "nyora_tracking", rows: rows)
+    }
+
+    /// Pulls `nyora_tracking` rows and reconstructs the local tracker links
+    /// (`TrackObject`). Restores missing links for trackers this platform recognizes,
+    /// and honors soft-delete tombstones by removing the local link. The live state
+    /// itself lives on the tracker service and is refreshed separately.
+    @discardableResult
+    func pullTracking() async throws -> Int {
+        let rows = try await select(table: "nyora_tracking", since: nil)
+        guard !rows.isEmpty else { return 0 }
+
+        var changed = 0
+        await CoreDataManager.shared.container.performBackgroundTask { context in
+            for row in rows {
+                guard
+                    let trackerId = row["tracker_id"] as? String, !trackerId.isEmpty,
+                    let sourceId = row["source_id"] as? String,
+                    let mangaId = row["manga_id"] as? String, !mangaId.isEmpty
+                else { continue }
+
+                let deleted = (row["deleted_at"] as? String).map { !$0.isEmpty } ?? false
+                let exists = CoreDataManager.shared.hasTrack(
+                    trackerId: trackerId,
+                    sourceId: sourceId,
+                    mangaId: mangaId,
+                    context: context
+                )
+
+                if deleted {
+                    if exists {
+                        CoreDataManager.shared.removeTrack(
+                            trackerId: trackerId,
+                            sourceId: sourceId,
+                            mangaId: mangaId,
+                            context: context
+                        )
+                        changed += 1
+                    }
+                    continue
+                }
+
+                if exists { continue }
+                // Only restore links for trackers available on this platform.
+                guard TrackerManager.getTracker(id: trackerId) != nil else { continue }
+                let remoteId = (row["remote_id"] as? String) ?? ""
+                guard !remoteId.isEmpty else { continue }
+
+                CoreDataManager.shared.createTrack(
+                    id: remoteId,
+                    trackerId: trackerId,
+                    sourceId: sourceId,
+                    mangaId: mangaId,
+                    title: row["title"] as? String,
+                    chapterOffset: (row["chapter_offset"] as? Int) ?? 0,
+                    context: context
+                )
+                changed += 1
+            }
+            try? context.save()
+        }
+
+        if changed > 0 {
+            NotificationCenter.default.post(name: .updateTrackers, object: nil)
+        }
+        return changed
+    }
+
     @discardableResult
     func syncNow() async throws -> (pushed: Int, pulled: Int) {
         let pulled = try await pullLibrary()
         let pushed = try await pushLibrary()
-        return (pushed, pulled)
+        let tracksPulled = try await pullTracking()
+        let tracksPushed = try await pushTracking()
+        return (pushed + tracksPushed, pulled + tracksPulled)
     }
 
     // MARK: - Helpers
