@@ -106,40 +106,61 @@ actor NyoraSourceRunner: Runner {
         Self.featuredSources.map { .init(id: $0.id, name: $0.name, kind: .default) }
     }
 
+    /// Outcome of fetching one featured source's popular list for the Home.
+    private enum HomeFetchOutcome: Sendable {
+        case component(AidokuRunner.HomeComponent) // succeeded, has entries
+        case empty                                 // succeeded but no entries (or all NSFW-filtered)
+        case failed                                // request threw (network/backend error)
+    }
+
     /// Home screen: one horizontal "popular" scroller per curated featured
-    /// source. Sources are fetched concurrently and any that error or return
-    /// nothing are silently dropped, so a single flaky parser never blanks the
-    /// whole Home. Tapping "more" on a scroller opens that source's listing.
+    /// source. Sources are fetched concurrently and any that individually error
+    /// or return nothing are dropped, so a single flaky parser never blanks the
+    /// whole Home. But if *every* featured source fails (e.g. the backend is
+    /// down or offline), we throw so the UI shows an error + retry instead of a
+    /// silent blank Home. Tapping "more" on a scroller opens that source's listing.
     func getHome() async throws -> AidokuRunner.Home {
         let sources = Self.featuredSources
-        var components: [AidokuRunner.HomeComponent?] = Array(repeating: nil, count: sources.count)
+        var outcomes: [HomeFetchOutcome] = Array(repeating: .failed, count: sources.count)
 
-        await withTaskGroup(of: (Int, AidokuRunner.HomeComponent?).self) { group in
+        await withTaskGroup(of: (Int, HomeFetchOutcome).self) { group in
             for (index, source) in sources.enumerated() {
                 group.addTask { [helper, sourceKey] in
-                    let res: NyoraBrowseResponse? = try? await helper.get(
-                        "sources/popular",
-                        items: [.init(name: "id", value: source.id), .init(name: "page", value: "1")]
-                    )
-                    guard let res else { return (index, nil) }
-                    let manga = self.filteringNsfw(
-                        res.entries.map { $0.intoManga(sourceKey: sourceKey, parserSource: source.id, helper: helper) }
-                    )
-                    guard !manga.isEmpty else { return (index, nil) }
-                    let listing = AidokuRunner.Listing(id: source.id, name: source.name, kind: .default)
-                    let component = AidokuRunner.HomeComponent(
-                        title: source.name,
-                        value: .scroller(entries: manga.map { $0.intoLink() }, listing: listing)
-                    )
-                    return (index, component)
+                    do {
+                        let res: NyoraBrowseResponse = try await helper.get(
+                            "sources/popular",
+                            items: [.init(name: "id", value: source.id), .init(name: "page", value: "1")]
+                        )
+                        let manga = self.filteringNsfw(
+                            res.entries.map { $0.intoManga(sourceKey: sourceKey, parserSource: source.id, helper: helper) }
+                        )
+                        guard !manga.isEmpty else { return (index, .empty) }
+                        let listing = AidokuRunner.Listing(id: source.id, name: source.name, kind: .default)
+                        let component = AidokuRunner.HomeComponent(
+                            title: source.name,
+                            value: .scroller(entries: manga.map { $0.intoLink() }, listing: listing)
+                        )
+                        return (index, .component(component))
+                    } catch {
+                        return (index, .failed)
+                    }
                 }
             }
-            for await (index, component) in group {
-                components[index] = component
+            for await (index, outcome) in group {
+                outcomes[index] = outcome
             }
         }
 
-        return .init(components: components.compactMap { $0 })
+        // If every featured source errored (not merely returned empty), the
+        // backend is unreachable — surface it so the UI offers a retry.
+        if !sources.isEmpty && outcomes.allSatisfy({ if case .failed = $0 { true } else { false } }) {
+            throw SourceError.message("REQUEST_FAILED")
+        }
+
+        let components = outcomes.compactMap { outcome -> AidokuRunner.HomeComponent? in
+            if case let .component(component) = outcome { component } else { nil }
+        }
+        return .init(components: components)
     }
 
     private func cacheSourceLangs(_ entries: [NyoraCatalogEntry]) {
