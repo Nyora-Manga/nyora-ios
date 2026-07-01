@@ -20,6 +20,16 @@ class TabBarController: UITabBarController {
 
     private lazy var libraryProgressView = CircularProgressView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
 
+    /// Floating rounded "pill" backing for the tab bar on pre-iOS 26 (iOS 26 floats natively).
+    private lazy var floatingTabPill: UIVisualEffectView = {
+        let view = UIVisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterial))
+        view.isUserInteractionEnabled = false
+        view.clipsToBounds = true
+        view.layer.borderWidth = 1
+        view.layer.borderColor = NyoraTheme.indigo.withAlphaComponent(0.18).cgColor
+        return view
+    }()
+
     private lazy var libraryRefreshAccessory: UIView = {
         let view = UIView()
 
@@ -70,6 +80,7 @@ class TabBarController: UITabBarController {
 
         delegate = self
 
+        configureFloatingTabBar()
         setUpTabs()
 
         NotificationCenter.default.publisher(for: .incognitoMode)
@@ -84,6 +95,60 @@ class TabBarController: UITabBarController {
                 self?.setUpTabs()
             }
             .store(in: &cancellables)
+    }
+
+    /// Nyora tab bar: indigo selected tint + Poppins labels, and (pre-iOS 26) a
+    /// floating rounded pill backing so the bar reads as a detached capsule.
+    private func configureFloatingTabBar() {
+        tabBar.tintColor = NyoraTheme.indigo
+        tabBar.unselectedItemTintColor = .secondaryLabel
+
+        let itemAppearance = UITabBarItemAppearance()
+        for state in [itemAppearance.normal, itemAppearance.selected, itemAppearance.focused, itemAppearance.disabled] {
+            state.titleTextAttributes = [.font: NyoraTheme.poppins(10, .medium)]
+        }
+        itemAppearance.selected.titleTextAttributes = [
+            .font: NyoraTheme.poppins(10, .semibold),
+            .foregroundColor: NyoraTheme.indigo
+        ]
+        itemAppearance.selected.iconColor = NyoraTheme.indigo
+        itemAppearance.normal.iconColor = .secondaryLabel
+
+        let appearance = UITabBarAppearance()
+        if #available(iOS 26.0, *) {
+            // Keep the native liquid-glass floating bar; only retint items.
+            appearance.configureWithDefaultBackground()
+        } else {
+            // Transparent bar so our floating pill provides the surface.
+            appearance.configureWithTransparentBackground()
+            if floatingTabPill.superview == nil {
+                tabBar.insertSubview(floatingTabPill, at: 0)
+            }
+        }
+        appearance.stackedLayoutAppearance = itemAppearance
+        appearance.inlineLayoutAppearance = itemAppearance
+        appearance.compactInlineLayoutAppearance = itemAppearance
+
+        tabBar.standardAppearance = appearance
+        if #available(iOS 15.0, *) {
+            tabBar.scrollEdgeAppearance = appearance
+        }
+    }
+
+    private func layoutFloatingTabPill() {
+        guard floatingTabPill.superview != nil else { return }
+        let horizontalInset: CGFloat = 12
+        let topInset: CGFloat = 6
+        let bottomInset = max(view.safeAreaInsets.bottom - 8, 4)
+        let frame = CGRect(
+            x: horizontalInset,
+            y: topInset,
+            width: tabBar.bounds.width - horizontalInset * 2,
+            height: tabBar.bounds.height - topInset - bottomInset
+        )
+        guard frame.width > 0, frame.height > 0 else { return }
+        floatingTabPill.frame = frame
+        floatingTabPill.layer.cornerRadius = min(frame.height / 2, NyoraTheme.cornerCard)
     }
 
     // swiftlint:disable:next function_body_length
@@ -248,6 +313,8 @@ extension TabBarController {
 
     override func viewDidLayoutSubviews() {
         if #unavailable(iOS 26.0) {
+            layoutFloatingTabPill()
+
             let height: CGFloat = 48
             let padding: CGFloat = 16
 
