@@ -225,6 +225,10 @@ struct MangaDetailsHeaderView: View {
                 ListDivider()
             }
         }
+        .background(alignment: .top) {
+            backdropView
+                .ignoresSafeArea(edges: .top)
+        }
         .animation(.default, value: animationTrigger)
         .animation(.default, value: descriptionExpanded)
         .foregroundStyle(.primary)
@@ -257,6 +261,45 @@ struct MangaDetailsHeaderView: View {
         .task {
             updateReadButtonText()
             hasAvailableTrackers = await TrackerManager.shared.hasAvailableTrackers(sourceKey: manga.sourceKey, mangaKey: manga.key)
+        }
+    }
+
+    // Blurred cover backdrop with a bottom gradient fade + stretch parallax on pull-down.
+    // Mirrors nyora-android's imageView_blur_background + gradient_fade_bottom + ParallaxScrollListener.
+    @ViewBuilder
+    var backdropView: some View {
+        if let cover = manga.cover, !cover.isEmpty {
+            GeometryReader { geo in
+                // minY relative to the enclosing list; >0 while the list is pulled down (overscroll)
+                let minY = geo.frame(in: .named("mangaScroll")).minY
+                let stretch = max(0, minY)
+                let baseHeight: CGFloat = 300
+
+                SourceImageView(
+                    source: source,
+                    imageUrl: cover,
+                    contentMode: .fill
+                )
+                .frame(width: geo.size.width, height: baseHeight + stretch)
+                .blur(radius: 12)
+                .opacity(0.4)
+                .clipped()
+                .offset(y: -stretch)
+                .overlay {
+                    LinearGradient(
+                        colors: [
+                            Color(uiColor: .systemBackground).opacity(0),
+                            Color(uiColor: .systemBackground).opacity(0.55),
+                            Color(uiColor: .systemBackground)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .offset(y: -stretch)
+                }
+            }
+            .frame(height: 300)
+            .allowsHitTesting(false)
         }
     }
 

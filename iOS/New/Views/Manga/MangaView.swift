@@ -107,6 +107,7 @@ struct MangaView: View {
             .environment(\.defaultMinListRowHeight, 10)
             .transition(.opacity)
             .listStyle(.plain)
+            .coordinateSpace(name: "mangaScroll")
             .refreshable {
                 await viewModel.refresh()
             }
