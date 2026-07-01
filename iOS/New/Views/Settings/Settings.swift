@@ -180,6 +180,13 @@ extension Settings {
                 ]
             ))
         ),
+        .init(value: .group(.init(items: [
+            .init(
+                key: "Appearance.appLanguage",
+                title: NSLocalizedString("LANGUAGE"),
+                value: .page(.init(items: []))
+            )
+        ]))),
         .init(
             title: NSLocalizedString("LAYOUT"),
             value: .group(.init(items: [

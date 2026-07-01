@@ -22,6 +22,7 @@
 		2690B12D90028F56F1EB4F61 /* AutoScrollController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F869329BD4B66D09F2D7FCA4 /* AutoScrollController.swift */; };
 		2954DCCC05A0E7F45A9DC37F /* TranslationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91157E161122819CBE01C634 /* TranslationModels.swift */; };
 		30EAB0012FC051B5000BFEDF /* CoverRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */; };
+		327147DDABB9F319C8591880 /* LanguagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08445594D90A53709E9CD7C5 /* LanguagePickerView.swift */; };
 		37F3E66D2850F62100A944E0 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F3E66C2850F62100A944E0 /* Collection.swift */; };
 		444172AB210678DDF474D1B2 /* NyoraAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D04FA91678DC60A6F95C3F /* NyoraAccountView.swift */; };
 		46EEB80291770D1BAEFF8FAC /* AmoledTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FB7412A66C9729E21F3BA9 /* AmoledTheme.swift */; };
@@ -634,6 +635,7 @@
 		04B48CFA2CD6838600F719D0 /* ShikimoriApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShikimoriApi.swift; sourceTree = "<group>"; };
 		04B48CFD2CD6B3AD00F719D0 /* ShikimoriQueries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShikimoriQueries.swift; sourceTree = "<group>"; };
 		0724DE86CCBF1987A523779A /* ColorFilterProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ColorFilterProcessor.swift; sourceTree = "<group>"; };
+		08445594D90A53709E9CD7C5 /* LanguagePickerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LanguagePickerView.swift; sourceTree = "<group>"; };
 		0C807DDC27D47C2D0042EE7B /* CircularProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoogleTranslate.swift; sourceTree = "<group>"; };
 		182FEAFBF2A567E7315C454A /* NyoraSyncClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSyncClient.swift; sourceTree = "<group>"; };
@@ -2094,6 +2096,7 @@
 				FB5E5D002E32BFC300843E27 /* TapZonesSelectView.swift */,
 				955F2F74E9E812227602DD9B /* AccentColorView.swift */,
 				93FB7412A66C9729E21F3BA9 /* AmoledTheme.swift */,
+				08445594D90A53709E9CD7C5 /* LanguagePickerView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -3099,6 +3102,7 @@
 				1EB95D165E6EB8B6D2BA7452 /* ReaderAnimationMode.swift in Sources */,
 				C618055CD8D1AFF0D6BCC967 /* ReaderInfoBarView.swift in Sources */,
 				2690B12D90028F56F1EB4F61 /* AutoScrollController.swift in Sources */,
+				327147DDABB9F319C8591880 /* LanguagePickerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

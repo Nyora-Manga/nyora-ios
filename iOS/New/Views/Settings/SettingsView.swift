@@ -293,7 +293,9 @@ extension SettingsView {
 
     @ViewBuilder
     func pageContentHandler(_ key: String) -> (some View)? {
-        if key == "Library.categories" {
+        if key == "Appearance.appLanguage" {
+            LanguagePickerView()
+        } else if key == "Library.categories" {
             CategoriesView()
         } else if key == "Library.filterGroups" {
             FilterGroupsView()

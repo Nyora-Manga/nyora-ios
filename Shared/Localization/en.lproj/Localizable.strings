@@ -444,6 +444,10 @@
 "USE_SYSTEM_APPEARANCE" = "Use System Appearance";
 "AMOLED_THEME" = "AMOLED Dark Theme";
 "AMOLED_THEME_TEXT" = "Uses true black backgrounds in dark mode to save power on OLED displays.";
+"FOLLOW_SYSTEM" = "Follow System";
+"APP_LANGUAGE_FOOTER" = "Choose the language used throughout the app. Restart the app to apply the change.";
+"RESTART_REQUIRED" = "Restart Required";
+"RESTART_REQUIRED_TEXT" = "Please restart the app for the language change to take full effect.";
 "LAYOUT" = "Layout";
 "STANDARD" = "Standard";
 "COMPACT" = "Compact";
