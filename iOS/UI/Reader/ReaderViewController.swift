@@ -1312,7 +1312,12 @@ extension ReaderViewController {
                 hideBars()
             }
             // handle page moving
-            if UserDefaults.standard.bool(forKey: "Reader.invertTapZones") {
+            var invert = UserDefaults.standard.bool(forKey: "Reader.invertTapZones")
+            // keep tap/control direction left-to-right even in RTL mode
+            if readingMode == .rtl && UserDefaults.standard.bool(forKey: "Reader.tapsLTR") {
+                invert.toggle()
+            }
+            if invert {
                 switch type {
                     case .left: reader.moveRight()
                     case .right: reader.moveLeft()

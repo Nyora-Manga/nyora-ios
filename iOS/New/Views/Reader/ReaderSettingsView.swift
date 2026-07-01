@@ -296,6 +296,17 @@ struct ReaderSettingsView: View {
 
                     SettingView(
                         setting: .init(
+                            key: "Reader.tapsLTR",
+                            title: NSLocalizedString("READER_CONTROL_LTR"),
+                            notification: .init("Reader.tapsLTR"),
+                            value: .toggle(.init(
+                                subtitle: NSLocalizedString("READER_CONTROL_LTR_SUBTITLE")
+                            ))
+                        )
+                    )
+
+                    SettingView(
+                        setting: .init(
                             key: "Reader.animation",
                             title: NSLocalizedString("PAGE_ANIMATION"),
                             value: .select(.init(

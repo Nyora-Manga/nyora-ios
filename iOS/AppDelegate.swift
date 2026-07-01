@@ -179,6 +179,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Reader.cfMultitone": 0,
                 "Reader.tapZones": "disabled",
                 "Reader.invertTapZones": false,
+                "Reader.tapsLTR": false,
                 "Reader.animatePageTransitions": true,
                 "Reader.animation": "slide",
                 "Reader.backgroundColor": "black",

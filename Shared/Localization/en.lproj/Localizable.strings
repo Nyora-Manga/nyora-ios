@@ -622,6 +622,8 @@
 "TAP_ACTION_SHOW_MENU" = "Chapter List";
 "DISABLED" = "Disabled";
 "INVERT_TAP_ZONES" = "Invert Tap Zones";
+"READER_CONTROL_LTR" = "Left-to-Right Controls";
+"READER_CONTROL_LTR_SUBTITLE" = "Keep tap and control direction left-to-right even in right-to-left mode";
 "ANIMATE_PAGE_TRANSITIONS" = "Animate Page Transitions";
 "PAGE_ANIMATION" = "Page Animation";
 "PAGE_ANIMATION_NONE" = "None";
