@@ -27,6 +27,14 @@ struct DiscoverRecommendationPager: View {
     // breathing room for the iOS card outline + padding.
     private static let pageHeight: CGFloat = 104
 
+    // Cap the pager so the dots row stays legible with many trending items —
+    // one dot per page becomes an unreadable strip past ~8 pages.
+    private static let maxPages = 8
+
+    private var pages: [AidokuRunner.Manga] {
+        Array(manga.prefix(Self.maxPages))
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let title, !title.isEmpty {
@@ -36,8 +44,8 @@ struct DiscoverRecommendationPager: View {
             }
 
             TabView(selection: $selection) {
-                ForEach(manga.indices, id: \.self) { index in
-                    DiscoverRecommendationCard(source: source, manga: manga[index], onSelect: onSelect)
+                ForEach(pages.indices, id: \.self) { index in
+                    DiscoverRecommendationCard(source: source, manga: pages[index], onSelect: onSelect)
                         .padding(.horizontal, 16)
                         .tag(index)
                 }
@@ -45,8 +53,8 @@ struct DiscoverRecommendationPager: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(height: Self.pageHeight)
 
-            if manga.count > 1 {
-                DotsIndicator(count: manga.count, selection: selection)
+            if pages.count > 1 {
+                DotsIndicator(count: pages.count, selection: selection)
                     .frame(maxWidth: .infinity)
             }
         }
