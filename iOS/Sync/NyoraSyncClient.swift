@@ -396,13 +396,357 @@ final class NyoraSyncClient: ObservableObject {
         return changed
     }
 
+    // MARK: - History push / pull
+
+    /// Pushes local reading history (`HistoryObject`) to `nyora_history`.
+    /// `manga_id` is the same globally-unique composite used by the library sync,
+    /// and `source_id` is stored alongside so pulls can resolve the source directly.
+    @discardableResult
+    func pushHistory() async throws -> Int {
+        let now = Self.iso.string(from: Date())
+        let rows: [[String: Any]] = await CoreDataManager.shared.container.performBackgroundTask { context in
+            CoreDataManager.shared.getHistory(context: context).compactMap { h in
+                guard !h.sourceId.isEmpty, !h.mangaId.isEmpty, !h.chapterId.isEmpty else { return nil }
+                let mid = Self.mangaId(sourceId: h.sourceId, mangaKey: h.mangaId)
+                let total = Int(h.total)
+                let page = max(Int(h.progress), 0)
+                let percent: Double = h.completed
+                    ? 1.0
+                    : (total > 0 && page > 0 ? min(Double(page) / Double(total), 1.0) : 0.0)
+                return [
+                    "manga_id": mid,
+                    "source_id": h.sourceId,
+                    "chapter_id": h.chapterId,
+                    "chapter_title": h.chapter?.title ?? "",
+                    "page": page,
+                    "scroll": h.scrollPosition?.doubleValue ?? 0.0,
+                    "percent": percent,
+                    "chapters_count": 0,
+                    "updated_at": h.dateRead.map { Self.iso.string(from: $0) } ?? now
+                ]
+            }
+        }
+        return try await upsert(table: "nyora_history", rows: rows)
+    }
+
+    /// Pulls `nyora_history` rows into local `HistoryObject`s, honoring soft-delete
+    /// tombstones. The source is taken from the `source_id` column, falling back to the
+    /// prefix of the composite `manga_id`.
+    @discardableResult
+    func pullHistory() async throws -> Int {
+        let rows = try await select(table: "nyora_history", since: nil)
+        guard !rows.isEmpty else { return 0 }
+
+        var changed = 0
+        await CoreDataManager.shared.container.performBackgroundTask { context in
+            for row in rows {
+                guard
+                    let mid = row["manga_id"] as? String, !mid.isEmpty,
+                    let chapterId = row["chapter_id"] as? String, !chapterId.isEmpty
+                else { continue }
+                let (splitSource, key) = Self.splitMangaId(mid)
+                let sourceId = (row["source_id"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? splitSource
+                guard !sourceId.isEmpty, !key.isEmpty else { continue }
+
+                let deleted = (row["deleted_at"] as? String).map { !$0.isEmpty } ?? false
+                let existing = CoreDataManager.shared.getHistory(
+                    sourceId: sourceId,
+                    mangaId: key,
+                    chapterId: chapterId,
+                    context: context
+                )
+
+                if deleted {
+                    if let existing {
+                        context.delete(existing)
+                        changed += 1
+                    }
+                    continue
+                }
+
+                let obj = existing ?? CoreDataManager.shared.getOrCreateHistory(
+                    sourceId: sourceId,
+                    mangaId: key,
+                    chapterId: chapterId,
+                    context: context
+                )
+                let percent = (row["percent"] as? Double) ?? 0
+                obj.progress = Int16((row["page"] as? Int) ?? 0)
+                obj.completed = percent >= 1.0
+                if let scroll = row["scroll"] as? Double {
+                    obj.scrollPosition = NSNumber(value: scroll)
+                }
+                if let updated = row["updated_at"] as? String, let d = Self.iso.date(from: updated) {
+                    obj.dateRead = d
+                }
+                changed += 1
+            }
+            try? context.save()
+        }
+        return changed
+    }
+
+    // MARK: - Category push / pull
+
+    /// Pushes user categories (`CategoryObject`, excluding library filter groups) to
+    /// `nyora_category`. iOS keys categories by title, so the canonical `id` == `title`.
+    @discardableResult
+    func pushCategories() async throws -> Int {
+        let now = Self.iso.string(from: Date())
+        let rows: [[String: Any]] = await CoreDataManager.shared.container.performBackgroundTask { context in
+            CoreDataManager.shared.getCategories(sorted: true, context: context)
+                .filter { !$0.group }
+                .compactMap { cat in
+                    guard let title = cat.title, !title.isEmpty else { return nil }
+                    return [
+                        "id": title,
+                        "title": title,
+                        "sort_key": Int(cat.sort),
+                        "updated_at": now
+                    ]
+                }
+        }
+        return try await upsert(table: "nyora_category", rows: rows)
+    }
+
+    /// Pulls `nyora_category` rows, creating missing categories (by title) and applying
+    /// their sort order, and removing categories tombstoned via `deleted_at`.
+    @discardableResult
+    func pullCategories() async throws -> Int {
+        let rows = try await select(table: "nyora_category", since: nil)
+        guard !rows.isEmpty else { return 0 }
+
+        var changed = 0
+        await CoreDataManager.shared.container.performBackgroundTask { context in
+            for row in rows {
+                let id = (row["id"] as? String) ?? ""
+                let title = (row["title"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? id
+                guard !title.isEmpty else { continue }
+
+                let deleted = (row["deleted_at"] as? String).map { !$0.isEmpty } ?? false
+                if deleted {
+                    if CoreDataManager.shared.hasCategory(title: title, context: context) {
+                        CoreDataManager.shared.removeCategory(title: title, context: context)
+                        changed += 1
+                    }
+                    continue
+                }
+
+                let object = CoreDataManager.shared.getCategory(title: title, context: context)
+                    ?? CoreDataManager.shared.createCategory(title: title, context: context)
+                if let sortKey = row["sort_key"] as? Int {
+                    object.sort = Int16(sortKey)
+                }
+                changed += 1
+            }
+            try? context.save()
+        }
+        if changed > 0 {
+            NotificationCenter.default.post(name: .updateCategories, object: nil)
+        }
+        return changed
+    }
+
+    // MARK: - Manga↔category links push / pull
+
+    /// Pushes library manga → category assignments to `nyora_manga_category`
+    /// (`category_id` == category title, matching `pushCategories`).
+    @discardableResult
+    func pushMangaCategories() async throws -> Int {
+        let now = Self.iso.string(from: Date())
+        let rows: [[String: Any]] = await CoreDataManager.shared.container.performBackgroundTask { context in
+            var rows: [[String: Any]] = []
+            for entry in CoreDataManager.shared.getLibraryManga(context: context) {
+                guard let m = entry.manga else { continue }
+                let mid = Self.mangaId(sourceId: m.sourceId, mangaKey: m.id)
+                let categories = (entry.categories?.allObjects as? [CategoryObject]) ?? []
+                for cat in categories where !cat.group {
+                    guard let title = cat.title, !title.isEmpty else { continue }
+                    rows.append([
+                        "manga_id": mid,
+                        "category_id": title,
+                        "updated_at": now
+                    ])
+                }
+            }
+            return rows
+        }
+        return try await upsert(table: "nyora_manga_category", rows: rows)
+    }
+
+    /// Pulls `nyora_manga_category` rows, adding/removing category links on library manga.
+    /// Assignments to manga not yet in the library are skipped (the library pull, which
+    /// runs first, materializes those entries).
+    @discardableResult
+    func pullMangaCategories() async throws -> Int {
+        let rows = try await select(table: "nyora_manga_category", since: nil)
+        guard !rows.isEmpty else { return 0 }
+
+        var changed = 0
+        await CoreDataManager.shared.container.performBackgroundTask { context in
+            for row in rows {
+                guard
+                    let mid = row["manga_id"] as? String, !mid.isEmpty,
+                    let title = row["category_id"] as? String, !title.isEmpty
+                else { continue }
+                let (sourceId, key) = Self.splitMangaId(mid)
+                guard !sourceId.isEmpty, !key.isEmpty else { continue }
+                guard let libraryObject = CoreDataManager.shared.getLibraryManga(
+                    sourceId: sourceId,
+                    mangaId: key,
+                    context: context
+                ) else { continue }
+
+                let deleted = (row["deleted_at"] as? String).map { !$0.isEmpty } ?? false
+                if deleted {
+                    if let cat = CoreDataManager.shared.getCategory(title: title, context: context) {
+                        libraryObject.removeFromCategories(cat)
+                        changed += 1
+                    }
+                    continue
+                }
+
+                let cat = CoreDataManager.shared.getCategory(title: title, context: context)
+                    ?? CoreDataManager.shared.createCategory(title: title, context: context)
+                libraryObject.addToCategories(cat)
+                changed += 1
+            }
+            try? context.save()
+        }
+        return changed
+    }
+
+    // MARK: - Source prefs push / pull
+
+    /// Pushes per-source preferences to `nyora_source_prefs`. On iOS the only persisted
+    /// source pref is the browse pin state; installed sources are always "enabled".
+    @discardableResult
+    func pushSourcePrefs() async throws -> Int {
+        let now = Self.iso.string(from: Date())
+        let pinned = Set(UserDefaults.standard.stringArray(forKey: "Browse.pinnedList") ?? [])
+        let rows: [[String: Any]] = SourceManager.shared.sources.map { source in
+            [
+                "source_id": source.id,
+                "is_pinned": pinned.contains(source.id),
+                "is_enabled": true,
+                "updated_at": now
+            ]
+        }
+        return try await upsert(table: "nyora_source_prefs", rows: rows)
+    }
+
+    /// Pulls `nyora_source_prefs`, merging remote pin state into the local browse pin list.
+    @discardableResult
+    func pullSourcePrefs() async throws -> Int {
+        let rows = try await select(table: "nyora_source_prefs", since: nil)
+        guard !rows.isEmpty else { return 0 }
+
+        var pinned = Set(UserDefaults.standard.stringArray(forKey: "Browse.pinnedList") ?? [])
+        var changed = 0
+        for row in rows {
+            guard let sourceId = row["source_id"] as? String, !sourceId.isEmpty else { continue }
+            let isPinned = row["is_pinned"] as? Bool ?? false
+            if isPinned, !pinned.contains(sourceId) {
+                pinned.insert(sourceId)
+                changed += 1
+            } else if !isPinned, pinned.contains(sourceId) {
+                pinned.remove(sourceId)
+                changed += 1
+            }
+        }
+        if changed > 0 {
+            UserDefaults.standard.set(Array(pinned), forKey: "Browse.pinnedList")
+            NotificationCenter.default.post(name: .updateSourceList, object: nil)
+        }
+        return changed
+    }
+
+    // MARK: - Per-manga reader prefs push / pull
+
+    /// Per-manga reading-mode override key (see `ReaderViewController`).
+    private nonisolated static func readingModeKey(sourceId: String, mangaKey: String) -> String {
+        "Reader.readingMode.\(sourceId).\(mangaKey)"
+    }
+
+    /// Pushes per-manga reader preferences to `nyora_manga_prefs`. iOS persists a per-manga
+    /// reading-mode override in `UserDefaults`; the color-adjustment columns are reader-global
+    /// on iOS and emitted as canonical defaults.
+    @discardableResult
+    func pushMangaPrefs() async throws -> Int {
+        let now = Self.iso.string(from: Date())
+        let pairs: [(source: String, key: String)] = await CoreDataManager.shared.container.performBackgroundTask { context in
+            CoreDataManager.shared.getLibraryManga(context: context).compactMap { entry in
+                guard let m = entry.manga else { return nil }
+                return (m.sourceId, m.id)
+            }
+        }
+        var rows: [[String: Any]] = []
+        for pair in pairs {
+            let key = Self.readingModeKey(sourceId: pair.source, mangaKey: pair.key)
+            // Only sync explicit overrides (a registered default returns nil for object(forKey:)).
+            guard
+                let mode = UserDefaults.standard.object(forKey: key) as? String,
+                !mode.isEmpty, mode != "default"
+            else { continue }
+            rows.append([
+                "manga_id": Self.mangaId(sourceId: pair.source, mangaKey: pair.key),
+                "reader_mode": mode,
+                "brightness": 0.0,
+                "contrast": 1.0,
+                "saturation": 1.0,
+                "hue": 0.0,
+                "palette": "",
+                "updated_at": now
+            ])
+        }
+        return try await upsert(table: "nyora_manga_prefs", rows: rows)
+    }
+
+    /// Pulls `nyora_manga_prefs`, applying the per-manga reading-mode override locally.
+    @discardableResult
+    func pullMangaPrefs() async throws -> Int {
+        let rows = try await select(table: "nyora_manga_prefs", since: nil)
+        guard !rows.isEmpty else { return 0 }
+
+        var changed = 0
+        for row in rows {
+            guard
+                let mid = row["manga_id"] as? String, !mid.isEmpty,
+                let mode = row["reader_mode"] as? String, !mode.isEmpty
+            else { continue }
+            let (sourceId, key) = Self.splitMangaId(mid)
+            guard !sourceId.isEmpty, !key.isEmpty else { continue }
+            UserDefaults.standard.set(mode, forKey: Self.readingModeKey(sourceId: sourceId, mangaKey: key))
+            changed += 1
+        }
+        return changed
+    }
+
     @discardableResult
     func syncNow() async throws -> (pushed: Int, pulled: Int) {
-        let pulled = try await pullLibrary()
-        let pushed = try await pushLibrary()
-        let tracksPulled = try await pullTracking()
-        let tracksPushed = try await pushTracking()
-        return (pushed + tracksPushed, pulled + tracksPulled)
+        // Pull first (LWW: remote → local), then push local state back.
+        // NOTE: iOS has no page-bookmark model, so `nyora_bookmark` is intentionally
+        // not synced from this client (Android owns that table).
+        var pulled = 0
+        var pushed = 0
+
+        pulled += try await pullLibrary()
+        pulled += try await pullCategories()
+        pulled += try await pullMangaCategories()
+        pulled += try await pullHistory()
+        pulled += try await pullSourcePrefs()
+        pulled += try await pullMangaPrefs()
+        pulled += try await pullTracking()
+
+        pushed += try await pushLibrary()
+        pushed += try await pushCategories()
+        pushed += try await pushMangaCategories()
+        pushed += try await pushHistory()
+        pushed += try await pushSourcePrefs()
+        pushed += try await pushMangaPrefs()
+        pushed += try await pushTracking()
+
+        return (pushed, pulled)
     }
 
     // MARK: - Helpers
