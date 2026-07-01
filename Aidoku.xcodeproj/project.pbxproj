@@ -56,6 +56,7 @@
 		D25477168BD5C13D55CFD9D6 /* TranslationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E41E90BB517AF2ABC308D9B /* TranslationController.swift */; };
 		DC4F70CA47A4AFD3B3C0A0E0 /* ColorFilterProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0724DE86CCBF1987A523779A /* ColorFilterProcessor.swift */; };
 		DFA62BB8ADFA6C7D4AD53D2F /* GoogleTranslate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */; };
+		E02BB0548DF87A744D0F26C4 /* ReaderZoomMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763ADD6FC150FB34E07A909D /* ReaderZoomMode.swift */; };
 		E9906D9F543D99D683D909D0 /* AppleIntelligenceRefiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */; };
 		EC6804FB5AA04B797947D29D /* OcrProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344A1286965DEF3002F0D97B /* OcrProvider.swift */; };
 		FB0051222FAF054D004B4A6F /* MigrateSelectSeriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0051212FAF053F004B4A6F /* MigrateSelectSeriesView.swift */; };
@@ -650,6 +651,7 @@
 		723D3AF82E0DC5A5003ED4CF /* DownloadedMangaInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadedMangaInfo.swift; sourceTree = "<group>"; };
 		723D3AFB2E0DC5C4003ED4CF /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		723D3AFC2E0DC5C4003ED4CF /* DownloadedMangaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadedMangaView.swift; sourceTree = "<group>"; };
+		763ADD6FC150FB34E07A909D /* ReaderZoomMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = iOS/UI/Reader/ReaderZoomMode.swift; sourceTree = SOURCE_ROOT; };
 		7C63F0D42F48FD4B007D1811 /* ChapterTransitionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterTransitionViewController.swift; sourceTree = "<group>"; };
 		7C63F0D52F48FD4B007D1811 /* TextDoublePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextDoublePageViewController.swift; sourceTree = "<group>"; };
 		7C63F0D62F48FD4B007D1811 /* TextSinglePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSinglePageViewController.swift; sourceTree = "<group>"; };
@@ -1383,6 +1385,7 @@
 				FBFA43AC2799DD110065A445 /* ReaderSliderView.swift */,
 				FB1DD8582EF0491C0007FC78 /* LiquidLensView.swift */,
 				501E78B384245931983B9C1C /* VolumeButtonHandler.swift */,
+				763ADD6FC150FB34E07A909D /* ReaderZoomMode.swift */,
 			);
 			path = Reader;
 			sourceTree = "<group>";
@@ -3083,6 +3086,7 @@
 				46EEB80291770D1BAEFF8FAC /* AmoledTheme.swift in Sources */,
 				ABDA9BE702D7EBD9ED57D88F /* LibraryDisplayMode.swift in Sources */,
 				66B9F8A49F92C21E35DCB4F0 /* ProgressIndicatorMode.swift in Sources */,
+				E02BB0548DF87A744D0F26C4 /* ReaderZoomMode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -153,6 +153,10 @@ class ReaderPageViewController: BaseObservingViewController {
 
         addObserver(forName: .orientationDidChange) { [weak self] _ in
             self?.loadPageBackground(forceReload: true)
+            self?.applyZoomMode()
+        }
+        addObserver(forName: "Reader.zoomMode") { [weak self] _ in
+            self?.applyZoomMode()
         }
     }
 
@@ -191,6 +195,79 @@ class ReaderPageViewController: BaseObservingViewController {
 
             // determine page background color
             loadPageBackground()
+
+            // apply the configured scale / zoom mode (fit-center/height/width/keep-start)
+            applyZoomMode()
+        }
+    }
+
+    /// Apply the reader's configured zoom/scale mode to the current page.
+    /// Fit-center is the default (whole page visible). Fit-width/height scale the
+    /// page so that dimension fills the screen and enable panning; keep-start acts
+    /// like fit-width but anchored to the top of the page.
+    func applyZoomMode() {
+        guard
+            let zoomView,
+            let pageView,
+            pageView.imageView.image != nil,
+            !isInDoublePageController
+        else { return }
+
+        let mode = ReaderZoomMode.current
+
+        // reset any previous baseline before recomputing
+        zoomView.minimumZoomScale = 1
+
+        guard mode != .fitCenter else {
+            zoomView.setZoomScale(1, animated: false)
+            return
+        }
+
+        zoomView.layoutIfNeeded()
+        let bounds = zoomView.bounds.size
+        let displayed = pageView.imageView.bounds.size
+        guard
+            bounds.width > 0, bounds.height > 0,
+            displayed.width > 0, displayed.height > 0
+        else { return }
+
+        let fitWidthScale = bounds.width / displayed.width
+        let fitHeightScale = bounds.height / displayed.height
+
+        let target: CGFloat
+        switch mode {
+            case .fitWidth, .keepStart: target = fitWidthScale
+            case .fitHeight: target = fitHeightScale
+            case .fitCenter: target = 1
+        }
+
+        let clamped = min(max(target, 1), zoomView.maximumZoomScale)
+        guard clamped > 1.001 else {
+            zoomView.setZoomScale(1, animated: false)
+            return
+        }
+
+        zoomView.minimumZoomScale = clamped
+        zoomView.setZoomScale(clamped, animated: false)
+        zoomView.layoutIfNeeded()
+
+        // position the viewport for the mode
+        let content = zoomView.contentSize
+        switch mode {
+            case .fitWidth, .keepStart:
+                // top of the page, horizontally centered
+                zoomView.contentOffset = CGPoint(
+                    x: max(0, (content.width - bounds.width) / 2),
+                    y: 0
+                )
+            case .fitHeight:
+                // leading edge, vertically centered
+                zoomView.contentOffset = CGPoint(
+                    x: 0,
+                    y: max(0, (content.height - bounds.height) / 2)
+                )
+            case .fitCenter:
+                break
         }
     }
 

@@ -674,6 +674,11 @@
 "SINGLE_PAGE" = "Single Page";
 "PAGED" = "Paged";
 "PAGE_LAYOUT" = "Page Layout";
+"ZOOM_MODE" = "Scale Type";
+"ZOOM_FIT_CENTER" = "Fit Screen";
+"ZOOM_FIT_HEIGHT" = "Fit Height";
+"ZOOM_FIT_WIDTH" = "Fit Width";
+"ZOOM_KEEP_START" = "Keep Start";
 "DOUBLE_PAGE" = "Double Page";
 "PAGE_OFFSET" = "Page Offset";
 "SPLIT_WIDE_IMAGES" = "Split Wide Images";

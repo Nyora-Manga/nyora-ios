@@ -375,6 +375,22 @@ struct ReaderSettingsView: View {
                             )
                             SettingView(
                                 setting: .init(
+                                    key: "Reader.zoomMode",
+                                    title: NSLocalizedString("ZOOM_MODE"),
+                                    notification: .init("Reader.zoomMode"),
+                                    value: .select(.init(
+                                        values: ["fitCenter", "fitHeight", "fitWidth", "keepStart"],
+                                        titles: [
+                                            NSLocalizedString("ZOOM_FIT_CENTER"),
+                                            NSLocalizedString("ZOOM_FIT_HEIGHT"),
+                                            NSLocalizedString("ZOOM_FIT_WIDTH"),
+                                            NSLocalizedString("ZOOM_KEEP_START")
+                                        ]
+                                    ))
+                                )
+                            )
+                            SettingView(
+                                setting: .init(
                                     key: "Reader.pagedPageLayout",
                                     title: NSLocalizedString("PAGE_LAYOUT"),
                                     value: .select(.init(
