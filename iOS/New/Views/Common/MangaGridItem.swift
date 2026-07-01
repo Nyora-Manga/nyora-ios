@@ -44,16 +44,16 @@ struct MangaGridItem: View {
                 bookmarkView,
                 alignment: .topTrailing
             )
-            .contentShape(RoundedRectangle(cornerRadius: 5))
-            .clipShape(RoundedRectangle(cornerRadius: 5))
+            .contentShape(RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 5)
-                    .strokeBorder(Color(UIColor.quaternarySystemFill), lineWidth: 1)
+                RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous)
+                    .strokeBorder(Color.nyoraCardOutline, lineWidth: 1)
             )
             .overlay(
                 Text(title)
                     .foregroundStyle(.white)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.poppins(15, weight: .semibold))
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                     .padding(8),
@@ -85,10 +85,10 @@ struct MangaGridItem: View {
         Rectangle()
             .fill(Color(uiColor: .secondarySystemFill))
             .aspectRatio(2/3, contentMode: .fill)
-            .clipShape(RoundedRectangle(cornerRadius: 5))
+            .clipShape(RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 5)
-                    .strokeBorder(Color(UIColor.quaternarySystemFill), lineWidth: 1)
+                RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous)
+                    .strokeBorder(Color.nyoraCardOutline, lineWidth: 1)
             )
     }
 }

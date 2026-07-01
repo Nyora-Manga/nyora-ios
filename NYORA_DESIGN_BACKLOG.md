@@ -9,7 +9,7 @@ Build check: `cd /Users/hasanraza/Desktop/kotatsu/Nyora/Aidoku && xcodebuild -pr
 - [x] ND-002 | Tinted-card ViewModifier (flat, surface tint + 1px outline, cornerCard) | area:library | android:res/values/styles.xml Widget.Nyora.Card.Tinted | target:iOS/New/Utilities/NyoraCardStyle.swift | `.nyoraTintedCard()` modifier applies slateOnSurface fill, 1px indigo-tint border, 20pt corners, 0 shadow ✓ NyoraTintedCardModifier + .nyoraTintedCard(cornerRadius:padding:); adaptive tinted surface (slate 100/800) + 1px indigo outline, 0 shadow; registered + BUILD SUCCEEDED
 
 ## Phase 3 — Library grid restyle
-- [ ] ND-003 | Library grid card restyle to tinted card + 12pt cover | area:library | android:item_manga_grid.xml | target:iOS/New/Views/Common/MangaGridItem.swift | grid item uses nyoraTintedCard, cover clipped 13:18 at cornerCover, Poppins SemiBold title; grid still scrolls/taps
+- [x] ND-003 | Library grid card restyle to tinted card + 12pt cover | area:library | android:item_manga_grid.xml | target:iOS/New/Views/Common/MangaGridItem.swift | grid item uses nyoraTintedCard, cover clipped 13:18 at cornerCover, Poppins SemiBold title; grid still scrolls/taps ✓ cover now clips at cornerCover (12pt) w/ nyoraCardOutline 1px border, title is Poppins SemiBold; kept self-contained 2:3 overlay-title tile (callers e.g. MigrateResultsView force .aspectRatio(2/3) so title-below would break layout); BUILD SUCCEEDED
 - [ ] ND-004 | Library cover unread badge + reading-progress overlay | area:library | android:item_manga_grid.xml badge/progress | target:iOS/UI/Common/Manga/MangaGridCell.swift | unread count badge (indigo pill) top-right and bottom progress bar overlay render on cover without clipping
 
 ## Phase 4 — Manga details restyle
