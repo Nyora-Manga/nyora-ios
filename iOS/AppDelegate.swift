@@ -122,6 +122,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Appearance.customLandscapeRows": UIDevice.current.userInterfaceIdiom == .pad ? 6 : 4,
                 "Appearance.gridSize": 100,
                 "Appearance.progressIndicator": ProgressIndicatorMode.none.rawValue,
+                "Appearance.navSections": NavConfig.defaultSections.map(\.rawValue),
 
                 "Library.sortOption": 2, // lastOpened
                 "Library.sortAscending": false,

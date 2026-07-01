@@ -10,6 +10,7 @@
 		002C0AC12EC0F44D0071CE82 /* LAPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002C0AC02EC0F44D0071CE82 /* LAPolicy.swift */; };
 		002C0AC22EC0F44D0071CE82 /* LAPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002C0AC02EC0F44D0071CE82 /* LAPolicy.swift */; };
 		01567DD342480215B95DE060 /* ReaderControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855E127D4FA3E40C740BF7A /* ReaderControl.swift */; };
+		049F8D83FEAD2104540BFB31 /* NavSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259AEEA262A257B43E68179D /* NavSection.swift */; };
 		04B48CF82CD6836100F719D0 /* ShikimoriTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B48CF72CD6835D00F719D0 /* ShikimoriTracker.swift */; };
 		04B48CF92CD6836100F719D0 /* ShikimoriTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B48CF72CD6835D00F719D0 /* ShikimoriTracker.swift */; };
 		04B48CFB2CD6838C00F719D0 /* ShikimoriApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B48CFA2CD6838600F719D0 /* ShikimoriApi.swift */; };
@@ -28,6 +29,7 @@
 		30EAB0012FC051B5000BFEDF /* CoverRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */; };
 		327147DDABB9F319C8591880 /* LanguagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08445594D90A53709E9CD7C5 /* LanguagePickerView.swift */; };
 		37F3E66D2850F62100A944E0 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F3E66C2850F62100A944E0 /* Collection.swift */; };
+		3B0299147D7CA03B983C727D /* NavConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E298DAD3D47DB5A4B144DE /* NavConfigView.swift */; };
 		3D261020E8F5780A9CCA1D95 /* ReaderControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855E127D4FA3E40C740BF7A /* ReaderControl.swift */; };
 		444172AB210678DDF474D1B2 /* NyoraAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D04FA91678DC60A6F95C3F /* NyoraAccountView.swift */; };
 		46EEB80291770D1BAEFF8FAC /* AmoledTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FB7412A66C9729E21F3BA9 /* AmoledTheme.swift */; };
@@ -74,6 +76,7 @@
 		B2260FD21C1E03EC27FE7011 /* ColorFilterConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 938868F450FEB8271A8B23A9 /* ColorFilterConfigView.swift */; };
 		C410B501630CDA838A6409E8 /* NyoraSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E880AAAE669C883263D2A7 /* NyoraSource.swift */; };
 		C618055CD8D1AFF0D6BCC967 /* ReaderInfoBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */; };
+		C9E7B4224661C3BDA0E3371B /* NavSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259AEEA262A257B43E68179D /* NavSection.swift */; };
 		D25477168BD5C13D55CFD9D6 /* TranslationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E41E90BB517AF2ABC308D9B /* TranslationController.swift */; };
 		D6063582C3824F3C8DAD1886 /* KitsuTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866B83B509B09A6591CB704D /* KitsuTracker.swift */; };
 		DC4F70CA47A4AFD3B3C0A0E0 /* ColorFilterProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0724DE86CCBF1987A523779A /* ColorFilterProcessor.swift */; };
@@ -657,11 +660,13 @@
 		0C807DDC27D47C2D0042EE7B /* CircularProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoogleTranslate.swift; sourceTree = "<group>"; };
 		182FEAFBF2A567E7315C454A /* NyoraSyncClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSyncClient.swift; sourceTree = "<group>"; };
+		259AEEA262A257B43E68179D /* NavSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavSection.swift; path = NavSection.swift; sourceTree = "<group>"; };
 		30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverRecovery.swift; sourceTree = "<group>"; };
 		3447DE77858D7745F1E077EE /* KitsuApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuApi.swift; sourceTree = "<group>"; };
 		344A1286965DEF3002F0D97B /* OcrProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OcrProvider.swift; sourceTree = "<group>"; };
 		36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraAltTitleStore.swift; sourceTree = "<group>"; };
 		37F3E66C2850F62100A944E0 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
+		43E298DAD3D47DB5A4B144DE /* NavConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NavConfigView.swift; sourceTree = "<group>"; };
 		48177B8D2B75C40400AD41B4 /* MangaUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaUpdatesView.swift; sourceTree = "<group>"; };
 		48177B8F2B75C63700AD41B4 /* CoreDataManager+MangaUpdates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreDataManager+MangaUpdates.swift"; sourceTree = "<group>"; };
 		48177B912B75C67300AD41B4 /* MangaUpdateObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaUpdateObject.swift; sourceTree = "<group>"; };
@@ -1364,6 +1369,7 @@
 				FB79841B2E0DD181000761A9 /* TapZone.swift */,
 				E86FCD4C820B864346BDB2A4 /* TapGrid.swift */,
 				D855E127D4FA3E40C740BF7A /* ReaderControl.swift */,
+				259AEEA262A257B43E68179D /* NavSection.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2142,6 +2148,7 @@
 				93FB7412A66C9729E21F3BA9 /* AmoledTheme.swift */,
 				08445594D90A53709E9CD7C5 /* LanguagePickerView.swift */,
 				D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */,
+				43E298DAD3D47DB5A4B144DE /* NavConfigView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -3160,6 +3167,8 @@
 				74387C470A4ACBE3D165605E /* NyoraAltTitleStore.swift in Sources */,
 				A1D3D6D382085367109ED25B /* NyoraRatingStore.swift in Sources */,
 				B06F4BEFAF23244C3262D02D /* NyoraLanguageStore.swift in Sources */,
+				049F8D83FEAD2104540BFB31 /* NavSection.swift in Sources */,
+				3B0299147D7CA03B983C727D /* NavConfigView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3339,6 +3348,7 @@
 				A0A9BB9C56C836C786EF4FA1 /* NyoraAltTitleStore.swift in Sources */,
 				69B01BE9689B16769EB8FE1F /* NyoraRatingStore.swift in Sources */,
 				ABB803807E5E9E03B5B795E2 /* NyoraLanguageStore.swift in Sources */,
+				C9E7B4224661C3BDA0E3371B /* NavSection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

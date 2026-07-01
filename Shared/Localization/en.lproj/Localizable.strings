@@ -465,6 +465,8 @@
 "PROGRESS_INDICATOR_PERCENT_LEFT" = "Percent Left";
 "PROGRESS_INDICATOR_CHAPTERS_READ" = "Chapters Read";
 "PROGRESS_INDICATOR_CHAPTERS_LEFT" = "Chapters Left";
+"NAV_CONFIG" = "Navigation Bar";
+"NAV_CONFIG_FOOTER" = "Choose which sections appear in the bottom tab bar and drag to reorder them. Restart the app to apply changes.";
 "PORTRAIT" = "Portrait";
 "LANDSCAPE" = "Landscape";
 "READER" = "Reader";

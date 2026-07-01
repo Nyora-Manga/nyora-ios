@@ -295,6 +295,8 @@ extension SettingsView {
     func pageContentHandler(_ key: String) -> (some View)? {
         if key == "Appearance.appLanguage" {
             LanguagePickerView()
+        } else if key == "Appearance.navSections" {
+            NavConfigView()
         } else if key == "Library.categories" {
             CategoriesView()
         } else if key == "Library.filterGroups" {

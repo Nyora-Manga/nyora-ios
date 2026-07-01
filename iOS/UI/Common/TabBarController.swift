@@ -16,6 +16,7 @@ class TabBarController: UITabBarController {
 
     private var settingsPath: NavigationCoordinator?
     private var previousSelectedIndex: Int?
+    private var enabledSections: [NavSection] = []
 
     private lazy var libraryProgressView = CircularProgressView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
 
@@ -69,6 +70,26 @@ class TabBarController: UITabBarController {
 
         delegate = self
 
+        setUpTabs()
+
+        NotificationCenter.default.publisher(for: .incognitoMode)
+            .sink { [weak self] _ in
+                self?.updateFrame(animated: true)
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: .init(NavConfig.key))
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.setUpTabs()
+            }
+            .store(in: &cancellables)
+    }
+
+    // swiftlint:disable:next function_body_length
+    private func setUpTabs() {
+        enabledSections = NavConfig.enabledSections
+
         let libraryViewController = NavigationController(rootViewController: LibraryViewController())
         let browseViewController = NavigationController(rootViewController: BrowseViewController())
         let searchViewController = NavigationController(rootViewController: SearchViewController())
@@ -105,87 +126,57 @@ class TabBarController: UITabBarController {
         historyViewController.navigationBar.prefersLargeTitles = true
         searchViewController.navigationBar.prefersLargeTitles = true
 
+        func viewController(for section: NavSection) -> UIViewController {
+            switch section {
+                case .library: libraryViewController
+                case .browse: browseViewController
+                case .history: historyViewController
+                case .search: searchViewController
+                case .settings: settingsViewController
+            }
+        }
+
         if #available(iOS 26.0, *) {
-            let searchTab = UISearchTab { _ in
-                searchViewController
-            }
-            searchTab.automaticallyActivatesSearch = true
-            let fixedTabs = [
-                UITab(
-                    title: NSLocalizedString("LIBRARY"),
-                    image: UIImage(systemName: "books.vertical.fill"),
-                    identifier: "0"
-                ) { _ in
-                    libraryViewController
-                },
-                UITab(
-                    title: NSLocalizedString("BROWSE"),
-                    image: UIImage(systemName: "globe"),
-                    identifier: "1"
-                ) { _ in
-                    browseViewController
-                },
-                UITab(
-                    title: NSLocalizedString("HISTORY"),
-                    image: UIImage(systemName: "clock.fill"),
-                    identifier: "2"
-                ) { _ in
-                    historyViewController
-                },
-                UITab(
-                    title: NSLocalizedString("SETTINGS"),
-                    image: UIImage(systemName: "gear"),
-                    identifier: "3"
-                ) { _ in
-                    settingsViewController
+            var newTabs: [UITab] = []
+            for section in enabledSections {
+                if section == .search {
+                    let searchTab = UISearchTab { _ in searchViewController }
+                    searchTab.automaticallyActivatesSearch = true
+                    newTabs.append(searchTab)
+                } else {
+                    let tab = UITab(
+                        title: section.title,
+                        image: UIImage(systemName: section.systemImage),
+                        identifier: section.rawValue
+                    ) { _ in
+                        viewController(for: section)
+                    }
+                    tab.allowsHiding = false
+                    tab.preferredPlacement = .fixed
+                    newTabs.append(tab)
                 }
-            ]
-            fixedTabs.forEach {
-                $0.allowsHiding = false
-                $0.preferredPlacement = .fixed
             }
-            tabs = fixedTabs + [searchTab]
+            tabs = newTabs
         } else {
-            libraryViewController.tabBarItem = UITabBarItem(
-                title: NSLocalizedString("LIBRARY", comment: ""),
-                image: UIImage(systemName: "books.vertical.fill"),
-                tag: 0
-            )
-            browseViewController.tabBarItem = UITabBarItem(
-                title: NSLocalizedString("BROWSE", comment: ""),
-                image: UIImage(systemName: "globe"),
-                tag: 1
-            )
-            historyViewController.tabBarItem = UITabBarItem(
-                tabBarSystemItem: .history,
-                tag: 2
-            )
-            searchViewController.tabBarItem = UITabBarItem(
-                tabBarSystemItem: .search,
-                tag: 3
-            )
-            settingsViewController.tabBarItem = UITabBarItem(
-                title: NSLocalizedString("SETTINGS", comment: ""),
-                image: UIImage(systemName: "gear"),
-                tag: 4
-            )
-            viewControllers = [
-                libraryViewController,
-                browseViewController,
-                historyViewController,
-                searchViewController,
-                settingsViewController
-            ]
+            viewControllers = enabledSections.enumerated().map { index, section in
+                let vc = viewController(for: section)
+                if section == .history {
+                    vc.tabBarItem = UITabBarItem(tabBarSystemItem: .history, tag: index)
+                } else if section == .search {
+                    vc.tabBarItem = UITabBarItem(tabBarSystemItem: .search, tag: index)
+                } else {
+                    vc.tabBarItem = UITabBarItem(
+                        title: section.title,
+                        image: UIImage(systemName: section.systemImage),
+                        tag: index
+                    )
+                }
+                return vc
+            }
         }
 
         let updateCount = UserDefaults.standard.integer(forKey: "Browse.updateCount")
         browseViewController.tabBarItem.badgeValue = updateCount > 0 ? String(updateCount) : nil
-
-        NotificationCenter.default.publisher(for: .incognitoMode)
-            .sink { [weak self] _ in
-                self?.updateFrame(animated: true)
-            }
-            .store(in: &cancellables)
     }
 
     func updateFrame(animated: Bool = false) {
@@ -294,11 +285,9 @@ extension TabBarController: UITabBarControllerDelegate {
     }
 
     private func checkForSettingsPop() {
-        let settingsIndex: Int
-        if #available(iOS 26.0, *) {
-            settingsIndex = 3
-        } else {
-            settingsIndex = 4
+        guard let settingsIndex = enabledSections.firstIndex(of: .settings) else {
+            previousSelectedIndex = selectedIndex
+            return
         }
         if selectedIndex == previousSelectedIndex && previousSelectedIndex == settingsIndex {
             settingsPath?.navigationController?.popToRootViewController(animated: true)
