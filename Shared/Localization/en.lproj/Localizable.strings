@@ -136,6 +136,8 @@
 
 // Browse
 "BROWSE" = "Browse";
+"BOOKMARKS" = "Bookmarks";
+"RANDOM" = "Random";
 "BROWSE_NO_SOURCES" = "No Sources";
 "BROWSE_NO_SOURCES_TEXT_NEW" = "Add a source with the plus button.";
 "ADDING_SOURCES_GUIDE_BUTTON" = "Adding Sources Guide";

@@ -18,6 +18,21 @@ class BrowseViewController: BaseTableViewController {
     private lazy var emptyStackView = EmptyPageStackView()
     private lazy var searchHeroView = NyoraSearchHeroView()
 
+    // Nyora Explore header: search-hero pill stacked over a 2×2 quick-actions card.
+    private let headerContainer = UIView()
+    private static let quickActionsHeight: CGFloat = 178
+    private lazy var quickActionsHost: UIHostingController<QuickActionsCard> = {
+        let card = QuickActionsCard(
+            onLocal: { [weak self] in self?.openLocalSource() },
+            onBookmarks: { [weak self] in self?.openBookmarks() },
+            onRandom: { [weak self] in self?.openRandomSource() },
+            onDownloads: { [weak self] in self?.openDownloads() }
+        )
+        let host = UIHostingController(rootView: card)
+        host.view.backgroundColor = .clear
+        return host
+    }()
+
     override var tableViewStyle: UITableView.Style {
         .grouped
     }
@@ -81,8 +96,12 @@ class BrowseViewController: BaseTableViewController {
         refreshControl.addTarget(self, action: #selector(refreshSourceLists(_:)), for: .valueChanged)
         tableView.refreshControl = refreshControl
 
-        // install the search-hero as the table header (sized in viewDidLayoutSubviews)
-        tableView.tableHeaderView = searchHeroView
+        // install the combined header (search-hero + quick-actions), sized in viewDidLayoutSubviews
+        addChild(quickActionsHost)
+        headerContainer.addSubview(searchHeroView)
+        headerContainer.addSubview(quickActionsHost.view)
+        quickActionsHost.didMove(toParent: self)
+        tableView.tableHeaderView = headerContainer
 
         // empty text
         emptyStackView.imageSystemName = "globe"
@@ -163,12 +182,17 @@ class BrowseViewController: BaseTableViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        // Size the search-hero header to the table width.
-        guard let header = tableView.tableHeaderView else { return }
-        let targetSize = CGSize(width: tableView.bounds.width, height: NyoraSearchHeroView.preferredHeight)
-        if header.frame.size != targetSize {
-            header.frame = CGRect(origin: .zero, size: targetSize)
-            tableView.tableHeaderView = header
+        // Size the combined header (search-hero pill + 2×2 quick-actions card) to the table width.
+        guard tableView.tableHeaderView === headerContainer else { return }
+        let width = tableView.bounds.width
+        let searchHeight = NyoraSearchHeroView.preferredHeight
+        let totalHeight = searchHeight + Self.quickActionsHeight
+        let targetSize = CGSize(width: width, height: totalHeight)
+        if headerContainer.frame.size != targetSize {
+            headerContainer.frame = CGRect(origin: .zero, size: targetSize)
+            searchHeroView.frame = CGRect(x: 0, y: 0, width: width, height: searchHeight)
+            quickActionsHost.view.frame = CGRect(x: 0, y: searchHeight, width: width, height: Self.quickActionsHeight)
+            tableView.tableHeaderView = headerContainer
         }
     }
 
@@ -297,6 +321,53 @@ extension BrowseViewController {
 
     @objc func stopEditing() {
         setEditing(false, animated: true)
+    }
+
+    // MARK: - Quick actions (Nyora Explore 2×2 card)
+
+    private func push(source: AidokuRunner.Source) {
+        let vc: UIViewController = if let legacySource = source.legacySource {
+            SourceViewController(source: legacySource)
+        } else {
+            NewSourceViewController(source: source)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
+    /// Local: open the local source; fall back to the add-source page if it isn't installed.
+    func openLocalSource() {
+        if let source = SourceManager.shared.source(for: LocalSourceRunner.sourceKey) {
+            push(source: source)
+        } else {
+            openAddSourcePage()
+        }
+    }
+
+    /// Bookmarks: jump to the saved library (Favourites) tab.
+    func openBookmarks() {
+        guard let tabBarController else { return }
+        let target = tabBarController.viewControllers?.first { vc in
+            (vc as? UINavigationController)?.viewControllers.first is LibraryViewController
+        }
+        if let target {
+            tabBarController.selectedViewController = target
+        }
+    }
+
+    /// Random: open a random installed source (excluding the local source).
+    func openRandomSource() {
+        let candidates = SourceManager.shared.sources.filter { $0.id != LocalSourceRunner.sourceKey }
+        guard let source = candidates.randomElement() else { return }
+        push(source: source)
+    }
+
+    /// Downloads: present the download queue.
+    func openDownloads() {
+        let hosting = UIHostingController(rootView: DownloadQueueView())
+        hosting.navigationItem.largeTitleDisplayMode = .never
+        hosting.navigationItem.title = NSLocalizedString("DOWNLOAD_QUEUE")
+        let nav = UINavigationController(rootViewController: hosting)
+        present(nav, animated: true)
     }
 
     @objc func deleteSelected() {

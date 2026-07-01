@@ -95,6 +95,7 @@
 		DFA62BB8ADFA6C7D4AD53D2F /* GoogleTranslate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */; };
 		E02BB0548DF87A744D0F26C4 /* ReaderZoomMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763ADD6FC150FB34E07A909D /* ReaderZoomMode.swift */; };
 		E585B2917B37652052FE5F43 /* NyoraTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5980D478D9C0DE81DEA39865 /* NyoraTheme.swift */; };
+		E8326297D5816EF8D628EE34 /* QuickActionsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB4625576D11D11C31A5FF3 /* QuickActionsCard.swift */; };
 		E9906D9F543D99D683D909D0 /* AppleIntelligenceRefiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */; };
 		EC6804FB5AA04B797947D29D /* OcrProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344A1286965DEF3002F0D97B /* OcrProvider.swift */; };
 		FB0051222FAF054D004B4A6F /* MigrateSelectSeriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0051212FAF053F004B4A6F /* MigrateSelectSeriesView.swift */; };
@@ -731,6 +732,7 @@
 		C073DAF8B78415A1EB6A0691 /* NyoraDeviceRelay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraDeviceRelay.swift; sourceTree = "<group>"; };
 		C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGridConfigView.swift; sourceTree = "<group>"; };
 		CBAC496ECD1A591AFA82EFC6 /* ProgressIndicatorMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressIndicatorMode.swift; sourceTree = "<group>"; };
+		CBB4625576D11D11C31A5FF3 /* QuickActionsCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QuickActionsCard.swift; path = iOS/New/Views/Browse/QuickActionsCard.swift; sourceTree = "<group>"; };
 		D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuLoginView.swift; sourceTree = "<group>"; };
 		D855E127D4FA3E40C740BF7A /* ReaderControl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderControl.swift; sourceTree = "<group>"; };
 		E4E8285D41654FEE6D51441A /* Poppins-Black.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "Poppins-Black.ttf"; sourceTree = "<group>"; };
@@ -1554,6 +1556,7 @@
 				FB1B4836277CE1920056D02C /* Products */,
 				FB1B4875277CE7FE0056D02C /* Frameworks */,
 				FB82E9632BF07649006A9314 /* Recovered References */,
+				CBB4625576D11D11C31A5FF3 /* QuickActionsCard.swift */,
 			);
 			indentWidth = 4;
 			sourceTree = "<group>";
@@ -3227,6 +3230,7 @@
 				D0B3C1FF868C77D62E6A9C11 /* NyoraPillButtonStyle.swift in Sources */,
 				68D289DEC2E215066DE7BCBE /* NyoraCardStyle.swift in Sources */,
 				A44ACA0A934B29B6627963CD /* NyoraSearchHeroView.swift in Sources */,
+				E8326297D5816EF8D628EE34 /* QuickActionsCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
