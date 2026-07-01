@@ -213,9 +213,41 @@ actor NyoraSourceRunner: Runner {
             "search/global",
             items: [.init(name: "q", value: query), .init(name: "limit", value: "10")]
         )
-        let entries = res.groups.flatMap { group in
-            group.entries.map { $0.intoManga(sourceKey: sourceKey, parserSource: group.sourceId, helper: helper) }
-        }
+
+        // The helper fans a query out across ~67 matching parser sources, so a
+        // popular title (e.g. "One Piece" → 25 copies) comes back dozens of
+        // times across the groups. Left flat, the primary discovery surface is
+        // an unusable wall of duplicate covers with no quality ordering.
+        //
+        // 1. Order the groups so curated featured sources surface first (stable
+        //    otherwise), giving a deterministic, quality-first ordering.
+        // 2. Collapse identical titles down to their first (highest-priority)
+        //    occurrence so each title appears once, from the best source.
+        // Each entry's key still carries its own parser source id, so opening a
+        // result and reading it is unaffected.
+        let featuredRank = Dictionary(
+            uniqueKeysWithValues: Self.featuredSources.enumerated().map { ($0.element.id, $0.offset) }
+        )
+        let orderedGroups = res.groups
+            .enumerated()
+            .sorted { lhs, rhs in
+                let lhsRank = featuredRank[lhs.element.sourceId] ?? Int.max
+                let rhsRank = featuredRank[rhs.element.sourceId] ?? Int.max
+                if lhsRank != rhsRank { return lhsRank < rhsRank }
+                return lhs.offset < rhs.offset // keep the helper's order stable within a tier
+            }
+            .map { $0.element }
+
+        var seenTitles = Set<String>()
+        let entries = orderedGroups
+            .flatMap { group in
+                group.entries.map { $0.intoManga(sourceKey: sourceKey, parserSource: group.sourceId, helper: helper) }
+            }
+            .filter { manga in
+                let normalized = manga.title.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !normalized.isEmpty else { return true }
+                return seenTitles.insert(normalized).inserted
+            }
         return .init(entries: filteringNsfw(entries), hasNextPage: false)
     }
 
