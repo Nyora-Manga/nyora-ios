@@ -33,6 +33,7 @@
 		37F3E66D2850F62100A944E0 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F3E66C2850F62100A944E0 /* Collection.swift */; };
 		3B0299147D7CA03B983C727D /* NavConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E298DAD3D47DB5A4B144DE /* NavConfigView.swift */; };
 		3D261020E8F5780A9CCA1D95 /* ReaderControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855E127D4FA3E40C740BF7A /* ReaderControl.swift */; };
+		3E42FD7FC0AF603A7FC170D3 /* DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911E27CDB95380C3115CAF72 /* DiscoverView.swift */; };
 		444172AB210678DDF474D1B2 /* NyoraAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D04FA91678DC60A6F95C3F /* NyoraAccountView.swift */; };
 		46EEB80291770D1BAEFF8FAC /* AmoledTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FB7412A66C9729E21F3BA9 /* AmoledTheme.swift */; };
 		48177B8E2B75C40400AD41B4 /* MangaUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48177B8D2B75C40400AD41B4 /* MangaUpdatesView.swift */; };
@@ -715,6 +716,7 @@
 		8E1118EED6E55A56A960F20A /* ReaderAnimationMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderAnimationMode.swift; sourceTree = "<group>"; };
 		8E41E90BB517AF2ABC308D9B /* TranslationController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationController.swift; sourceTree = "<group>"; };
 		91157E161122819CBE01C634 /* TranslationModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationModels.swift; sourceTree = "<group>"; };
+		911E27CDB95380C3115CAF72 /* DiscoverView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DiscoverView.swift; sourceTree = "<group>"; };
 		91D7BEF72DD7E46800898539 /* Aidoku-IOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Aidoku-IOS.xcconfig"; sourceTree = "<group>"; };
 		91D7BEF92DD7E48400898539 /* Aidoku-MACOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Aidoku-MACOS.xcconfig"; sourceTree = "<group>"; };
 		91D7BEFB2DD7E4BB00898539 /* Aidoku.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Aidoku.xcconfig; sourceTree = "<group>"; };
@@ -1284,6 +1286,15 @@
 			);
 			name = Nyora;
 			path = Nyora;
+			sourceTree = "<group>";
+		};
+		3F9F15F37267B6F6F8917F59 /* Discover */ = {
+			isa = PBXGroup;
+			children = (
+				911E27CDB95380C3115CAF72 /* DiscoverView.swift */,
+			);
+			name = Discover;
+			path = Discover;
 			sourceTree = "<group>";
 		};
 		48177B8C2B75C29200AD41B4 /* Updates */ = {
@@ -2051,6 +2062,7 @@
 				FB7984152E0C9F4D000761A9 /* Settings */,
 				FBC337FF2EC78C0F007465BA /* Search */,
 				FB0051202FAF01ED004B4A6F /* Migration */,
+				3F9F15F37267B6F6F8917F59 /* Discover */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3231,6 +3243,7 @@
 				68D289DEC2E215066DE7BCBE /* NyoraCardStyle.swift in Sources */,
 				A44ACA0A934B29B6627963CD /* NyoraSearchHeroView.swift in Sources */,
 				E8326297D5816EF8D628EE34 /* QuickActionsCard.swift in Sources */,
+				3E42FD7FC0AF603A7FC170D3 /* DiscoverView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
