@@ -64,6 +64,15 @@ enum Settings {
                     inlineTitle: true,
                     icon: .system(name: "clock.arrow.2.circlepath", color: "orange", inset: 4)
                 ))
+            ),
+            .init(
+                key: "Translation",
+                title: "Translation",
+                value: .page(.init(
+                    items: [],
+                    inlineTitle: true,
+                    icon: .system(name: "character.bubble", color: "purple", inset: 4)
+                ))
             )
         ]))),
         .init(value: .group(.init(items: [

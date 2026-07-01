@@ -548,9 +548,15 @@ extension ReaderWebtoonPageNode {
         let stream = controller.translator.translatePageStream(
             cgImage: cg,
             imageSize: pxSize,
-            sourceLang: "AUTO",
+            sourceLang: controller.sourceLanguage,
             targetLang: controller.targetLanguage,
-            useAppleIntelligence: controller.useAppleIntelligence
+            engine: controller.engine,
+            useAppleIntelligence: controller.useAppleIntelligence,
+            byokConfig: .init(
+                endpoint: controller.byokEndpoint,
+                apiKey: controller.byokApiKey,
+                model: controller.byokModel
+            )
         )
         translationTask = Task { [weak self] in
             for await blocks in stream {
