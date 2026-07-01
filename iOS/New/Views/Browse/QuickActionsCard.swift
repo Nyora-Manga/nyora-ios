@@ -53,16 +53,17 @@ private struct QuickActionTile: View {
     var title: String
     var systemImage: String
     var action: () -> Void
+    @ObservedObject private var accentManager = AccentManager.shared
 
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
                 Image(systemName: systemImage)
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(Color.nyoraIndigo)
+                    .foregroundStyle(accentManager.color)
                 Text(title)
                     .font(.poppins(13, weight: .semibold))
-                    .foregroundStyle(Color.nyoraIndigo)
+                    .foregroundStyle(accentManager.color)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
@@ -70,7 +71,7 @@ private struct QuickActionTile: View {
             .frame(height: 68)
             .background(
                 RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous)
-                    .fill(Color.nyoraIndigo.opacity(0.12))
+                    .fill(accentManager.color.opacity(0.12))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous)

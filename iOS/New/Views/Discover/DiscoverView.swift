@@ -26,6 +26,7 @@ struct DiscoverView: View {
 
     @State private var state: LoadState = .loading
     @State private var hasLoaded = false
+    @ObservedObject private var accentManager = AccentManager.shared
 
     var body: some View {
         content
@@ -85,7 +86,7 @@ struct DiscoverView: View {
         VStack(spacing: 12) {
             Image(systemName: "sparkles")
                 .font(.system(size: 44, weight: .regular))
-                .foregroundStyle(Color.nyoraIndigo)
+                .foregroundStyle(accentManager.color)
             Text(NSLocalizedString("DISCOVER", comment: ""))
                 .font(.poppins(22, weight: .bold))
             Text(NSLocalizedString("DISCOVER_EMPTY_MESSAGE", comment: ""))

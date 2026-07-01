@@ -24,23 +24,44 @@ struct NyoraPillButtonStyle: ButtonStyle {
     var fontSize: CGFloat = 15
 
     func makeBody(configuration: Configuration) -> some View {
-        let (fill, label) = colors
-        configuration.label
-            .font(.poppins(fontSize, weight: .semibold))
-            .foregroundStyle(label)
-            .padding(.horizontal, horizontalPadding)
-            .padding(.vertical, verticalPadding)
-            .background(fill)
-            .clipShape(Capsule())
-            .opacity(configuration.isPressed ? 0.85 : 1)
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+        PillBody(
+            configuration: configuration,
+            variant: variant,
+            horizontalPadding: horizontalPadding,
+            verticalPadding: verticalPadding,
+            fontSize: fontSize
+        )
     }
 
-    private var colors: (fill: Color, label: Color) {
-        switch variant {
-        case .indigo: (.nyoraIndigo, .white)
-        case .white: (.white, .black)
+    /// Nested view so the primary variant's fill can follow the live accent
+    /// (`AccentManager`) — a ButtonStyle itself can't observe an ObservableObject.
+    private struct PillBody: View {
+        let configuration: Configuration
+        let variant: Variant
+        let horizontalPadding: CGFloat
+        let verticalPadding: CGFloat
+        let fontSize: CGFloat
+        @ObservedObject private var accentManager = AccentManager.shared
+
+        var body: some View {
+            let (fill, label) = colors
+            configuration.label
+                .font(.poppins(fontSize, weight: .semibold))
+                .foregroundStyle(label)
+                .padding(.horizontal, horizontalPadding)
+                .padding(.vertical, verticalPadding)
+                .background(fill)
+                .clipShape(Capsule())
+                .opacity(configuration.isPressed ? 0.85 : 1)
+                .scaleEffect(configuration.isPressed ? 0.97 : 1)
+                .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+        }
+
+        private var colors: (fill: Color, label: Color) {
+            switch variant {
+            case .indigo: (accentManager.color, .white)
+            case .white: (.white, .black)
+            }
         }
     }
 }

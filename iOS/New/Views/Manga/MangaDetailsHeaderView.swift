@@ -809,21 +809,22 @@ struct LabelView: View {
 
 private struct TagView: View {
     let text: String
+    @ObservedObject private var accentManager = AccentManager.shared
 
     var body: some View {
-        // Nyora genre chip: fully-rounded (cornerPill) indigo-tinted pill with a
-        // faint indigo outline and Poppins Medium indigo label — matches
+        // Nyora genre chip: fully-rounded (cornerPill) accent-tinted pill with a
+        // faint outline and Poppins Medium accent label — matches
         // nyora-android's genre chips.
         Text(text)
             .lineLimit(1)
-            .foregroundStyle(Color.nyoraIndigo)
+            .foregroundStyle(accentManager.color)
             .font(.poppins(13, weight: .medium))
             .padding(.horizontal, 14)
             .padding(.vertical, 6)
             .textSelection(.enabled)
             .background(
                 Capsule(style: .continuous)
-                    .fill(Color.nyoraIndigo.opacity(0.12))
+                    .fill(accentManager.color.opacity(0.12))
             )
             .overlay(
                 Capsule(style: .continuous)

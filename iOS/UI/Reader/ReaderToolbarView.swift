@@ -51,21 +51,22 @@ class ReaderToolbarView: UIView {
     }
 
     func configure() {
+        let accent = AccentColor.current.uiColor
         // floating rounded pill background behind the slider + chapter buttons
         pillView.backgroundColor = .clear
         pillView.layer.borderWidth = 1
-        pillView.layer.borderColor = NyoraTheme.indigo.withAlphaComponent(0.18).cgColor
+        pillView.layer.borderColor = accent.withAlphaComponent(0.18).cgColor
         pillView.clipsToBounds = true
         pillBlur.isUserInteractionEnabled = false
         pillView.addSubview(pillBlur)
         addSubview(pillView)
 
         prevChapterButton.setImage(UIImage(systemName: "chevron.left.2"), for: .normal)
-        prevChapterButton.tintColor = NyoraTheme.indigo
+        prevChapterButton.tintColor = accent
         addSubview(prevChapterButton)
 
         nextChapterButton.setImage(UIImage(systemName: "chevron.right.2"), for: .normal)
-        nextChapterButton.tintColor = NyoraTheme.indigo
+        nextChapterButton.tintColor = accent
         addSubview(nextChapterButton)
 
         incognitoModeLabel.font = NyoraTheme.poppins(10, .medium)

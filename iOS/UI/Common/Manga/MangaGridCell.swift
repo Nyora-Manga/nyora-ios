@@ -75,7 +75,7 @@ class MangaGridCell: UICollectionViewCell {
 
     private lazy var progressBarFill: UIView = {
         let view = UIView()
-        view.backgroundColor = NyoraTheme.indigo
+        view.backgroundColor = AccentColor.current.uiColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

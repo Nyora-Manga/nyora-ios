@@ -123,13 +123,14 @@ private struct DiscoverRecommendationCard: View {
 private struct DotsIndicator: View {
     let count: Int
     let selection: Int
+    @ObservedObject private var accentManager = AccentManager.shared
 
     var body: some View {
         HStack(spacing: 6) {
             ForEach(0..<count, id: \.self) { index in
                 let active = index == selection
                 Capsule()
-                    .fill(Color.nyoraIndigo.opacity(active ? 1 : 0.35))
+                    .fill(accentManager.color.opacity(active ? 1 : 0.35))
                     .frame(width: active ? 18 : 8, height: 8)
                     .animation(.easeInOut(duration: 0.2), value: selection)
             }

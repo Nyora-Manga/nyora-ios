@@ -15,6 +15,7 @@ struct ExpandableTextView: View {
 
     @State private var truncated = false
     @State private var moreButtonHeight: CGFloat = 0
+    @ObservedObject private var accentManager = AccentManager.shared
 
     @EnvironmentObject private var path: NavigationCoordinator
 
@@ -117,7 +118,7 @@ struct ExpandableTextView: View {
                 expanded.toggle()
             }
             .buttonStyle(.plain)
-            .foregroundStyle(Color.nyoraIndigo)
+            .foregroundStyle(accentManager.color)
             .font(.poppins(12, weight: .semibold))
             .background(Color(UIColor.systemBackground))
             .background(GeometryReader {

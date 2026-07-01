@@ -85,11 +85,10 @@ enum AccentColor: String, CaseIterable, Identifiable {
     }
 
     /// A dynamic UIColor resolving to the right primary per interface style.
+    /// The `.default` accent resolves to the Nyora indigo (lightHex/darkHex),
+    /// keeping the app indigo out of the box.
     var uiColor: UIColor {
-        if self == .default {
-            return .systemPink
-        }
-        let light = UIColor(hex: lightHex) ?? .systemPink
+        let light = UIColor(hex: lightHex) ?? .systemIndigo
         let dark = UIColor(hex: darkHex) ?? light
         return UIColor { traits in
             traits.userInterfaceStyle == .dark ? dark : light
@@ -115,6 +114,57 @@ extension UIColor {
 
 extension Notification.Name {
     static let accentColorChanged = Notification.Name("Appearance.accentColorChanged")
+}
+
+/// App-wide reactive source of the current accent color for SwiftUI.
+///
+/// SwiftUI's `Color.accentColor` reads the static asset catalog color and the
+/// restyled Nyora screens hardcoded `Color.nyoraIndigo`, so neither followed a
+/// selected preset. Views that tint themselves with the accent observe this
+/// singleton (`@ObservedObject private var accentManager = AccentManager.shared`)
+/// and read `accentManager.color`; it republishes on `.accentColorChanged`, so
+/// picking a preset updates every observing view live (and persists via the
+/// same UserDefaults key on relaunch).
+final class AccentManager: ObservableObject {
+    static let shared = AccentManager()
+
+    /// The current accent as a SwiftUI Color. Updated whenever the user picks a
+    /// new preset (via `.accentColorChanged`).
+    @Published private(set) var color: Color = AccentColor.current.color
+
+    private var observer: NSObjectProtocol?
+
+    private init() {
+        observer = NotificationCenter.default.addObserver(
+            forName: .accentColorChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.color = AccentColor.current.color
+        }
+    }
+
+    deinit {
+        if let observer {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+}
+
+/// Wraps a SwiftUI root so its environment `.tint` follows the live accent.
+/// Apply at `UIHostingController` roots so generic controls (buttons, links,
+/// toggles) inherit the selected accent and update on `.accentColorChanged`.
+struct NyoraAccentTint<Content: View>: View {
+    @ObservedObject private var accentManager = AccentManager.shared
+    private let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        content.tint(accentManager.color)
+    }
 }
 
 /// Applies the current accent tint to a window, and installs a live observer.

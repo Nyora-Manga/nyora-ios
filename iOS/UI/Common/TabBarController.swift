@@ -26,7 +26,7 @@ class TabBarController: UITabBarController {
         view.isUserInteractionEnabled = false
         view.clipsToBounds = true
         view.layer.borderWidth = 1
-        view.layer.borderColor = NyoraTheme.indigo.withAlphaComponent(0.18).cgColor
+        view.layer.borderColor = AccentColor.current.uiColor.withAlphaComponent(0.18).cgColor
         return view
     }()
 
@@ -95,12 +95,23 @@ class TabBarController: UITabBarController {
                 self?.setUpTabs()
             }
             .store(in: &cancellables)
+
+        // Live-retint the tab bar when the accent preset changes.
+        NotificationCenter.default.publisher(for: .accentColorChanged)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.configureFloatingTabBar()
+                self?.floatingTabPill.layer.borderColor =
+                    AccentColor.current.uiColor.withAlphaComponent(0.18).cgColor
+            }
+            .store(in: &cancellables)
     }
 
     /// Nyora tab bar: indigo selected tint + Poppins labels, and (pre-iOS 26) a
     /// floating rounded pill backing so the bar reads as a detached capsule.
     private func configureFloatingTabBar() {
-        tabBar.tintColor = NyoraTheme.indigo
+        let accent = AccentColor.current.uiColor
+        tabBar.tintColor = accent
         tabBar.unselectedItemTintColor = .secondaryLabel
 
         let itemAppearance = UITabBarItemAppearance()
@@ -109,9 +120,9 @@ class TabBarController: UITabBarController {
         }
         itemAppearance.selected.titleTextAttributes = [
             .font: NyoraTheme.poppins(10, .semibold),
-            .foregroundColor: NyoraTheme.indigo
+            .foregroundColor: accent
         ]
-        itemAppearance.selected.iconColor = NyoraTheme.indigo
+        itemAppearance.selected.iconColor = accent
         itemAppearance.normal.iconColor = .secondaryLabel
 
         let appearance = UITabBarAppearance()
@@ -156,8 +167,10 @@ class TabBarController: UITabBarController {
         enabledSections = NavConfig.enabledSections
 
         let discoverPath = NavigationCoordinator(rootViewController: nil)
-        let discoverHostingController = UIHostingController(rootView: DiscoverView()
-            .environmentObject(discoverPath))
+        let discoverHostingController = UIHostingController(rootView: NyoraAccentTint {
+            DiscoverView()
+                .environmentObject(discoverPath)
+        })
         discoverPath.rootViewController = discoverHostingController
         let discoverViewController = NavigationController(rootViewController: discoverHostingController)
 
@@ -166,8 +179,10 @@ class TabBarController: UITabBarController {
         let searchViewController = NavigationController(rootViewController: SearchViewController())
 
         let historyPath = NavigationCoordinator(rootViewController: nil)
-        let historyHostingController = UIHostingController(rootView: HistoryView()
-            .environmentObject(historyPath))
+        let historyHostingController = UIHostingController(rootView: NyoraAccentTint {
+            HistoryView()
+                .environmentObject(historyPath)
+        })
         historyPath.rootViewController = historyHostingController
         let historyViewController = NavigationController(rootViewController: historyHostingController)
 
@@ -175,16 +190,20 @@ class TabBarController: UITabBarController {
         let settingsViewController: UIViewController
         if #available(iOS 26.0, *), UIDevice.current.userInterfaceIdiom != .pad {
             settingsViewController = UIHostingController(
-                rootView: NavigationStack {
-                    SettingsView()
-                        .environmentObject(settingsPath)
-                }.introspect(.navigationStack, on: .iOS(.v26, .v27)) { entity in
-                    settingsPath.rootViewController = entity
+                rootView: NyoraAccentTint {
+                    NavigationStack {
+                        SettingsView()
+                            .environmentObject(settingsPath)
+                    }.introspect(.navigationStack, on: .iOS(.v26, .v27)) { entity in
+                        settingsPath.rootViewController = entity
+                    }
                 }
             )
         } else {
             // this breaks the zoom transitions from the toolbar buttons in the backups setting page on ios 18 / ipads
-            let hosting = UIHostingController(rootView: SettingsView().environmentObject(settingsPath))
+            let hosting = UIHostingController(rootView: NyoraAccentTint {
+                SettingsView().environmentObject(settingsPath)
+            })
             let entity = NavigationController(rootViewController: hosting)
             entity.navigationBar.prefersLargeTitles = true
             settingsPath.rootViewController = entity

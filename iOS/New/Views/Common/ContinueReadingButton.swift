@@ -32,6 +32,7 @@ struct ContinueReadingButton: View {
 
     @State private var target: ResumeTarget?
     @State private var presentedTarget: ResumeTarget?
+    @ObservedObject private var accentManager = AccentManager.shared
 
     var body: some View {
         Group {
@@ -76,7 +77,7 @@ struct ContinueReadingButton: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [Color.nyoraIndigo, Color.nyoraPurple],
+                                colors: [accentManager.color, Color.nyoraPurple],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -86,7 +87,7 @@ struct ContinueReadingButton: View {
                     Circle()
                         .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
                 }
-                .shadow(color: Color.nyoraIndigo.opacity(0.4), radius: 12, x: 0, y: 6)
+                .shadow(color: accentManager.color.opacity(0.4), radius: 12, x: 0, y: 6)
         }
         .buttonStyle(ContinueReadingButtonStyle())
         .accessibilityLabel(Text(NSLocalizedString("CONTINUE_READING", comment: "")))
