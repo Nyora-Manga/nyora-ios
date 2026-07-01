@@ -131,23 +131,27 @@ class TabBarController: UITabBarController {
         itemAppearance.selected.iconColor = accent
         itemAppearance.normal.iconColor = .secondaryLabel
 
-        let appearance = UITabBarAppearance()
         if #available(iOS 26.0, *) {
-            // Keep the native liquid-glass floating bar; only retint items.
+            // The iOS 26 Liquid-Glass UITab bar IGNORES a custom UITabBarAppearance
+            // (assigning one fought the system glass + left the selected item
+            // untinted). Keep the system appearance and drive the selected-item
+            // accent purely via the bar's tintColor (set above) + the accent asset.
+            let appearance = UITabBarAppearance()
             appearance.configureWithDefaultBackground()
+            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.font: NyoraTheme.poppins(10, .semibold)]
+            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.font: NyoraTheme.poppins(10, .medium)]
+            tabBar.standardAppearance = appearance
+            tabBar.scrollEdgeAppearance = appearance
         } else {
-            // Transparent bar so our floating pill provides the surface.
+            let appearance = UITabBarAppearance()
             appearance.configureWithTransparentBackground()
             if floatingTabPill.superview == nil {
                 tabBar.insertSubview(floatingTabPill, at: 0)
             }
-        }
-        appearance.stackedLayoutAppearance = itemAppearance
-        appearance.inlineLayoutAppearance = itemAppearance
-        appearance.compactInlineLayoutAppearance = itemAppearance
-
-        tabBar.standardAppearance = appearance
-        if #available(iOS 15.0, *) {
+            appearance.stackedLayoutAppearance = itemAppearance
+            appearance.inlineLayoutAppearance = itemAppearance
+            appearance.compactInlineLayoutAppearance = itemAppearance
+            tabBar.standardAppearance = appearance
             tabBar.scrollEdgeAppearance = appearance
         }
     }
