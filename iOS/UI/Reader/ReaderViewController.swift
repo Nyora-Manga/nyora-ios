@@ -107,6 +107,18 @@ class ReaderViewController: BaseObservingViewController {
         return gesture
     }()
 
+    // in-reader rotate / orientation-lock quick control (NP-016)
+    private lazy var orientationButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(
+            image: orientationImage(for: currentOrientationSetting),
+            style: .plain,
+            target: nil,
+            action: nil
+        )
+        button.menu = makeOrientationMenu()
+        return button
+    }()
+
     var statusBarHidden = false
 
     override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
@@ -172,7 +184,7 @@ class ReaderViewController: BaseObservingViewController {
             action: #selector(toggleTranslate(_:))
         )
         translateButton.tintColor = translateOn ? .tintColor : nil
-        navigationItem.rightBarButtonItems = [
+        var rightItems: [UIBarButtonItem] = [
             moreButton,
             UIBarButtonItem(
                 image: UIImage(systemName: "textformat.size"),
@@ -182,6 +194,12 @@ class ReaderViewController: BaseObservingViewController {
             ),
             translateButton
         ]
+        // in-reader rotate / orientation-lock quick control (NP-016), iPhone only
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            orientationButton.tintColor = currentOrientationSetting == "device" ? nil : .tintColor
+            rightItems.append(orientationButton)
+        }
+        navigationItem.rightBarButtonItems = rightItems
 
         // fix navbar being clear
         let navigationBarAppearance = UINavigationBarAppearance()
@@ -561,6 +579,49 @@ class ReaderViewController: BaseObservingViewController {
         let on = TranslationController.shared.enabled
         sender.image = UIImage(systemName: on ? "character.bubble.fill" : "character.bubble")
         sender.tintColor = on ? .tintColor : nil
+    }
+
+    // MARK: - Orientation quick control (NP-016)
+
+    private var currentOrientationSetting: String {
+        UserDefaults.standard.string(forKey: "Reader.orientation") ?? "device"
+    }
+
+    private func orientationImage(for setting: String) -> UIImage? {
+        switch setting {
+            case "portrait": UIImage(systemName: "lock.rotation")
+            case "landscape": UIImage(systemName: "lock.rotation")
+            default: UIImage(systemName: "rotate.right")
+        }
+    }
+
+    private func makeOrientationMenu() -> UIMenu {
+        let current = currentOrientationSetting
+        let options: [(value: String, title: String, image: String)] = [
+            ("device", NSLocalizedString("FOLLOW_DEVICE"), "rotate.right"),
+            ("portrait", NSLocalizedString("PORTRAIT"), "rectangle.portrait"),
+            ("landscape", NSLocalizedString("LANDSCAPE"), "rectangle")
+        ]
+        let actions = options.map { option in
+            UIAction(
+                title: option.title,
+                image: UIImage(systemName: option.image),
+                state: current == option.value ? .on : .off
+            ) { [weak self] _ in
+                self?.setOrientation(option.value)
+            }
+        }
+        return UIMenu(title: NSLocalizedString("READER_ORIENTATION"), children: actions)
+    }
+
+    private func setOrientation(_ value: String) {
+        UserDefaults.standard.set(value, forKey: "Reader.orientation")
+        NotificationCenter.default.post(name: .readerOrientation, object: nil)
+        orientationButton.image = orientationImage(for: value)
+        orientationButton.menu = makeOrientationMenu()
+        orientationButton.tintColor = value == "device" ? nil : .tintColor
+        let generator = UISelectionFeedbackGenerator()
+        generator.selectionChanged()
     }
 
     @objc func openReaderSettings() {
