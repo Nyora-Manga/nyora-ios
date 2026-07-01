@@ -370,6 +370,7 @@ extension MangaView {
         // improves the scrolling performance of the list
         .equatable()
         .listRowInsets(.zero)
+        .listRowSeparator(.hidden) // each chapter is a self-contained outlined card
         .disabled(locked)
         .opacity(opacity)
         .id(chapter.key)

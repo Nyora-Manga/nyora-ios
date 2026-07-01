@@ -30,8 +30,13 @@ struct ChapterTableCell: View {
         downloadProgress ?? (downloadStatus == .queued || downloadStatus == .downloading ? 0 : nil)
     }
 
+    // nyora-android item_chapter.xml: each chapter row is its own outlined card
+    // (16pt corners, 1px indigo-tint outline, flat — no fill/elevation) with
+    // Poppins title + subtitle.
+    private let cardCorner: CGFloat = 16
+
     var body: some View {
-        let view = HStack {
+        let content = HStack {
             if let thumbnail = chapter.thumbnail {
                 MangaCoverView(
                     source: source,
@@ -45,12 +50,12 @@ struct ChapterTableCell: View {
                 let title = chapter.formattedTitle(forceMode: displayMode)
                 Text(title)
                     .foregroundStyle(locked || read ? .secondary : .primary)
-                    .font(.system(size: 16))
+                    .font(.poppins(15, weight: .semibold))
                     .lineLimit(1)
                 if let subtitle = chapter.formattedSubtitle(page: page, sourceKey: sourceKey) {
                     Text(subtitle)
                         .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
+                        .font(.poppins(13))
                         .lineLimit(1)
                 }
             }
@@ -68,17 +73,19 @@ struct ChapterTableCell: View {
             }
         }
         .foregroundStyle(.primary)
-        .padding(.horizontal, 20)
-        .padding(.vertical, 22 / 3)
-        .frame(alignment: .leading)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
-        if #available(iOS 16.0, *) {
-            view.alignmentGuide(.listRowSeparatorTrailing) { d in
-                d[.trailing] // ensure separator goes all the way to the trailing edge
-            }
-        } else {
-            view
-        }
+
+        content
+            .overlay(
+                RoundedRectangle(cornerRadius: cardCorner, style: .continuous)
+                    .strokeBorder(Color.nyoraCardOutline, lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: cardCorner, style: .continuous))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 4)
     }
 }
 
