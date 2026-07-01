@@ -80,8 +80,10 @@ class TabBarController: UITabBarController {
 
         delegate = self
 
-        configureFloatingTabBar()
+        // setUpTabs first: on iOS 26 the UITab items must exist before the tint /
+        // appearance is applied, or the selected tab never picks up the accent.
         setUpTabs()
+        configureFloatingTabBar()
 
         NotificationCenter.default.publisher(for: .incognitoMode)
             .sink { [weak self] _ in

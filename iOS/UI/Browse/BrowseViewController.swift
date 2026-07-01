@@ -324,28 +324,24 @@ extension BrowseViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
 
-    /// Local: open the local source; fall back to the add-source page if it isn't installed.
+    /// Local: present the local-file importer (accepts .cbz / .zip). Imported titles
+    /// then appear under the local source in the library.
     func openLocalSource() {
-        if let source = SourceManager.shared.source(for: LocalSourceRunner.sourceKey) {
-            push(source: source)
-        } else {
-            openAddSourcePage()
-        }
+        let hosting = UIHostingController(rootView: LocalFileImportView())
+        hosting.navigationItem.largeTitleDisplayMode = .never
+        let nav = UINavigationController(rootViewController: hosting)
+        present(nav, animated: true)
     }
 
-    /// Bookmarks: jump to the saved library (Favourites) tab.
+    /// Bookmarks: switch to the Favourites (library) tab. iOS 26 uses UITab, so
+    /// `viewControllers` is nil — select by section index instead.
     func openBookmarks() {
-        guard let tabBarController else { return }
-        let target = tabBarController.viewControllers?.first { vc in
-            (vc as? UINavigationController)?.viewControllers.first is LibraryViewController
-        }
-        if let target {
-            tabBarController.selectedViewController = target
-        }
+        guard let tabBarController, let index = NavConfig.enabledSections.firstIndex(of: .library) else { return }
+        tabBarController.selectedIndex = index
     }
 
-    /// Random: fetch and open a random manga from a random installed source.
-    /// Falls back to opening the source itself if no manga can be fetched.
+    /// Random: open a random manga from a random installed source. Uses the source's
+    /// listing (Popular) since nil-query search returns nothing for many sources.
     func openRandomManga() {
         let candidates = SourceManager.shared.sources.filter { $0.id != LocalSourceRunner.sourceKey }
         guard let source = candidates.randomElement() else {
@@ -353,10 +349,13 @@ extension BrowseViewController {
             return
         }
         Task { @MainActor in
-            let manga: AidokuRunner.Manga? = try? await source
-                .getSearchMangaList(query: nil, page: 1, filters: [])
-                .entries
-                .randomElement()
+            var manga: AidokuRunner.Manga?
+            if let listing = try? await source.getListings().first {
+                manga = try? await source.getMangaList(listing: listing, page: 1).entries.randomElement()
+            }
+            if manga == nil {
+                manga = try? await source.getSearchMangaList(query: nil, page: 1, filters: []).entries.randomElement()
+            }
             if let manga {
                 self.navigationController?.pushViewController(
                     MangaViewController(source: source, manga: manga, parent: self),
