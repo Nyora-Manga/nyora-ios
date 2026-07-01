@@ -113,6 +113,10 @@ class TabBarController: UITabBarController {
         let accent = AccentColor.current.uiColor
         tabBar.tintColor = accent
         tabBar.unselectedItemTintColor = .secondaryLabel
+        // iOS 26 UITab / Liquid-Glass bars tint the selected item from the view's
+        // tintColor, NOT the UITabBarItemAppearance below (ignored for UITab), so
+        // set it explicitly or the accent never reaches the bottom bar.
+        view.tintColor = accent
 
         let itemAppearance = UITabBarItemAppearance()
         for state in [itemAppearance.normal, itemAppearance.selected, itemAppearance.focused, itemAppearance.disabled] {
