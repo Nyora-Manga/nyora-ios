@@ -733,6 +733,9 @@
 "TRACKING" = "Tracking";
 "TRACKERS" = "Trackers";
 "STATUS" = "Status";
+"SOURCE" = "Source";
+"RATING" = "Rating";
+"PROGRESS" = "Progress";
 "VOLUMES" = "Volumes";
 "START_TRACKING" = "Start Tracking";
 "SCORE" = "Score";

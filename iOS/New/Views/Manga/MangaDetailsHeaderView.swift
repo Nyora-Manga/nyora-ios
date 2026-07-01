@@ -198,7 +198,7 @@ struct MangaDetailsHeaderView: View {
             .padding(.bottom, 14)
             .padding(.horizontal, 20)
 
-            progressView
+            infoTableView
 
             if let description = manga.description, !description.isEmpty {
                 ExpandableTextView(text: description, expanded: $descriptionExpanded)
@@ -347,6 +347,100 @@ struct MangaDetailsHeaderView: View {
             }
             .frame(height: 300)
             .allowsHitTesting(false)
+        }
+    }
+
+    // Filled tinted "info-table" card (Source / Author / Rating / State / Chapters / Progress),
+    // mirroring nyora-android DetailsActivity's info card: a flat tinted surface (20pt, 1px outline)
+    // with label/value rows and an inline progress bar on the Progress row.
+    @ViewBuilder
+    var infoTableView: some View {
+        let total = chapters.count
+        let read = min(max(readChapterCount, 0), total)
+        let hasProgress = total > 0 && (read > 0 || readingInProgress)
+        let fraction = total > 0 ? min(1, max(0, Double(read) / Double(total))) : 0
+
+        VStack(spacing: 0) {
+            if let source {
+                infoRow(
+                    label: NSLocalizedString("SOURCE"),
+                    value: source.name,
+                    showDivider: true
+                )
+            }
+            if let authors = manga.authors, !authors.isEmpty {
+                infoRow(
+                    label: NSLocalizedString("AUTHOR"),
+                    value: authors.joined(separator: ", "),
+                    showDivider: true
+                )
+            }
+            if let ratingText {
+                infoRow(
+                    label: NSLocalizedString("RATING"),
+                    value: "\(ratingText) / 5",
+                    showDivider: true
+                )
+            }
+            if manga.status != .unknown {
+                infoRow(
+                    label: NSLocalizedString("STATUS"),
+                    value: manga.status.title,
+                    showDivider: true
+                )
+            }
+            infoRow(
+                label: NSLocalizedString("CHAPTERS"),
+                value: "\(total)",
+                showDivider: hasProgress
+            )
+            if hasProgress {
+                let percent = fraction >= 0.99999 ? 100 : Int(fraction * 100)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text(NSLocalizedString("PROGRESS"))
+                            .font(.poppins(14, weight: .medium))
+                            .foregroundStyle(.secondary)
+                        Spacer(minLength: 8)
+                        Text(String(format: NSLocalizedString("PERCENT_READ_PATTERN"), percent))
+                            .font(.poppins(14, weight: .semibold))
+                            .foregroundStyle(.primary)
+                            .contentTransitionDisabledPlease()
+                    }
+                    ProgressView(value: fraction)
+                        .tint(.accentColor)
+                }
+                .padding(.vertical, 10)
+            }
+        }
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .nyoraTintedCard()
+        .padding(.horizontal, 20)
+        .padding(.bottom, 14)
+    }
+
+    // A single label/value row in the info-table card, with an optional hairline divider below.
+    @ViewBuilder
+    private func infoRow(label: String, value: String, showDivider: Bool) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(label)
+                .font(.poppins(14, weight: .medium))
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 8)
+            Text(value)
+                .font(.poppins(14, weight: .semibold))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.trailing)
+                .lineLimit(2)
+                .textSelection(.enabled)
+        }
+        .padding(.vertical, 10)
+
+        if showDivider {
+            Rectangle()
+                .fill(Color.nyoraCardOutline)
+                .frame(height: 1)
         }
     }
 
