@@ -43,7 +43,17 @@ struct DiscoverView: View {
     @EnvironmentObject private var path: NavigationCoordinator
 
     var body: some View {
-        content
+        VStack(spacing: 0) {
+            // Universal search bar pinned above the feed so it stays visible in
+            // every state (loading / empty / error / loaded), not just the feed.
+            searchBar
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+
+            content
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
             .overlay(alignment: .bottomTrailing) {
                 // ND-019 — detached circular "Continue reading" button. Self-hides
                 // when there is no in-progress reading history.
@@ -123,14 +133,10 @@ struct DiscoverView: View {
     private func loadedView(feed: AniListFeed) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // NX-005 — android-style universal search bar at the top of the feed.
-                searchBar
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
-
                 // NX-006 — inline "Continue reading" row built from in-progress
                 // reading history. Self-hides when there is nothing to resume.
                 ContinueReadingSection()
+                    .padding(.top, 4)
 
                 DiscoverHeroCard(source: nil, manga: feed.hero, onSelect: openSearch)
                     .padding(.horizontal, 16)

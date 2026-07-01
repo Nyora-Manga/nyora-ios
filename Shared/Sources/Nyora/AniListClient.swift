@@ -67,7 +67,23 @@ actor AniListClient {
     }
     """
 
+    /// Fetch with a few retries — AniList rate-limits (~90 req/min → 429) and the
+    /// odd network blip would otherwise surface as "Unknown Error" on Discover.
     private func fetch(sort: String) async throws -> [AidokuRunner.Manga] {
+        var lastError: Error?
+        for attempt in 0..<3 {
+            do {
+                return try await performFetch(sort: sort)
+            } catch {
+                lastError = error
+                // brief backoff before retrying (0.8s, 1.6s)
+                try? await Task.sleep(nanoseconds: UInt64(attempt + 1) * 800_000_000)
+            }
+        }
+        throw lastError ?? AniListError.badStatus(-1)
+    }
+
+    private func performFetch(sort: String) async throws -> [AidokuRunner.Manga] {
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
