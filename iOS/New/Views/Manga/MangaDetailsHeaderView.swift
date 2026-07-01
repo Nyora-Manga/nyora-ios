@@ -118,17 +118,22 @@ struct MangaDetailsHeaderView: View {
                     Button {
                         coverPressed = true
                     } label: {
-                        // 2:3 aspect ratio
+                        // 13:18 Nyora cover ratio
                         MangaCoverView(
                             source: source,
                             coverImage: manga.cover ?? "",
                             width: Self.coverWidth,
-                            height: Self.coverWidth * 3/2
+                            height: Self.coverWidth / NyoraTheme.coverAspectRatio
                         )
                         .id(manga.cover ?? "")
                     }
                     .buttonStyle(DarkOverlayButtonStyle())
-                    .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous)
+                            .strokeBorder(Color.nyoraCardOutline, lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
                 }
 
                 VStack(alignment: .leading, spacing: 0) {
@@ -136,7 +141,7 @@ struct MangaDetailsHeaderView: View {
 
                     Text(manga.title)
                         .lineLimit(4)
-                        .font(.system(.title2).weight(.semibold))
+                        .font(.poppins(22, weight: .bold))
                         .textSelection(.enabled)
                         .foregroundStyle(.primary)
                         .minimumScaleFactor(0.75)
