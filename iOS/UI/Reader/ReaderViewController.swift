@@ -275,6 +275,7 @@ class ReaderViewController: BaseObservingViewController {
         addObserver(forName: "Reader.cropBorders", using: reloadBlock)
         addObserver(forName: "Reader.cfGrayscale", using: reloadBlock)
         addObserver(forName: "Reader.cfBrightness", using: reloadBlock)
+        addObserver(forName: "Reader.colorFilter", using: reloadBlock)
         addObserver(forName: "Reader.liveText", using: reloadBlock)
         addObserver(forName: "Reader.tapZones", using: reloadBlock)
         addObserver(forName: "Reader.keepScreenOn") { [weak self] _ in

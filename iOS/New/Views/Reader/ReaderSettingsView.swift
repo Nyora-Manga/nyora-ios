@@ -128,6 +128,9 @@ struct ReaderSettingsView: View {
                                 }
                             }
                         }
+                        NavigationLink(destination: ColorFilterConfigView()) {
+                            Text(NSLocalizedString("COLOR_FILTER"))
+                        }
                         SettingView(
                             setting: .init(
                                 key: "Reader.disableQuickActions",

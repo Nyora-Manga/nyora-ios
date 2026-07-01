@@ -232,6 +232,10 @@ struct ColorMatrix4x5 {
 /// Multitone presets ported from Android `ReaderColorFilter.Preset`.
 struct ColorFilterPreset {
     let id: Int
+    /// Human-readable name shown in the palette picker.
+    let label: String
+    /// Group heading (Duotone, Tritone, ...).
+    let group: String
     /// Duotone dark colour (r, g, b), if this preset is a two-colour gradient.
     let darkColor: (Int, Int, Int)?
     let lightColor: (Int, Int, Int)?
@@ -241,12 +245,16 @@ struct ColorFilterPreset {
 
     init(
         id: Int,
+        label: String = "",
+        group: String = "",
         darkColor: (Int, Int, Int)? = nil,
         lightColor: (Int, Int, Int)? = nil,
         contrastOffset: Float = 0,
         matrixArray: [Float]? = nil
     ) {
         self.id = id
+        self.label = label
+        self.group = group
         self.darkColor = darkColor
         self.lightColor = lightColor
         self.contrastOffset = contrastOffset
@@ -259,48 +267,61 @@ struct ColorFilterPreset {
 
     static let all: [ColorFilterPreset] = [
         // Duotones (1 - 5)
-        .init(id: 1, darkColor: (28, 22, 14), lightColor: (252, 245, 229), contrastOffset: 0.05),
-        .init(id: 2, darkColor: (15, 23, 42), lightColor: (241, 245, 249), contrastOffset: -0.05),
-        .init(id: 3, darkColor: (46, 8, 84), lightColor: (224, 247, 250), contrastOffset: 0.18),
-        .init(id: 4, darkColor: (12, 35, 24), lightColor: (232, 245, 233), contrastOffset: 0.02),
-        .init(id: 5, darkColor: (46, 26, 22), lightColor: (251, 239, 239), contrastOffset: 0.06),
+        .init(id: 1, label: "Sepia Gold", group: "Duotone", darkColor: (28, 22, 14), lightColor: (252, 245, 229), contrastOffset: 0.05),
+        .init(id: 2, label: "Slate Ocean", group: "Duotone", darkColor: (15, 23, 42), lightColor: (241, 245, 249), contrastOffset: -0.05),
+        .init(id: 3, label: "Cyberpunk Neon", group: "Duotone", darkColor: (46, 8, 84), lightColor: (224, 247, 250), contrastOffset: 0.18),
+        .init(id: 4, label: "Forest Emerald", group: "Duotone", darkColor: (12, 35, 24), lightColor: (232, 245, 233), contrastOffset: 0.02),
+        .init(id: 5, label: "Warm Terracotta", group: "Duotone", darkColor: (46, 26, 22), lightColor: (251, 239, 239), contrastOffset: 0.06),
         // Tritones (6 - 10)
-        .init(id: 6, matrixArray: [1.4, 0, 0, 0, 10, 1.1, 0, 0, 0, 25, 0.7, 0, 0, 0, 50, 0, 0, 0, 1, 0]),
-        .init(id: 7, matrixArray: [1.3, 0, 0, 0, 30, 0.9, 0, 0, 0, 15, 0.6, 0, 0, 0, 10, 0, 0, 0, 1, 0]),
-        .init(id: 8, contrastOffset: 0.05, matrixArray: [1.5, 0, 0, 0, 30, 0.8, 0, 0, 0, 10, 0.6, 0, 0, 0, 15, 0, 0, 0, 1, 0]),
-        .init(id: 9, contrastOffset: -0.02, matrixArray: [0.6, 0, 0, 0, 10, 1.2, 0, 0, 0, 28, 1.4, 0, 0, 0, 42, 0, 0, 0, 1, 0]),
-        .init(id: 10, contrastOffset: 0.04, matrixArray: [0.9, 0, 0, 0, 28, 1.3, 0, 0, 0, 30, 0.8, 0, 0, 0, 26, 0, 0, 0, 1, 0]),
+        .init(id: 6, label: "Vintage Classic", group: "Tritone", matrixArray: [1.4, 0, 0, 0, 10, 1.1, 0, 0, 0, 25, 0.7, 0, 0, 0, 50, 0, 0, 0, 1, 0]),
+        .init(id: 7, label: "Copper Bronze", group: "Tritone", matrixArray: [1.3, 0, 0, 0, 30, 0.9, 0, 0, 0, 15, 0.6, 0, 0, 0, 10, 0, 0, 0, 1, 0]),
+        .init(id: 8, label: "Crimson Sunset", group: "Tritone", contrastOffset: 0.05, matrixArray: [1.5, 0, 0, 0, 30, 0.8, 0, 0, 0, 10, 0.6, 0, 0, 0, 15, 0, 0, 0, 1, 0]),
+        .init(id: 9, label: "Biolum Deep", group: "Tritone", contrastOffset: -0.02, matrixArray: [0.6, 0, 0, 0, 10, 1.2, 0, 0, 0, 28, 1.4, 0, 0, 0, 42, 0, 0, 0, 1, 0]),
+        .init(id: 10, label: "Soothing Sage", group: "Tritone", contrastOffset: 0.04, matrixArray: [0.9, 0, 0, 0, 28, 1.3, 0, 0, 0, 30, 0.8, 0, 0, 0, 26, 0, 0, 0, 1, 0]),
         // Quadratones (11 - 15)
-        .init(id: 11, contrastOffset: 0.1, matrixArray: [1.5, 0, 0, 0, 11, 0.9, 0, 0, 0, 15, 1.3, 0, 0, 0, 25, 0, 0, 0, 1, 0]),
-        .init(id: 12, contrastOffset: -0.05, matrixArray: [1.1, 0, 0, 0, 30, 1.2, 0, 0, 0, 27, 1.4, 0, 0, 0, 75, 0, 0, 0, 1, 0]),
-        .init(id: 13, contrastOffset: 0.02, matrixArray: [1.0, 0, 0, 0, 30, 1.1, 0, 0, 0, 27, 1.5, 0, 0, 0, 75, 0, 0, 0, 1, 0]),
-        .init(id: 14, contrastOffset: 0.08, matrixArray: [1.4, 0, 0, 0, 28, 1.1, 0, 0, 0, 25, 0.6, 0, 0, 0, 22, 0, 0, 0, 1, 0]),
-        .init(id: 15, contrastOffset: -0.03, matrixArray: [0.5, 0, 0, 0, 2, 1.4, 0, 0, 0, 44, 1.1, 0, 0, 0, 34, 0, 0, 0, 1, 0]),
+        .init(id: 11, label: "Retro Arcade", group: "Quadratone", contrastOffset: 0.1, matrixArray: [1.5, 0, 0, 0, 11, 0.9, 0, 0, 0, 15, 1.3, 0, 0, 0, 25, 0, 0, 0, 1, 0]),
+        .init(id: 12, label: "Cotton Candy", group: "Quadratone", contrastOffset: -0.05, matrixArray: [1.1, 0, 0, 0, 30, 1.2, 0, 0, 0, 27, 1.4, 0, 0, 0, 75, 0, 0, 0, 1, 0]),
+        .init(id: 13, label: "Lavender Haze", group: "Quadratone", contrastOffset: 0.02, matrixArray: [1.0, 0, 0, 0, 30, 1.1, 0, 0, 0, 27, 1.5, 0, 0, 0, 75, 0, 0, 0, 1, 0]),
+        .init(id: 14, label: "Autumn Breeze", group: "Quadratone", contrastOffset: 0.08, matrixArray: [1.4, 0, 0, 0, 28, 1.1, 0, 0, 0, 25, 0.6, 0, 0, 0, 22, 0, 0, 0, 1, 0]),
+        .init(id: 15, label: "Polar Aurora", group: "Quadratone", contrastOffset: -0.03, matrixArray: [0.5, 0, 0, 0, 2, 1.4, 0, 0, 0, 44, 1.1, 0, 0, 0, 34, 0, 0, 0, 1, 0]),
         // Pentatones (16 - 20)
-        .init(id: 16, matrixArray: [1.6, 0, 0, 0, 26, 1.1, 0, 0, 0, 11, 1.3, 0, 0, 0, 46, 0, 0, 0, 1, 0]),
-        .init(id: 17, matrixArray: [1.5, 0, 0, 0, 36, 1.2, 0, 0, 0, 0, 0.9, 0, 0, 0, 70, 0, 0, 0, 1, 0]),
-        .init(id: 18, contrastOffset: 0.04, matrixArray: [0.7, 0, 0, 0, 6, 1.4, 0, 0, 0, 20, 0.9, 0, 0, 0, 13, 0, 0, 0, 1, 0]),
-        .init(id: 19, contrastOffset: 0.12, matrixArray: [1.4, 0, 0, 0, 30, 0.9, 0, 0, 0, 17, 1.3, 0, 0, 0, 42, 0, 0, 0, 1, 0]),
-        .init(id: 20, contrastOffset: -0.06, matrixArray: [1.1, 0, 0, 0, 30, 1.3, 0, 0, 0, 27, 1.4, 0, 0, 0, 75, 0, 0, 0, 1, 0]),
+        .init(id: 16, label: "Synthwave Neon", group: "Pentatone", matrixArray: [1.6, 0, 0, 0, 26, 1.1, 0, 0, 0, 11, 1.3, 0, 0, 0, 46, 0, 0, 0, 1, 0]),
+        .init(id: 17, label: "Rainbow Spectral", group: "Pentatone", matrixArray: [1.5, 0, 0, 0, 36, 1.2, 0, 0, 0, 0, 0.9, 0, 0, 0, 70, 0, 0, 0, 1, 0]),
+        .init(id: 18, label: "Forest Canopy", group: "Pentatone", contrastOffset: 0.04, matrixArray: [0.7, 0, 0, 0, 6, 1.4, 0, 0, 0, 20, 0.9, 0, 0, 0, 13, 0, 0, 0, 1, 0]),
+        .init(id: 19, label: "Cyber City", group: "Pentatone", contrastOffset: 0.12, matrixArray: [1.4, 0, 0, 0, 30, 0.9, 0, 0, 0, 17, 1.3, 0, 0, 0, 42, 0, 0, 0, 1, 0]),
+        .init(id: 20, label: "Pastel Sweet", group: "Pentatone", contrastOffset: -0.06, matrixArray: [1.1, 0, 0, 0, 30, 1.3, 0, 0, 0, 27, 1.4, 0, 0, 0, 75, 0, 0, 0, 1, 0]),
         // Hexatones (21 - 25)
-        .init(id: 21, contrastOffset: -0.05, matrixArray: [0.7, 0, 0, 0, 3, 1.1, 0, 0, 0, 7, 1.5, 0, 0, 0, 24, 0, 0, 0, 1, 0]),
-        .init(id: 22, contrastOffset: 0.15, matrixArray: [1.7, 0, 0, 0, 15, 1.1, 0, 0, 0, 5, 0.6, 0, 0, 0, 5, 0, 0, 0, 1, 0]),
-        .init(id: 23, contrastOffset: 0.08, matrixArray: [1.5, 0, 0, 0, 30, 1.0, 0, 0, 0, 27, 0.8, 0, 0, 0, 75, 0, 0, 0, 1, 0]),
-        .init(id: 24, contrastOffset: 0.03, matrixArray: [0.8, 0, 0, 0, 13, 1.4, 0, 0, 0, 19, 0.9, 0, 0, 0, 13, 0, 0, 0, 1, 0]),
-        .init(id: 25, contrastOffset: 0.05, matrixArray: [1.5, 0, 0, 0, 24, 0.7, 0, 0, 0, 2, 1.3, 0, 0, 0, 44, 0, 0, 0, 1, 0]),
+        .init(id: 21, label: "Abyssal Trench", group: "Hexatone", contrastOffset: -0.05, matrixArray: [0.7, 0, 0, 0, 3, 1.1, 0, 0, 0, 7, 1.5, 0, 0, 0, 24, 0, 0, 0, 1, 0]),
+        .init(id: 22, label: "Thermal Fire", group: "Hexatone", contrastOffset: 0.15, matrixArray: [1.7, 0, 0, 0, 15, 1.1, 0, 0, 0, 5, 0.6, 0, 0, 0, 5, 0, 0, 0, 1, 0]),
+        .init(id: 23, label: "Sunset Horizon", group: "Hexatone", contrastOffset: 0.08, matrixArray: [1.5, 0, 0, 0, 30, 1.0, 0, 0, 0, 27, 0.8, 0, 0, 0, 75, 0, 0, 0, 1, 0]),
+        .init(id: 24, label: "Meadow Green", group: "Hexatone", contrastOffset: 0.03, matrixArray: [0.8, 0, 0, 0, 13, 1.4, 0, 0, 0, 19, 0.9, 0, 0, 0, 13, 0, 0, 0, 1, 0]),
+        .init(id: 25, label: "Vaporwave Dream", group: "Hexatone", contrastOffset: 0.05, matrixArray: [1.5, 0, 0, 0, 24, 0.7, 0, 0, 0, 2, 1.3, 0, 0, 0, 44, 0, 0, 0, 1, 0]),
         // Heptatones (26 - 30)
-        .init(id: 26, contrastOffset: 0.02, matrixArray: [1.2, 0, 0, 0, 11, 0.9, 0, 0, 0, 9, 1.5, 0, 0, 0, 26, 0, 0, 0, 1, 0]),
-        .init(id: 27, contrastOffset: 0.14, matrixArray: [1.6, 0, 0, 0, 3, 1.3, 0, 0, 0, 7, 1.4, 0, 0, 0, 18, 0, 0, 0, 1, 0]),
-        .init(id: 28, contrastOffset: 0.06, matrixArray: [1.4, 0, 0, 0, 28, 1.1, 0, 0, 0, 22, 0.7, 0, 0, 0, 14, 0, 0, 0, 1, 0]),
-        .init(id: 29, contrastOffset: 0.04, matrixArray: [0.7, 0, 0, 0, 2, 1.4, 0, 0, 0, 44, 0.9, 0, 0, 0, 35, 0, 0, 0, 1, 0]),
-        .init(id: 30, contrastOffset: 0.01, matrixArray: [1.1, 0, 0, 0, 23, 0.9, 0, 0, 0, 36, 1.4, 0, 0, 0, 84, 0, 0, 0, 1, 0]),
+        .init(id: 26, label: "Nebula Glow", group: "Heptatone", contrastOffset: 0.02, matrixArray: [1.2, 0, 0, 0, 11, 0.9, 0, 0, 0, 9, 1.5, 0, 0, 0, 26, 0, 0, 0, 1, 0]),
+        .init(id: 27, label: "Glitch Cyber", group: "Heptatone", contrastOffset: 0.14, matrixArray: [1.6, 0, 0, 0, 3, 1.3, 0, 0, 0, 7, 1.4, 0, 0, 0, 18, 0, 0, 0, 1, 0]),
+        .init(id: 28, label: "Retro Vintage", group: "Heptatone", contrastOffset: 0.06, matrixArray: [1.4, 0, 0, 0, 28, 1.1, 0, 0, 0, 22, 0.7, 0, 0, 0, 14, 0, 0, 0, 1, 0]),
+        .init(id: 29, label: "Jungle Safari", group: "Heptatone", contrastOffset: 0.04, matrixArray: [0.7, 0, 0, 0, 2, 1.4, 0, 0, 0, 44, 0.9, 0, 0, 0, 35, 0, 0, 0, 1, 0]),
+        .init(id: 30, label: "Twilight Haze", group: "Heptatone", contrastOffset: 0.01, matrixArray: [1.1, 0, 0, 0, 23, 0.9, 0, 0, 0, 36, 1.4, 0, 0, 0, 84, 0, 0, 0, 1, 0]),
         // Octatones (31 - 35)
-        .init(id: 31, contrastOffset: 0.15, matrixArray: [1.6, 0, 0, 0, 30, 1.3, 0, 0, 0, 5, 1.0, 0, 0, 0, 43, 0, 0, 0, 1, 0]),
-        .init(id: 32, contrastOffset: 0.08, matrixArray: [1.4, 0, 0, 0, 9, 1.3, 0, 0, 0, 5, 1.5, 0, 0, 0, 20, 0, 0, 0, 1, 0]),
-        .init(id: 33, contrastOffset: 0.05, matrixArray: [0.6, 0, 0, 0, 2, 1.5, 0, 0, 0, 44, 0.9, 0, 0, 0, 35, 0, 0, 0, 1, 0]),
-        .init(id: 34, contrastOffset: -0.04, matrixArray: [1.2, 0, 0, 0, 31, 0.9, 0, 0, 0, 22, 1.4, 0, 0, 0, 75, 0, 0, 0, 1, 0]),
-        .init(id: 35, contrastOffset: 0.02, matrixArray: [0.8, 0, 0, 0, 8, 1.2, 0, 0, 0, 20, 1.5, 0, 0, 0, 38, 0, 0, 0, 1, 0])
+        .init(id: 31, label: "Acid Trippy", group: "Octatone", contrastOffset: 0.15, matrixArray: [1.6, 0, 0, 0, 30, 1.3, 0, 0, 0, 5, 1.0, 0, 0, 0, 43, 0, 0, 0, 1, 0]),
+        .init(id: 32, label: "Prism Spectral", group: "Octatone", contrastOffset: 0.08, matrixArray: [1.4, 0, 0, 0, 9, 1.3, 0, 0, 0, 5, 1.5, 0, 0, 0, 20, 0, 0, 0, 1, 0]),
+        .init(id: 33, label: "Emerald Glen", group: "Octatone", contrastOffset: 0.05, matrixArray: [0.6, 0, 0, 0, 2, 1.5, 0, 0, 0, 44, 0.9, 0, 0, 0, 35, 0, 0, 0, 1, 0]),
+        .init(id: 34, label: "Sakura Spring", group: "Octatone", contrastOffset: -0.04, matrixArray: [1.2, 0, 0, 0, 31, 0.9, 0, 0, 0, 22, 1.4, 0, 0, 0, 75, 0, 0, 0, 1, 0]),
+        .init(id: 35, label: "Arctic Frost", group: "Octatone", contrastOffset: 0.02, matrixArray: [0.8, 0, 0, 0, 8, 1.2, 0, 0, 0, 20, 1.5, 0, 0, 0, 38, 0, 0, 0, 1, 0])
     ]
+
+    /// Presets in list order, grouped by their group name preserving order.
+    static var groupedForDisplay: [(group: String, presets: [ColorFilterPreset])] {
+        var order: [String] = []
+        var map: [String: [ColorFilterPreset]] = [:]
+        for preset in all {
+            if map[preset.group] == nil {
+                order.append(preset.group)
+            }
+            map[preset.group, default: []].append(preset)
+        }
+        return order.map { ($0, map[$0] ?? []) }
+    }
 }
 
 // MARK: - Engine

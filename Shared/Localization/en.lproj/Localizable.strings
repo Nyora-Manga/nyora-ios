@@ -541,6 +541,12 @@
 "CROP_BORDERS" = "Crop Borders";
 "GRAYSCALE" = "Grayscale";
 "BRIGHTNESS" = "Brightness";
+"COLOR_FILTER" = "Color Filter";
+"CONTRAST" = "Contrast";
+"INVERT_COLORS" = "Invert Colors";
+"WARM_BOOK_BACKGROUND" = "Warm Book Background";
+"COLOR_PALETTE" = "Color Palette";
+"PREVIEW" = "Preview";
 "DISABLE_QUICK_ACTIONS" = "Disable Quick Actions";
 "DISABLE_DOUBLE_TAP_ZOOM" = "Disable Double Tap Zoom";
 "LIVE_TEXT" = "Live Text";
