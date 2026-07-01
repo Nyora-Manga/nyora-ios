@@ -451,6 +451,12 @@
 "PORTRAIT_ROWS" = "Portrait Rows";
 "LANDSCAPE_ROWS" = "Landscape Rows";
 "GRID_SIZE" = "Grid Size";
+"PROGRESS_INDICATORS" = "Progress Indicators";
+"PROGRESS_INDICATOR_NONE" = "None";
+"PROGRESS_INDICATOR_PERCENT_READ" = "Percent Read";
+"PROGRESS_INDICATOR_PERCENT_LEFT" = "Percent Left";
+"PROGRESS_INDICATOR_CHAPTERS_READ" = "Chapters Read";
+"PROGRESS_INDICATOR_CHAPTERS_LEFT" = "Chapters Left";
 "PORTRAIT" = "Portrait";
 "LANDSCAPE" = "Landscape";
 "READER" = "Reader";

@@ -54,6 +54,7 @@ class OldMangaCollectionViewController: BaseCollectionViewController {
     func configure(cell: MangaGridCell, info: MangaInfo, indexPath: IndexPath) {
         cell.identifier = MangaIdentifier(sourceKey: info.sourceId, mangaKey: info.mangaId)
         cell.title = info.title
+        cell.loadReadingProgress()
 
         Task {
             await cell.loadImage(url: info.coverUrl)

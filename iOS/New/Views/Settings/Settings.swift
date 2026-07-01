@@ -187,6 +187,15 @@ extension Settings {
                     key: "Appearance.layout",
                     title: NSLocalizedString("LAYOUT"),
                     value: .custom
+                ),
+                .init(
+                    key: "Appearance.progressIndicator",
+                    title: NSLocalizedString("PROGRESS_INDICATORS"),
+                    notification: "Appearance.progressIndicator",
+                    value: .select(.init(
+                        values: ProgressIndicatorMode.allCases.map(\.rawValue),
+                        titles: ProgressIndicatorMode.allCases.map(\.title)
+                    ))
                 )
             ]))
         )

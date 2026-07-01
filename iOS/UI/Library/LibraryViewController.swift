@@ -399,6 +399,9 @@ class LibraryViewController: OldMangaCollectionViewController {
             }
             self?.reloadItems()
         }
+        addObserver(forName: "Appearance.progressIndicator") { [weak self] _ in
+            self?.reloadItems()
+        }
 
         // update history
         addObserver(forName: .updateHistory) { [weak self] _ in

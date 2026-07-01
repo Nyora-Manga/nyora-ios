@@ -50,6 +50,21 @@ class MangaGridCell: UICollectionViewCell {
     private let bookmarkView = UIImageView()
     private let highlightView = UIView()
 
+    private lazy var progressBadge: UILabel = {
+        let label = PaddedLabel()
+        label.font = .systemFont(ofSize: 11, weight: .semibold)
+        label.textColor = .white
+        label.backgroundColor = UIColor(white: 0, alpha: 0.55)
+        label.layer.cornerRadius = 8
+        label.layer.masksToBounds = true
+        label.textAlignment = .center
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private var progressTaskId: MangaIdentifier?
+
     private var url: String?
     private var imageTask: ImageTask?
     var isEditing = false
@@ -120,6 +135,8 @@ class MangaGridCell: UICollectionViewCell {
 
         selectionView.isHidden = true
 
+        contentView.addSubview(progressBadge)
+
         contentView.addSubview(shadowOverlayView)
         contentView.addSubview(selectionView)
     }
@@ -170,7 +187,11 @@ class MangaGridCell: UICollectionViewCell {
             selectionView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -10),
             selectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
             selectionView.widthAnchor.constraint(equalToConstant: 24),
-            selectionView.heightAnchor.constraint(equalToConstant: 24)
+            selectionView.heightAnchor.constraint(equalToConstant: 24),
+
+            progressBadge.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
+            progressBadge.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
+            progressBadge.heightAnchor.constraint(equalToConstant: 18)
         ])
     }
 
@@ -185,6 +206,71 @@ class MangaGridCell: UICollectionViewCell {
         imageTask?.cancel()
         imageTask = nil
         highlightView.alpha = 0
+        progressTaskId = nil
+        progressBadge.isHidden = true
+        progressBadge.text = nil
+    }
+}
+
+// MARK: - Reading progress overlay
+extension MangaGridCell {
+    /// Loads and displays the reading-progress overlay for the current identifier.
+    /// Runs a background Core Data query and applies the result only if the cell
+    /// hasn't been reused for a different manga.
+    func loadReadingProgress() {
+        let mode = ProgressIndicatorMode.current
+        guard mode != .none, let identifier else {
+            progressBadge.isHidden = true
+            return
+        }
+        progressTaskId = identifier
+        Task.detached(priority: .utility) {
+            let progress = await CoreDataManager.shared.container.performBackgroundTask { context -> ReadingProgress in
+                let filters = CoreDataManager.shared.getMangaChapterFilters(
+                    sourceId: identifier.sourceKey,
+                    mangaId: identifier.mangaKey,
+                    context: context
+                )
+                let read = CoreDataManager.shared.readCount(
+                    sourceId: identifier.sourceKey,
+                    mangaId: identifier.mangaKey,
+                    lang: filters.language,
+                    scanlators: filters.scanlators,
+                    context: context
+                )
+                let unread = CoreDataManager.shared.unreadCount(
+                    sourceId: identifier.sourceKey,
+                    mangaId: identifier.mangaKey,
+                    lang: filters.language,
+                    scanlators: filters.scanlators,
+                    context: context
+                )
+                return ReadingProgress(read: read, total: read + unread, mode: mode)
+            }
+            await MainActor.run {
+                guard self.progressTaskId == identifier else { return }
+                if progress.isValid {
+                    self.progressBadge.text = progress.label
+                    self.progressBadge.isHidden = false
+                } else {
+                    self.progressBadge.isHidden = true
+                }
+            }
+        }
+    }
+}
+
+/// Label with horizontal insets, used for the progress badge pill.
+private class PaddedLabel: UILabel {
+    private let insets = UIEdgeInsets(top: 0, left: 6, bottom: 0, right: 6)
+
+    override func drawText(in rect: CGRect) {
+        super.drawText(in: rect.inset(by: insets))
+    }
+
+    override var intrinsicContentSize: CGSize {
+        let size = super.intrinsicContentSize
+        return CGSize(width: size.width + insets.left + insets.right, height: size.height)
     }
 }
 

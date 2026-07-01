@@ -121,6 +121,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Appearance.customPortraitRows": UIDevice.current.userInterfaceIdiom == .pad ? 5 : 2,
                 "Appearance.customLandscapeRows": UIDevice.current.userInterfaceIdiom == .pad ? 6 : 4,
                 "Appearance.gridSize": 100,
+                "Appearance.progressIndicator": ProgressIndicatorMode.none.rawValue,
 
                 "Library.sortOption": 2, // lastOpened
                 "Library.sortAscending": false,
