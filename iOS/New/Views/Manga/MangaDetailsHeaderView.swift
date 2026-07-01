@@ -51,6 +51,7 @@ struct MangaDetailsHeaderView: View {
     @State private var hasAvailableTrackers = false
     @State private var showLibraryRemoveConfirm = false
     @State private var altTitles: [String] = []
+    @State private var rating: Float?
 
     static let coverWidth: CGFloat = 114
 
@@ -254,6 +255,7 @@ struct MangaDetailsHeaderView: View {
         .onChange(of: manga) { _ in
             animationTrigger.toggle()
             altTitles = NyoraAltTitleStore.shared.get(for: manga.key)
+            rating = NyoraRatingStore.shared.get(for: manga.key)
         }
         .onChange(of: nextChapter) { _ in
             updateReadButtonText()
@@ -279,6 +281,7 @@ struct MangaDetailsHeaderView: View {
         .task {
             updateReadButtonText()
             altTitles = NyoraAltTitleStore.shared.get(for: manga.key)
+            rating = NyoraRatingStore.shared.get(for: manga.key)
             hasAvailableTrackers = await TrackerManager.shared.hasAvailableTrackers(sourceKey: manga.sourceKey, mangaKey: manga.key)
         }
     }
@@ -355,10 +358,24 @@ struct MangaDetailsHeaderView: View {
         }
     }
 
+    // Valid normalized rating (0...1) mapped to a 0...5 scale with one decimal, matching
+    // nyora-android DetailsActivity textViewRatingValue (rating * 5).
+    private var ratingText: String? {
+        guard let rating, rating > 0, rating <= 1 else { return nil }
+        return String(format: "%.1f", rating * 5)
+    }
+
     @ViewBuilder
     var labelsView: some View {
-        if manga.status != .unknown || (manga.contentRating != .unknown && manga.contentRating != .safe) || (bookmarked && source != nil) {
+        if ratingText != nil || manga.status != .unknown || (manga.contentRating != .unknown && manga.contentRating != .safe) || (bookmarked && source != nil) {
             HStack(spacing: 6) {
+                if let ratingText {
+                    LabelView(
+                        text: ratingText,
+                        systemImage: "star.fill",
+                        background: .yellow.opacity(0.25)
+                    )
+                }
                 if manga.status != .unknown {
                     LabelView(text: manga.status.title)
                 }
@@ -380,6 +397,7 @@ struct MangaDetailsHeaderView: View {
             .padding(.bottom, 8)
             .animation(.default, value: manga.status)
             .animation(.default, value: bookmarked)
+            .animation(.default, value: rating)
         }
     }
 
@@ -586,17 +604,24 @@ struct MangaDetailsHeaderView: View {
 
 struct LabelView: View {
     let text: String
+    var systemImage: String?
     var background = Color(UIColor.tertiarySystemFill)
 
     var body: some View {
-        Text(text)
-            .lineLimit(1)
-            .foregroundStyle(.secondary)
-            .font(.caption2)
-            .padding(.vertical, 4)
-            .padding(.horizontal, 8)
-            .background(background)
-            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        HStack(spacing: 3) {
+            if let systemImage {
+                Image(systemName: systemImage)
+                    .font(.caption2)
+            }
+            Text(text)
+        }
+        .lineLimit(1)
+        .foregroundStyle(.secondary)
+        .font(.caption2)
+        .padding(.vertical, 4)
+        .padding(.horizontal, 8)
+        .background(background)
+        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
     }
 }
 

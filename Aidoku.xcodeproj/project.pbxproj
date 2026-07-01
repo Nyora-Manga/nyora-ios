@@ -47,6 +47,7 @@
 		627AE6E6211B2B61EB98FA5E /* TranslationOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9724D8E3412C42844B315DC /* TranslationOverlayView.swift */; };
 		66B9F8A49F92C21E35DCB4F0 /* ProgressIndicatorMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBAC496ECD1A591AFA82EFC6 /* ProgressIndicatorMode.swift */; };
 		66C7E95B2ED77BBD0026FD6C /* ImageProcessingSettingsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C7E95A2ED77BB50026FD6C /* ImageProcessingSettingsKey.swift */; };
+		69B01BE9689B16769EB8FE1F /* NyoraRatingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B622854854C3846D734AED79 /* NyoraRatingStore.swift */; };
 		723D3AF92E0DC5A5003ED4CF /* DownloadedMangaInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723D3AF82E0DC5A5003ED4CF /* DownloadedMangaInfo.swift */; };
 		723D3AFA2E0DC5A5003ED4CF /* DownloadedMangaInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723D3AF82E0DC5A5003ED4CF /* DownloadedMangaInfo.swift */; };
 		723D3AFD2E0DC5C4003ED4CF /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723D3AFB2E0DC5C4003ED4CF /* DownloadsView.swift */; };
@@ -64,6 +65,7 @@
 		87A404D42AD9AF718C7366A8 /* KitsuModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3965F14F6A6C1E800310550 /* KitsuModels.swift */; };
 		892F2733E12D908A19A4197B /* MangaTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC957E858BF86E567DE49FA4 /* MangaTranslator.swift */; };
 		A0A9BB9C56C836C786EF4FA1 /* NyoraAltTitleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */; };
+		A1D3D6D382085367109ED25B /* NyoraRatingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B622854854C3846D734AED79 /* NyoraRatingStore.swift */; };
 		A436FFEBDFA37033CE627BDA /* VolumeButtonHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501E78B384245931983B9C1C /* VolumeButtonHandler.swift */; };
 		ABDA9BE702D7EBD9ED57D88F /* LibraryDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */; };
 		AC9B01027AD590641D751535 /* ReaderControlsConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA102C0AB6E77B78488FA74 /* ReaderControlsConfigView.swift */; };
@@ -697,6 +699,7 @@
 		A394EB074C10FD7002E24C6E /* UsernamePasswordTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernamePasswordTracker.swift; sourceTree = "<group>"; };
 		B3965F14F6A6C1E800310550 /* KitsuModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuModels.swift; sourceTree = "<group>"; };
 		B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderInfoBarView.swift; sourceTree = "<group>"; };
+		B622854854C3846D734AED79 /* NyoraRatingStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraRatingStore.swift; sourceTree = "<group>"; };
 		C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGridConfigView.swift; sourceTree = "<group>"; };
 		CBAC496ECD1A591AFA82EFC6 /* ProgressIndicatorMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressIndicatorMode.swift; sourceTree = "<group>"; };
 		D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuLoginView.swift; sourceTree = "<group>"; };
@@ -1241,6 +1244,7 @@
 			children = (
 				A1E880AAAE669C883263D2A7 /* NyoraSource.swift */,
 				36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */,
+				B622854854C3846D734AED79 /* NyoraRatingStore.swift */,
 			);
 			name = Nyora;
 			path = Nyora;
@@ -3150,6 +3154,7 @@
 				01567DD342480215B95DE060 /* ReaderControl.swift in Sources */,
 				AC9B01027AD590641D751535 /* ReaderControlsConfigView.swift in Sources */,
 				74387C470A4ACBE3D165605E /* NyoraAltTitleStore.swift in Sources */,
+				A1D3D6D382085367109ED25B /* NyoraRatingStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3327,6 +3332,7 @@
 				1AFA4B9ECEF58ADA23497450 /* KitsuTracker.swift in Sources */,
 				3D261020E8F5780A9CCA1D95 /* ReaderControl.swift in Sources */,
 				A0A9BB9C56C836C786EF4FA1 /* NyoraAltTitleStore.swift in Sources */,
+				69B01BE9689B16769EB8FE1F /* NyoraRatingStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
