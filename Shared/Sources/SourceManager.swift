@@ -45,11 +45,21 @@ class SourceManager {
 
         loadSourcesTask = Task {
             await reloadSources()
+            await ensureDefaultNyoraSource()
         }
 
         Task {
             await loadSourceLists(reload: true)
         }
+    }
+
+    /// Nyora fork: this is a single-backend build, so the hosted Nyora source is
+    /// pre-installed on first launch — the app is usable out of the box with no
+    /// manual "Add source" step.
+    private func ensureDefaultNyoraSource() async {
+        guard !sources.contains(where: { $0.key.hasPrefix("\(NyoraSourceRunner.sourceKeyPrefix).") }) else { return }
+        guard let server = URL(string: "https://api.hasanraza.tech") else { return }
+        await createCustomSource(kind: .nyora, name: "Nyora", server: server)
     }
 
     func reloadSources() async {
@@ -285,6 +295,7 @@ extension SourceManager {
     enum CustomSourceKind {
         case komga
         case kavita
+        case nyora
     }
 
     @discardableResult
@@ -298,6 +309,7 @@ extension SourceManager {
         let keyPrefix = switch kind {
             case .komga: KomgaSourceRunner.sourceKeyPrefix
             case .kavita: KavitaSourceRunner.sourceKeyPrefix
+            case .nyora: NyoraSourceRunner.sourceKeyPrefix
         }
         let nameEncoded = name.lowercased().replacingOccurrences(of: " ", with: "-")
         var key = "\(keyPrefix).\(nameEncoded)"
@@ -312,6 +324,7 @@ extension SourceManager {
         let config = switch kind {
             case .komga: CustomSourceConfig.komga(key: key, name: name, server: server.absoluteString)
             case .kavita: CustomSourceConfig.kavita(key: key, name: name, server: server.absoluteString)
+            case .nyora: CustomSourceConfig.nyora(key: key, name: name, server: server.absoluteString)
         }
         let source = config.toSource()
 

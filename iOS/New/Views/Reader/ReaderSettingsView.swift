@@ -164,6 +164,38 @@ struct ReaderSettingsView: View {
                     }
                 }
 
+                if reader != .text {
+                    Section("Translation") {
+                        SettingView(
+                            setting: .init(
+                                key: "Reader.translate",
+                                title: "Translate pages",
+                                notification: "Nyora.translationSettingsChanged",
+                                value: .toggle(.init())
+                            )
+                        )
+                        SettingView(
+                            setting: .init(
+                                key: "Reader.translateTarget",
+                                title: "Translate to",
+                                notification: "Nyora.translationSettingsChanged",
+                                value: .select(.init(
+                                    values: TranslationConfig.supportedLanguages.filter { $0 != "AUTO" },
+                                    titles: TranslationConfig.supportedLanguages.filter { $0 != "AUTO" }
+                                ))
+                            )
+                        )
+                        SettingView(
+                            setting: .init(
+                                key: "Reader.translateUseAI",
+                                title: "Refine with Apple Intelligence",
+                                notification: "Nyora.translationSettingsChanged",
+                                value: .toggle(.init())
+                            )
+                        )
+                    }
+                }
+
                 Section {
                     NavigationLink(destination: TapZonesSelectView()) {
                         HStack {

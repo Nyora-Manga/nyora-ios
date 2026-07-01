@@ -21,6 +21,7 @@ struct AddSourceView: View {
     @State private var showLocalSetup = false
     @State private var showKomgaSetup = false
     @State private var showKavitaSetup = false
+    @State private var showNyoraSetup = false
     @State private var showImportFailAlert = false
 
     @State private var searchFocused: Bool? = false
@@ -38,89 +39,9 @@ struct AddSourceView: View {
     var body: some View {
         PlatformNavigationStack {
             List {
-                if !searching {
-                    Section {
-                        LargeButton {
-                            importing = true
-                        } label: {
-                            HStack {
-                                if importing {
-                                    ProgressView()
-                                        .progressViewStyle(.circular)
-                                } else {
-                                    Image(systemName: "folder.fill.badge.plus")
-                                    Text(NSLocalizedString("IMPORT_SOURCE"))
-                                }
-                            }
-                        }
-                    }
-
-                    builtInSources
-                }
-
-                Section {
-                    if allExternalSources.isEmpty {
-                        infoView(
-                            title: NSLocalizedString("NO_EXTERNAL_SOURCES"),
-                            subtitle: NSLocalizedString("NO_EXTERNAL_SOURCES_INFO")
-                        )
-                    } else if externalSources.isEmpty {
-                        if allSourcesInstalled {
-                            infoView(
-                                title: NSLocalizedString("ALL_SOURCES_INSTALLED"),
-                                subtitle: NSLocalizedString("ALL_SOURCES_INSTALLED_INFO"),
-                            )
-                        } else {
-                            infoView(
-                                title: NSLocalizedString("NO_AVAILABLE_SOURCES"),
-                                subtitle: NSLocalizedString("NO_AVAILABLE_SOURCES_INFO"),
-                            )
-                        }
-                    } else {
-                        let filteredSources = if searchText.isEmpty {
-                            externalSources
-                        } else {
-                            externalSources.filter {
-                                ([$0.name.lowercased()] + ($0.altNames.map { $0.lowercased() }))
-                                    .contains {
-                                        $0.contains(searchText.lowercased())
-                                    }
-                            }
-                        }
-                        if filteredSources.isEmpty {
-                            Text(NSLocalizedString("NO_RESULTS"))
-                                .frame(maxWidth: .infinity)
-                        } else {
-                            ForEach(filteredSources, id: \.sourceId) { source in
-                                ExternalSourceTableCell(source: source, onInstall: {
-                                    let index = externalSources.firstIndex(of: source)
-                                    if let index {
-                                        withAnimation {
-                                            externalSources.remove(at: index)
-                                            if externalSources.isEmpty {
-                                                allSourcesInstalled = checkAllSourcesInstalled()
-                                            }
-                                        }
-                                    }
-                                })
-                            }
-                        }
-                    }
-                } header: {
-                    HStack {
-                        Text(NSLocalizedString("EXTERNAL_SOURCES"))
-                        Spacer()
-                        if !externalSources.isEmpty, !searching {
-                            Button {
-                                searching = true
-                                searchFocused = true
-                            } label: {
-                                Image(systemName: "magnifyingglass")
-                            }
-                            .controlSize(.small)
-                        }
-                    }
-                }
+                // Nyora fork: only the hosted Nyora helper source is offered.
+                // The import button and external (WASM repo) sources are hidden.
+                builtInSources
             }
             .contentMarginsPlease(.top, 4)
             .customSearchable(
@@ -191,88 +112,24 @@ struct AddSourceView: View {
     }
 
     var builtInSources: some View {
-        Section(NSLocalizedString("BUILT_IN_SOURCES")) {
-//            if !SourceManager.shared.sources.contains(where: { $0.key == "demo" }) {
-//                ExternalSourceTableCell(
-//                    source: .init(
-//                        sourceId: "demo",
-//                        name: "Demo Source",
-//                        languages: ["multi"],
-//                        version: 1,
-//                        contentRating: .safe
-//                    ),
-//                    onGet: {
-//                        let config = CustomSourceConfig.demo
-//                        let source = config.toSource()
-//
-//                        // add to coredata
-//                        await CoreDataManager.shared.container.performBackgroundTask { context in
-//                            let result = CoreDataManager.shared.createSource(source: source, context: context)
-//                            result.customSource = config.encode() as NSObject
-//                            try? context.save()
-//                        }
-//
-//                        SourceManager.shared.sources.append(source)
-//                        SourceManager.shared.sortSources()
-//
-//                        NotificationCenter.default.post(name: Notification.Name("updateSourceList"), object: nil)
-//
-//                        dismiss()
-//
-//                        return true
-//                    }
-//                )
-//            }
-
-            if !SourceManager.shared.sources.contains(where: { $0.key == LocalSourceRunner.sourceKey }) {
-                ExternalSourceTableCell(
-                    source: .init(
-                        sourceId: LocalSourceRunner.sourceKey,
-                        name: NSLocalizedString("LOCAL_FILES"),
-                        languages: ["multi"],
-                        version: 1,
-                        contentRating: .safe
-                    ),
-                    subtitle: NSLocalizedString("LOCAL_FILES_TAGLINE"),
-                    onGet: {
-                        showLocalSetup = true
-                        return true
-                    }
-                )
-                .background(NavigationLink("", destination: LocalSetupView(), isActive: $showLocalSetup).hidden())
-            }
-
+        // Nyora fork: only the hosted Nyora helper source. Local/Komga/Kavita/demo
+        // and external WASM sources are intentionally removed.
+        Section {
             ExternalSourceTableCell(
                 source: .init(
-                    sourceId: "komga",
-                    name: NSLocalizedString("KOMGA"),
+                    sourceId: "nyora",
+                    name: "Nyora",
                     languages: ["multi"],
                     version: 1,
                     contentRating: .safe
                 ),
-                subtitle: NSLocalizedString("KOMGA_TAGLINE"),
+                subtitle: NSLocalizedString("Hosted Nyora content server"),
                 onGet: {
-                    showKomgaSetup = true
+                    showNyoraSetup = true
                     return true
                 }
             )
-            .background(NavigationLink("", destination: KomgaSetupView(), isActive: $showKomgaSetup).hidden())
-
-            ExternalSourceTableCell(
-                source: .init(
-                    sourceId: "kavita",
-                    name: NSLocalizedString("KAVITA"),
-                    languages: ["multi"],
-                    version: 1,
-                    contentRating: .safe
-                ),
-                subtitle: NSLocalizedString("KAVITA_TAGLINE"),
-                onGet: {
-                    showKavitaSetup = true
-                    return true
-                }
-            )
-            .background(NavigationLink("", destination: KavitaSetupView(), isActive: $showKavitaSetup).hidden())
+            .background(NavigationLink("", destination: NyoraSetupView(), isActive: $showNyoraSetup).hidden())
         }
     }
 

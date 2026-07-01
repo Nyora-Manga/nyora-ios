@@ -42,6 +42,11 @@ class ReaderPageView: UIView {
     private var currentPage: Page?
     private var currentImageRequest: ImageRequest?
 
+    // MARK: - Translation overlay properties
+    private var translationHost: UIHostingController<TranslationOverlayContainer>?
+    private var translationTask: Task<Void, Never>?
+    private var translationObserver: NSObjectProtocol?
+
     init() {
         super.init(frame: .zero)
         configure()
@@ -76,6 +81,21 @@ class ReaderPageView: UIView {
 
         imageWidthConstraint = imageView.widthAnchor.constraint(equalTo: widthAnchor)
         imageWidthConstraint?.isActive = true
+
+        translationObserver = NotificationCenter.default.addObserver(
+            forName: .translationSettingsChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.refreshTranslation() }
+        }
+    }
+
+    deinit {
+        if let translationObserver {
+            NotificationCenter.default.removeObserver(translationObserver)
+        }
+        translationTask?.cancel()
     }
 
     func constrain() {
@@ -453,6 +473,85 @@ class ReaderPageView: UIView {
         }
         imageWidthConstraint?.isActive = true
         imageHeightConstraint?.isActive = true
+
+        // Single chokepoint after every successful image set — (re)evaluate the
+        // translation overlay if the feature is on.
+        refreshTranslation()
+    }
+
+    // MARK: - Translation overlay
+
+    /// Start or tear down the translation overlay based on the global toggle.
+    func refreshTranslation() {
+        if TranslationController.shared.enabled, imageView.image?.cgImage != nil {
+            startTranslation()
+        } else {
+            removeTranslationOverlay()
+        }
+    }
+
+    private func startTranslation() {
+        guard let cg = imageView.image?.cgImage else { return }
+        let pxSize = CGSize(width: cg.width, height: cg.height)
+        translationTask?.cancel()
+        ensureTranslationHost(imageSize: pxSize)
+
+        let controller = TranslationController.shared
+        let stream = controller.translator.translatePageStream(
+            cgImage: cg,
+            imageSize: pxSize,
+            sourceLang: "AUTO",
+            targetLang: controller.targetLanguage,
+            useAppleIntelligence: controller.useAppleIntelligence
+        )
+        translationTask = Task { [weak self] in
+            for await blocks in stream {
+                if Task.isCancelled { return }
+                self?.updateTranslationOverlay(blocks: blocks, imageSize: pxSize)
+            }
+        }
+    }
+
+    private func ensureTranslationHost(imageSize: CGSize) {
+        if let host = translationHost {
+            // keep the current image size in sync (rootView updated separately)
+            _ = host
+            return
+        }
+        let host = UIHostingController(rootView: TranslationOverlayContainer(blocks: [], imageSize: imageSize))
+        host.view.backgroundColor = .clear
+        host.view.isUserInteractionEnabled = false
+        host.view.translatesAutoresizingMaskIntoConstraints = false
+        if #available(iOS 16.4, *) { host.safeAreaRegions = [] }
+        parent?.addChild(host)
+        imageView.addSubview(host.view)
+        host.didMove(toParent: parent)
+        // Pin to the image view so the overlay always covers exactly the
+        // displayed image (imageView is constrained to the image's aspect, and
+        // scales with pinch-zoom since the overlay is its subview).
+        NSLayoutConstraint.activate([
+            host.view.leadingAnchor.constraint(equalTo: imageView.leadingAnchor),
+            host.view.trailingAnchor.constraint(equalTo: imageView.trailingAnchor),
+            host.view.topAnchor.constraint(equalTo: imageView.topAnchor),
+            host.view.bottomAnchor.constraint(equalTo: imageView.bottomAnchor)
+        ])
+        translationHost = host
+    }
+
+    private func updateTranslationOverlay(blocks: [TranslatedBlock], imageSize: CGSize) {
+        ensureTranslationHost(imageSize: imageSize)
+        translationHost?.rootView = TranslationOverlayContainer(blocks: blocks, imageSize: imageSize)
+    }
+
+    private func removeTranslationOverlay() {
+        translationTask?.cancel()
+        translationTask = nil
+        if let host = translationHost {
+            host.willMove(toParent: nil)
+            host.view.removeFromSuperview()
+            host.removeFromParent()
+            translationHost = nil
+        }
     }
 
     func setPageText(text: String) {

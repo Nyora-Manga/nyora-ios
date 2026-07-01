@@ -31,6 +31,13 @@ extension SettingsView {
     var body: some View {
         List {
             if searchText.isEmpty {
+                Section {
+                    NavigationLink {
+                        NyoraAccountView()
+                    } label: {
+                        Label("Nyora Sync", systemImage: "person.crop.circle")
+                    }
+                }
                 ForEach(Self.settings.indices, id: \.self) { offset in
                     let setting = Self.settings[offset]
                     SettingView(setting: setting, onChange: onSettingChange)

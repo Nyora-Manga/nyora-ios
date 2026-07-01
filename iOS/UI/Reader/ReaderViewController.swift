@@ -149,6 +149,14 @@ class ReaderViewController: BaseObservingViewController {
             action: #selector(openWebView)
         )
         moreButton.isEnabled = chapter.url != nil
+        let translateOn = TranslationController.shared.enabled
+        let translateButton = UIBarButtonItem(
+            image: UIImage(systemName: translateOn ? "character.bubble.fill" : "character.bubble"),
+            style: .plain,
+            target: self,
+            action: #selector(toggleTranslate(_:))
+        )
+        translateButton.tintColor = translateOn ? .tintColor : nil
         navigationItem.rightBarButtonItems = [
             moreButton,
             UIBarButtonItem(
@@ -156,7 +164,8 @@ class ReaderViewController: BaseObservingViewController {
                 style: .plain,
                 target: self,
                 action: #selector(openReaderSettings)
-            )
+            ),
+            translateButton
         ]
 
         // fix navbar being clear
@@ -497,6 +506,13 @@ class ReaderViewController: BaseObservingViewController {
         )
         alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel))
         present(alert, animated: true)
+    }
+
+    @objc func toggleTranslate(_ sender: UIBarButtonItem) {
+        TranslationController.shared.toggle()
+        let on = TranslationController.shared.enabled
+        sender.image = UIImage(systemName: on ? "character.bubble.fill" : "character.bubble")
+        sender.tintColor = on ? .tintColor : nil
     }
 
     @objc func openReaderSettings() {

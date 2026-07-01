@@ -13,6 +13,7 @@ enum CustomSourceConfig {
     case local
     case komga(key: String, name: String, server: String)
     case kavita(key: String, name: String, server: String)
+    case nyora(key: String, name: String, server: String)
 }
 
 extension CustomSourceConfig {
@@ -26,6 +27,8 @@ extension CustomSourceConfig {
                 .komga(key: key, name: name, server: server)
             case let .kavita(key, name, server):
                 .kavita(key: key, name: name, server: server)
+            case let .nyora(key, name, server):
+                .nyora(key: key, name: name, server: server)
         }
     }
 }
@@ -71,6 +74,11 @@ extension CustomSourceConfig {
                 let name = try decodeString()
                 let server = try decodeString()
                 self = .kavita(key: key, name: name, server: server)
+            case 4:
+                let key = try decodeString()
+                let name = try decodeString()
+                let server = try decodeString()
+                self = .nyora(key: key, name: name, server: server)
             default:
                 throw DecodingError.dataCorrupted(.init(
                     codingPath: [],
@@ -96,6 +104,13 @@ extension CustomSourceConfig {
                 bytes.append(2)
             case let .kavita(key, name, server):
                 bytes.append(3)
+                for string in [key, name, server] {
+                    let utf8 = [UInt8](string.utf8)
+                    varInt(UInt64(utf8.count), data: &bytes)
+                    bytes.append(contentsOf: utf8)
+                }
+            case let .nyora(key, name, server):
+                bytes.append(4)
                 for string in [key, name, server] {
                     let utf8 = [UInt8](string.utf8)
                     varInt(UInt64(utf8.count), data: &bytes)

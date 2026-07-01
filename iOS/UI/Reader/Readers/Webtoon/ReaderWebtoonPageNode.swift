@@ -53,6 +53,10 @@ class ReaderWebtoonPageNode: BaseObservingCellNode {
         return node
     }()
 
+    // Translation overlay (ported feature)
+    private var translationHost: UIHostingController<TranslationOverlayContainer>?
+    private var translationTask: Task<Void, Never>?
+
     lazy var textNode = HostingNode(content: MarkdownView(page.text ?? ""))
 
     lazy var progressNode = ASCellNode(viewBlock: {
@@ -81,6 +85,9 @@ class ReaderWebtoonPageNode: BaseObservingCellNode {
             self?.pillarboxOrientation = notification.object as? String ?? "both"
             self?.transition()
         }
+        addObserver(forName: .translationSettingsChanged) { [weak self] _ in
+            Task { @MainActor in self?.refreshTranslation() }
+        }
     }
 
     override func didEnterDisplayState() {
@@ -101,6 +108,7 @@ class ReaderWebtoonPageNode: BaseObservingCellNode {
         imageNode.alpha = 0
         textNode.alpha = 0
         progressNode.isHidden = false
+        Task { @MainActor in self.removeTranslationOverlay() }
     }
 
     override func didEnterPreloadState() {
@@ -499,6 +507,70 @@ extension ReaderWebtoonPageNode {
         loading = false
     }
 
+    // MARK: - Translation overlay
+
+    @MainActor
+    func refreshTranslation() {
+        if TranslationController.shared.enabled, let cg = image?.cgImage {
+            startTranslation(cg: cg)
+        } else {
+            removeTranslationOverlay()
+        }
+    }
+
+    @MainActor
+    private func startTranslation(cg: CGImage) {
+        let pxSize = CGSize(width: cg.width, height: cg.height)
+        translationTask?.cancel()
+        ensureTranslationHost(imageSize: pxSize)
+        let controller = TranslationController.shared
+        let stream = controller.translator.translatePageStream(
+            cgImage: cg,
+            imageSize: pxSize,
+            sourceLang: "AUTO",
+            targetLang: controller.targetLanguage,
+            useAppleIntelligence: controller.useAppleIntelligence
+        )
+        translationTask = Task { [weak self] in
+            for await blocks in stream {
+                if Task.isCancelled { return }
+                self?.updateTranslationOverlay(blocks: blocks, imageSize: pxSize)
+            }
+        }
+    }
+
+    @MainActor
+    private func ensureTranslationHost(imageSize: CGSize) {
+        guard translationHost == nil else { return }
+        let host = UIHostingController(rootView: TranslationOverlayContainer(blocks: [], imageSize: imageSize))
+        host.view.backgroundColor = .clear
+        host.view.isUserInteractionEnabled = false
+        host.view.translatesAutoresizingMaskIntoConstraints = false
+        let container = imageNode.view
+        container.addSubview(host.view)
+        NSLayoutConstraint.activate([
+            host.view.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            host.view.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            host.view.topAnchor.constraint(equalTo: container.topAnchor),
+            host.view.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+        translationHost = host
+    }
+
+    @MainActor
+    private func updateTranslationOverlay(blocks: [TranslatedBlock], imageSize: CGSize) {
+        ensureTranslationHost(imageSize: imageSize)
+        translationHost?.rootView = TranslationOverlayContainer(blocks: blocks, imageSize: imageSize)
+    }
+
+    @MainActor
+    private func removeTranslationOverlay() {
+        translationTask?.cancel()
+        translationTask = nil
+        translationHost?.view.removeFromSuperview()
+        translationHost = nil
+    }
+
     func displayPage() {
         guard text != nil || image != nil else {
             Task {
@@ -528,6 +600,8 @@ extension ReaderWebtoonPageNode {
                     imageNode.addInteraction(interaction)
                     await analyzeLiveText()
                 }
+
+                refreshTranslation()
             }
         } else if let text {
             progressNode.isHidden = true
