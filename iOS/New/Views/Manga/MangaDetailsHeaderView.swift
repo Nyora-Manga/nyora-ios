@@ -811,15 +811,25 @@ private struct TagView: View {
     let text: String
 
     var body: some View {
+        // Nyora genre chip: fully-rounded (cornerPill) indigo-tinted pill with a
+        // faint indigo outline and Poppins Medium indigo label — matches
+        // nyora-android's genre chips.
         Text(text)
             .lineLimit(1)
-            .foregroundStyle(.secondary)
-            .font(.footnote)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 5)
+            .foregroundStyle(Color.nyoraIndigo)
+            .font(.poppins(13, weight: .medium))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 6)
             .textSelection(.enabled)
-            .background(Color(UIColor.tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 100))
+            .background(
+                Capsule(style: .continuous)
+                    .fill(Color.nyoraIndigo.opacity(0.12))
+            )
+            .overlay(
+                Capsule(style: .continuous)
+                    .strokeBorder(Color.nyoraCardOutline, lineWidth: 1)
+            )
+            .clipShape(Capsule(style: .continuous))
     }
 }
 

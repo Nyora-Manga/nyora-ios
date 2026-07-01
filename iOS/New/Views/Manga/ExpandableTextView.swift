@@ -31,6 +31,7 @@ struct ExpandableTextView: View {
         .paragraph { configuration in
             configuration.label
                 .markdownTextStyle {
+                    FontFamily(.custom("Poppins-Regular"))
                     FontSize(15)
                 }
                 .lineSpacing(0)
@@ -116,8 +117,8 @@ struct ExpandableTextView: View {
                 expanded.toggle()
             }
             .buttonStyle(.plain)
-            .foregroundStyle(.tint)
-            .font(.system(size: 12))
+            .foregroundStyle(Color.nyoraIndigo)
+            .font(.poppins(12, weight: .semibold))
             .background(Color(UIColor.systemBackground))
             .background(GeometryReader {
                 Color.clear.preference(
