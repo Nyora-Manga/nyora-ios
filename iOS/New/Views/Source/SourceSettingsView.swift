@@ -31,12 +31,9 @@ struct SourceSettingsView: View {
             // header
             Section {
                 SourceTableCell(source: source)
-                    .listRowInsets(.init(top: 16, leading: 16, bottom: 16, trailing: 16))
+                    .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
-            .listRowBackground(
-                Color(uiColor: .secondarySystemGroupedBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            )
+            .listRowBackground(Color.clear)
 
             // source settings
             if let error {

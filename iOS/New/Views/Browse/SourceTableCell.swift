@@ -15,10 +15,12 @@ struct SourceTableCell: View {
         HStack(spacing: 12) {
             SourceIconView(sourceId: source.key, imageUrl: source.imageUrl)
 
-            VStack(alignment: .leading, spacing: 1) {
+            VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 5) {
                     Text(source.name)
+                        .font(.poppins(16, weight: .semibold))
                     Text("v\(source.version)")
+                        .font(.poppins(13))
                         .foregroundStyle(.secondary)
 
                     if source.contentRating != .safe {
@@ -30,7 +32,7 @@ struct SourceTableCell: View {
 
                         Text(text)
                             .foregroundStyle(.secondary)
-                            .font(.system(size: 10))
+                            .font(.poppins(10, weight: .medium))
                             .padding(.vertical, 3)
                             .padding(.horizontal, 5)
                             .background(background)
@@ -43,11 +45,13 @@ struct SourceTableCell: View {
                         ? NSLocalizedString("MULTI_LANGUAGE")
                         : Locale.current.localizedString(forIdentifier: source.languages[0]) ?? ""
                 )
+                .font(.poppins(13))
                 .foregroundStyle(.secondary)
             }
-            .font(.system(size: 16))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .nyoraTintedCard()
         .contentShape(Rectangle())
     }
 }
