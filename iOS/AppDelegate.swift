@@ -6,7 +6,6 @@
 //
 
 import AidokuRunner
-import CloudKit
 import Nuke
 import SwiftUI
 import UserNotifications
@@ -111,11 +110,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         UserDefaults.standard.register(
             defaults: [
-                "Flag.isSideloaded": Self.isSideloaded, // for icloud sync setting
+                "Flag.isSideloaded": Self.isSideloaded,
                 "Flag.showedLegacySourceListNotice": false,
 
                 "General.incognitoMode": false,
-                "General.icloudSync": false,
                 "General.appearance": 0,
                 "General.useSystemAppearance": true,
                 "Appearance.accentColor": AccentColor.default.rawValue,
@@ -245,20 +243,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // launch (no window ever appears). Forcing first init on the main thread here
         // makes the main thread win the race deterministically.
         _ = CoreDataManager.shared
-
-        // check for icloud availability
-        // https://developer.apple.com/documentation/foundation/filemanager/url(forubiquitycontaineridentifier:)
-        // Do not call this method from your app’s main thread. Because this method might take a nontrivial amount of
-        // time to set up iCloud and return the requested URL, you should always call it from a secondary thread.
-        Task.detached {
-            let isiCloudAvailable = FileManager.default.url(forUbiquityContainerIdentifier: nil) != nil
-            await MainActor.run {
-                if !isiCloudAvailable {
-                    LogManager.logger.info("iCloud unavailable")
-                }
-                UserDefaults.standard.register(defaults: ["Flag.isiCloudAvailable": isiCloudAvailable])
-            }
-        }
 
         DataLoader.sharedUrlCache.diskCapacity = 0
 

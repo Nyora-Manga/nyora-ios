@@ -66,27 +66,6 @@ enum Settings {
                 ))
             ),
             .init(
-                title: NSLocalizedString("ICLOUD_SYNC"),
-                value: .page(.init(
-                    items: [
-                        .init(value: .group(.init(items: [
-                            .init(
-                                key: "General.icloudSync",
-                                title: String(format: NSLocalizedString("%@_EXPERIMENTAL"), NSLocalizedString("ICLOUD_SYNC")),
-                                requires: "Flag.isiCloudAvailable",
-                                value: .toggle(.init())
-                            )
-                        ])))
-                    ],
-                    icon: .system(name: "icloud.fill", color: "blue"),
-                    info: NSLocalizedString(
-                        UserDefaults.standard.bool(forKey: "Flag.isSideloaded")
-                            ? "ICLOUD_SYNC_TEXT_SIDELOADED"
-                            : "ICLOUD_SYNC_TEXT_EXPERIMENTAL"
-                    )
-                ))
-            ),
-            .init(
                 title: NSLocalizedString("ADVANCED"),
                 value: .page(.init(
                     items: advancedSettings,

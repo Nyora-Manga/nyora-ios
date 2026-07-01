@@ -9,17 +9,10 @@ import CoreData
 
 final class CoreDataManager {
 
-    static let containerID = Bundle.main
-        .infoDictionary?["ICLOUD_CONTAINER_ID"] as? String ?? "iCloud.\(Bundle.main.bundleIdentifier!)"
-
     static let shared = CoreDataManager()
 
     private var observers: [NSObjectProtocol] = []
     private var lastHistoryToken: NSPersistentHistoryToken?
-
-    private var shouldUseiCloud: Bool {
-        UserDefaults.standard.bool(forKey: "General.icloudSync") && FileManager.default.ubiquityIdentityToken != nil
-    }
 
     deinit {
         for observer in observers {
@@ -33,24 +26,11 @@ final class CoreDataManager {
         ) { [weak self] _ in
             self?.storeRemoteChange()
         })
-
-        observers.append(NotificationCenter.default.addObserver(
-            forName: NSNotification.Name("General.icloudSync"), object: nil, queue: nil
-        ) { [weak self] _ in
-            guard
-                let self,
-                let cloudDescription = self.container.persistentStoreDescriptions.first
-            else { return }
-            if self.shouldUseiCloud {
-                cloudDescription.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: CoreDataManager.containerID)
-            } else {
-                cloudDescription.cloudKitContainerOptions = nil
-            }
-        })
     }
 
-    lazy var container: NSPersistentCloudKitContainer = {
-        let container = NSPersistentCloudKitContainer(name: "Aidoku")
+    // iCloud sync removed for Nyora; kept as a plain persistent container.
+    lazy var container: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "Aidoku")
 
         let storeDirectory = FileManager.default.applicationSupportDirectory
 
@@ -67,13 +47,6 @@ final class CoreDataManager {
         localDescription.shouldMigrateStoreAutomatically = true
         localDescription.shouldInferMappingModelAutomatically = true
 
-        if shouldUseiCloud {
-            cloudDescription.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(
-                containerIdentifier: CoreDataManager.containerID)
-        } else {
-            cloudDescription.cloudKitContainerOptions = nil
-        }
-
         container.persistentStoreDescriptions = [
             cloudDescription,
             localDescription
@@ -87,12 +60,6 @@ final class CoreDataManager {
                 LogManager.logger.error("Error loading persistent stores \(error), \(error.userInfo)")
             }
         }
-
-//        do {
-//            try container.initializeCloudKitSchema(options: [.printSchema])
-//        } catch {
-//            print("error initializing cloudkit schema:", error)
-//        }
 
         return container
     }()

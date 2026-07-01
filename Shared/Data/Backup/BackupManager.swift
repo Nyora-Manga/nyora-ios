@@ -25,8 +25,7 @@ actor BackupManager {
     private static let maxAutoBackups = 4
 
     private static let excludedSettings = [
-        "Browse.sourceLists", // stored separately
-        "General.icloudSync"
+        "Browse.sourceLists" // stored separately
     ]
     static let excludedSettingsPrefixes = [
         "Flag",
