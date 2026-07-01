@@ -20,8 +20,9 @@ enum NavSection: String, CaseIterable {
     var title: String {
         switch self {
             case .discover: NSLocalizedString("DISCOVER")
-            case .library: NSLocalizedString("LIBRARY")
-            case .browse: NSLocalizedString("BROWSE")
+            // Nyora nav labels: Library surfaces the user's Favourites, Browse is Explore
+            case .library: NSLocalizedString("NAV_FAVOURITES")
+            case .browse: NSLocalizedString("NAV_EXPLORE")
             case .history: NSLocalizedString("HISTORY")
             case .search: NSLocalizedString("SEARCH")
             case .settings: NSLocalizedString("SETTINGS")

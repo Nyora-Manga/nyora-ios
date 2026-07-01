@@ -13,6 +13,9 @@
 "DISCOVER" = "Discover";
 "DISCOVER_EMPTY_MESSAGE" = "Install a source with a home feed to start discovering new manga.";
 "DISCOVER_SECTION_COUNT" = "%d items";
+// Nav tab labels (Nyora): Library→Favourites, Browse→Explore
+"NAV_FAVOURITES" = "Favourites";
+"NAV_EXPLORE" = "Explore";
 "CANCEL" = "Cancel";
 "OK" = "OK";
 "DONE" = "Done";
