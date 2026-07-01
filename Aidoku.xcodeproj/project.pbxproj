@@ -46,6 +46,7 @@
 		4875B8262BA6F2C3001E39CA /* MangaUpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4875B8242BA6F2C3001E39CA /* MangaUpdateManager.swift */; };
 		48E20A272B78420E00BFFED8 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E20A262B78420E00BFFED8 /* NavigationController.swift */; };
 		4CE26D93E0348E599B6064DB /* KitsuModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3965F14F6A6C1E800310550 /* KitsuModels.swift */; };
+		521056C85B593607AB6AC6C2 /* DiscoverRailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A987742D16EA3790E69E361 /* DiscoverRailView.swift */; };
 		56815D982FBC7078001486C8 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56815D972FBC7078001486C8 /* NotificationManager.swift */; };
 		56815D992FBC7078001486C8 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56815D972FBC7078001486C8 /* NotificationManager.swift */; };
 		58EABF91C7B1C74B0383ED16 /* UsernamePasswordTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A394EB074C10FD7002E24C6E /* UsernamePasswordTracker.swift */; };
@@ -699,6 +700,7 @@
 		56815D972FBC7078001486C8 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		59440D46C54F57872B570EDE /* DiscoverHeroCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DiscoverHeroCard.swift; sourceTree = "<group>"; };
 		5980D478D9C0DE81DEA39865 /* NyoraTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraTheme.swift; sourceTree = "<group>"; };
+		5A987742D16EA3790E69E361 /* DiscoverRailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DiscoverRailView.swift; sourceTree = "<group>"; };
 		5FFC4D99017502C24B718EF7 /* Poppins-Regular.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "Poppins-Regular.ttf"; sourceTree = "<group>"; };
 		66C7E95A2ED77BB50026FD6C /* ImageProcessingSettingsKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessingSettingsKey.swift; sourceTree = "<group>"; };
 		6DA102C0AB6E77B78488FA74 /* ReaderControlsConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderControlsConfigView.swift; sourceTree = "<group>"; };
@@ -1295,6 +1297,7 @@
 			children = (
 				911E27CDB95380C3115CAF72 /* DiscoverView.swift */,
 				59440D46C54F57872B570EDE /* DiscoverHeroCard.swift */,
+				5A987742D16EA3790E69E361 /* DiscoverRailView.swift */,
 			);
 			name = Discover;
 			path = Discover;
@@ -3248,6 +3251,7 @@
 				E8326297D5816EF8D628EE34 /* QuickActionsCard.swift in Sources */,
 				3E42FD7FC0AF603A7FC170D3 /* DiscoverView.swift in Sources */,
 				050B780C8CEDA36A1A32C1FD /* DiscoverHeroCard.swift in Sources */,
+				521056C85B593607AB6AC6C2 /* DiscoverRailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

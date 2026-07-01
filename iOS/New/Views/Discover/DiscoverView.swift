@@ -99,22 +99,14 @@ struct DiscoverView: View {
 
                 ForEach(home.components.indices, id: \.self) { index in
                     let component = home.components[index]
-                    VStack(alignment: .leading, spacing: 6) {
-                        if let title = component.title, !title.isEmpty {
-                            Text(title)
-                                .font(.poppins(18, weight: .semibold))
-                        }
-                        Text(String(
-                            format: NSLocalizedString("DISCOVER_SECTION_COUNT", comment: ""),
-                            component.value.approximateEntryCount
-                        ))
-                        .font(.poppins(13, weight: .regular))
-                        .foregroundStyle(.secondary)
+                    let manga = component.value.railManga
+                    if !manga.isEmpty {
+                        DiscoverRailView(
+                            source: source,
+                            title: component.title,
+                            manga: manga
+                        )
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(16)
-                    .nyoraTintedCard()
-                    .padding(.horizontal, 16)
                 }
             }
             .padding(.bottom, 24)
@@ -170,16 +162,24 @@ private extension Home {
 }
 
 private extension HomeComponent.Value {
-    /// Best-effort entry count for the scaffold overview.
-    var approximateEntryCount: Int {
+    /// The manga entries a horizontal rail can render for this component, if any.
+    /// Non-manga components (image scrollers, filters, plain links) yield nothing.
+    var railManga: [AidokuRunner.Manga] {
         switch self {
-            case let .imageScroller(links, _, _, _): links.count
-            case let .bigScroller(entries, _): entries.count
-            case let .scroller(entries, _): entries.count
-            case let .mangaList(_, _, entries, _): entries.count
-            case let .mangaChapterList(_, entries, _): entries.count
-            case let .filters(items): items.count
-            case let .links(links): links.count
+            case let .bigScroller(entries, _):
+                entries
+            case let .scroller(entries, _):
+                entries.compactMap { link in
+                    if case let .manga(manga) = link.value { manga } else { nil }
+                }
+            case let .mangaList(_, _, entries, _):
+                entries.compactMap { link in
+                    if case let .manga(manga) = link.value { manga } else { nil }
+                }
+            case let .mangaChapterList(_, entries, _):
+                entries.map { $0.manga }
+            default:
+                []
         }
     }
 }
