@@ -64,14 +64,6 @@ enum Settings {
                     inlineTitle: true,
                     icon: .system(name: "clock.arrow.2.circlepath", color: "orange", inset: 4)
                 ))
-            ),
-            .init(
-                title: NSLocalizedString("ADVANCED"),
-                value: .page(.init(
-                    items: advancedSettings,
-                    inlineTitle: true,
-                    icon: .system(name: "gearshape.2.fill", color: "gray", inset: 4)
-                ))
             )
         ]))),
         .init(value: .group(.init(items: [
@@ -91,15 +83,6 @@ enum Settings {
                     items: [],
                     inlineTitle: true,
                     icon: .system(name: "chart.bar.xaxis", color: "indigo")
-                ))
-            ),
-            .init(
-                key: "SourceLists",
-                title: NSLocalizedString("SOURCE_LISTS"),
-                value: .page(.init(
-                    items: [],
-                    inlineTitle: true,
-                    icon: .system(name: "globe", color: "green")
                 ))
             ),
             .init(
