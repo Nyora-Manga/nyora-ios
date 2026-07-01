@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FB1B4834277CE1920056D02C"
+               BlueprintIdentifier = "FB1B483A277CE1920056D02C"
                BuildableName = "Aidoku.app"
-               BlueprintName = "Aidoku (iOS)"
-               ReferencedContainer = "container:Aidoku.xcodeproj">
+               BlueprintName = "Aidoku (macOS)"
+               ReferencedContainer = "container:Nyora.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -28,17 +28,6 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "FBB44E712EC635620032EFBB"
-               BuildableName = "AidokuTests.xctest"
-               BlueprintName = "AidokuTests"
-               ReferencedContainer = "container:Aidoku.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -55,30 +44,12 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "FB1B4834277CE1920056D02C"
+            BlueprintIdentifier = "FB1B483A277CE1920056D02C"
             BuildableName = "Aidoku.app"
-            BlueprintName = "Aidoku (iOS)"
-            ReferencedContainer = "container:Aidoku.xcodeproj">
+            BlueprintName = "Aidoku (macOS)"
+            ReferencedContainer = "container:Nyora.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "-com.apple.CoreData.SQLDebug 1"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "com.apple.CoreData.CloudKitDebug 1"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-com.apple.CoreData.Logging.stderr 1"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-com.apple.CoreData.ConcurrencyDebug 1"
-            isEnabled = "NO">
-         </CommandLineArgument>
-      </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "OS_ACTIVITY_MODE"
@@ -97,10 +68,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "FB1B4834277CE1920056D02C"
+            BlueprintIdentifier = "FB1B483A277CE1920056D02C"
             BuildableName = "Aidoku.app"
-            BlueprintName = "Aidoku (iOS)"
-            ReferencedContainer = "container:Aidoku.xcodeproj">
+            BlueprintName = "Aidoku (macOS)"
+            ReferencedContainer = "container:Nyora.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
