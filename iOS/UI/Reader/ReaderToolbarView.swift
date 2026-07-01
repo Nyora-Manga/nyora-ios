@@ -29,6 +29,14 @@ class ReaderToolbarView: UIView {
     private let currentPageLabel = UILabel()
     private let pagesLeftLabel = UILabel()
 
+    // Nyora reader chrome (ND-020): prev/next chapter buttons flanking the slider,
+    // all inside a floating rounded pill. The buttons' actions are wired by the
+    // reader view controller.
+    let prevChapterButton = UIButton(type: .system)
+    let nextChapterButton = UIButton(type: .system)
+    private let pillView = UIView()
+    private let pillBlur = UIVisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterial))
+
     private var cancellables: [AnyCancellable] = []
 
     init() {
@@ -43,18 +51,35 @@ class ReaderToolbarView: UIView {
     }
 
     func configure() {
-        incognitoModeLabel.font = .systemFont(ofSize: 10)
+        // floating rounded pill background behind the slider + chapter buttons
+        pillView.backgroundColor = .clear
+        pillView.layer.borderWidth = 1
+        pillView.layer.borderColor = NyoraTheme.indigo.withAlphaComponent(0.18).cgColor
+        pillView.clipsToBounds = true
+        pillBlur.isUserInteractionEnabled = false
+        pillView.addSubview(pillBlur)
+        addSubview(pillView)
+
+        prevChapterButton.setImage(UIImage(systemName: "chevron.left.2"), for: .normal)
+        prevChapterButton.tintColor = NyoraTheme.indigo
+        addSubview(prevChapterButton)
+
+        nextChapterButton.setImage(UIImage(systemName: "chevron.right.2"), for: .normal)
+        nextChapterButton.tintColor = NyoraTheme.indigo
+        addSubview(nextChapterButton)
+
+        incognitoModeLabel.font = NyoraTheme.poppins(10, .medium)
         incognitoModeLabel.textColor = .secondaryLabel
         incognitoModeLabel.textAlignment = .left
         incognitoModeLabel.isHidden = !UserDefaults.standard.bool(forKey: "General.incognitoMode")
         addSubview(incognitoModeLabel)
 
-        currentPageLabel.font = .systemFont(ofSize: 10)
+        currentPageLabel.font = NyoraTheme.poppins(10, .medium)
         currentPageLabel.textAlignment = .center
         currentPageLabel.sizeToFit()
         addSubview(currentPageLabel)
 
-        pagesLeftLabel.font = .systemFont(ofSize: 10)
+        pagesLeftLabel.font = NyoraTheme.poppins(10)
         pagesLeftLabel.textColor = .secondaryLabel
         pagesLeftLabel.textAlignment = .right
         addSubview(pagesLeftLabel)
@@ -68,22 +93,57 @@ class ReaderToolbarView: UIView {
         currentPageLabel.translatesAutoresizingMaskIntoConstraints = false
         pagesLeftLabel.translatesAutoresizingMaskIntoConstraints = false
         sliderView.translatesAutoresizingMaskIntoConstraints = false
+        pillView.translatesAutoresizingMaskIntoConstraints = false
+        pillBlur.translatesAutoresizingMaskIntoConstraints = false
+        prevChapterButton.translatesAutoresizingMaskIntoConstraints = false
+        nextChapterButton.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            incognitoModeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            incognitoModeLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+            // floating pill spanning the top row
+            pillView.topAnchor.constraint(equalTo: topAnchor),
+            pillView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            pillView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            pillView.heightAnchor.constraint(equalToConstant: 34),
 
-            currentPageLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            currentPageLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+            pillBlur.topAnchor.constraint(equalTo: pillView.topAnchor),
+            pillBlur.bottomAnchor.constraint(equalTo: pillView.bottomAnchor),
+            pillBlur.leadingAnchor.constraint(equalTo: pillView.leadingAnchor),
+            pillBlur.trailingAnchor.constraint(equalTo: pillView.trailingAnchor),
 
-            pagesLeftLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            pagesLeftLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+            prevChapterButton.leadingAnchor.constraint(equalTo: pillView.leadingAnchor, constant: 8),
+            prevChapterButton.centerYAnchor.constraint(equalTo: pillView.centerYAnchor),
+            prevChapterButton.widthAnchor.constraint(equalToConstant: 34),
+
+            nextChapterButton.trailingAnchor.constraint(equalTo: pillView.trailingAnchor, constant: -8),
+            nextChapterButton.centerYAnchor.constraint(equalTo: pillView.centerYAnchor),
+            nextChapterButton.widthAnchor.constraint(equalToConstant: 34),
 
             sliderView.heightAnchor.constraint(equalToConstant: 12),
-            sliderView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            sliderView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
-            sliderView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12)
+            sliderView.centerYAnchor.constraint(equalTo: pillView.centerYAnchor),
+            sliderView.leadingAnchor.constraint(equalTo: prevChapterButton.trailingAnchor, constant: 4),
+            sliderView.trailingAnchor.constraint(equalTo: nextChapterButton.leadingAnchor, constant: -4),
+
+            currentPageLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            currentPageLabel.topAnchor.constraint(equalTo: pillView.bottomAnchor, constant: 1),
+
+            incognitoModeLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            incognitoModeLabel.centerYAnchor.constraint(equalTo: currentPageLabel.centerYAnchor),
+
+            pagesLeftLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            pagesLeftLabel.centerYAnchor.constraint(equalTo: currentPageLabel.centerYAnchor)
         ])
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        pillView.layer.cornerRadius = pillView.bounds.height / 2 // capsule
+        pillView.layer.cornerCurve = .continuous
+    }
+
+    /// Shows or hides the flanking prev/next chapter buttons (driven by Reader.controls).
+    func setChapterButtons(prev: Bool, next: Bool) {
+        prevChapterButton.isHidden = !prev
+        nextChapterButton.isHidden = !next
     }
 
     func observe() {

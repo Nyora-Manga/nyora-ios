@@ -11,26 +11,29 @@ extension UINavigationItem {
 
     func setTitle(upper: String?, lower: String) {
         if let upper = upper {
-            let upperLabel = UILabel()
-            upperLabel.text = upper
-            upperLabel.font = UIFont.systemFont(ofSize: 11)
-            upperLabel.textColor = .secondaryLabel
-
+            // Nyora reader chrome (ND-020): centered Poppins title + subtitle.
             let lowerLabel = UILabel()
             lowerLabel.text = lower
-            lowerLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+            lowerLabel.font = NyoraTheme.poppins(15, .semibold)
             lowerLabel.textAlignment = .center
 
-            let stackView = UIStackView(arrangedSubviews: [upperLabel, lowerLabel])
+            let upperLabel = UILabel()
+            upperLabel.text = upper
+            upperLabel.font = NyoraTheme.poppins(11, .medium)
+            upperLabel.textColor = .secondaryLabel
+            upperLabel.textAlignment = .center
+
+            let stackView = UIStackView(arrangedSubviews: [lowerLabel, upperLabel])
             stackView.distribution = .equalCentering
             stackView.axis = .vertical
             stackView.alignment = .center
-
-            let width = max(upperLabel.frame.size.width, lowerLabel.frame.size.width)
-            stackView.frame = CGRect(x: 0, y: 0, width: width, height: 35)
+            stackView.spacing = 1
 
             upperLabel.sizeToFit()
             lowerLabel.sizeToFit()
+
+            let width = max(upperLabel.frame.size.width, lowerLabel.frame.size.width)
+            stackView.frame = CGRect(x: 0, y: 0, width: width, height: 35)
 
             self.titleView = stackView
         } else {

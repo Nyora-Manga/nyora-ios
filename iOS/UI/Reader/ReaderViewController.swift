@@ -154,18 +154,6 @@ class ReaderViewController: BaseObservingViewController {
         target: self,
         action: #selector(openChapterList)
     )
-    private lazy var prevChapterButton = UIBarButtonItem(
-        image: UIImage(systemName: "chevron.left.2"),
-        style: .plain,
-        target: self,
-        action: #selector(previousChapter)
-    )
-    private lazy var nextChapterButton = UIBarButtonItem(
-        image: UIImage(systemName: "chevron.right.2"),
-        style: .plain,
-        target: self,
-        action: #selector(nextChapter)
-    )
     private lazy var moreButton: UIBarButtonItem = {
         let button = UIBarButtonItem(
             image: UIImage(systemName: "safari"),
@@ -278,9 +266,12 @@ class ReaderViewController: BaseObservingViewController {
         // toolbar view
         toolbarView.sliderView.addTarget(self, action: #selector(sliderMoved(_:)), for: .valueChanged)
         toolbarView.sliderView.addTarget(self, action: #selector(sliderStopped(_:)), for: .editingDidEnd)
+        // Nyora reader chrome (ND-020): prev/next chapter buttons live in the bottom pill
+        toolbarView.prevChapterButton.addTarget(self, action: #selector(previousChapter), for: .touchUpInside)
+        toolbarView.nextChapterButton.addTarget(self, action: #selector(nextChapter), for: .touchUpInside)
         toolbarView.translatesAutoresizingMaskIntoConstraints = false
         let toolbarButtonItemView = UIBarButtonItem(customView: toolbarView)
-        toolbarButtonItemView.customView?.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        toolbarButtonItemView.customView?.heightAnchor.constraint(equalToConstant: 48).isActive = true
         if #available(iOS 26.0, *) {
             toolbarViewWidthConstraint = toolbarButtonItemView.customView?.widthAnchor.constraint(
                 equalToConstant: node.bounds.width - 32 - 10
@@ -797,10 +788,13 @@ class ReaderViewController: BaseObservingViewController {
         let controls = ReaderControlSettings.current
 
         var left: [UIBarButtonItem] = [closeButton]
-        if controls.contains(.prevChapter) { left.append(prevChapterButton) }
         if controls.contains(.pagesSheet) { left.append(chapterListButton) }
-        if controls.contains(.nextChapter) { left.append(nextChapterButton) }
         navigationItem.leftBarButtonItems = left
+        // Nyora reader chrome (ND-020): prev/next chapter buttons flank the bottom slider
+        toolbarView.setChapterButtons(
+            prev: controls.contains(.prevChapter),
+            next: controls.contains(.nextChapter)
+        )
 
         var right: [UIBarButtonItem] = [moreButton, settingsButton, translateButton]
         // in-reader rotate / orientation-lock quick control (NP-016), iPhone only
