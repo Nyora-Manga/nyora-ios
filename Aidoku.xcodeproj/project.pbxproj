@@ -85,6 +85,7 @@
 		C410B501630CDA838A6409E8 /* NyoraSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E880AAAE669C883263D2A7 /* NyoraSource.swift */; };
 		C618055CD8D1AFF0D6BCC967 /* ReaderInfoBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */; };
 		C9E7B4224661C3BDA0E3371B /* NavSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259AEEA262A257B43E68179D /* NavSection.swift */; };
+		D0B3C1FF868C77D62E6A9C11 /* NyoraPillButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3A5D830DD2C2ED379A4359 /* NyoraPillButtonStyle.swift */; };
 		D25477168BD5C13D55CFD9D6 /* TranslationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E41E90BB517AF2ABC308D9B /* TranslationController.swift */; };
 		D6063582C3824F3C8DAD1886 /* KitsuTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866B83B509B09A6591CB704D /* KitsuTracker.swift */; };
 		D82B64BAB7C7EB52757C6D08 /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5638448380D73A97E952206F /* Poppins-Medium.ttf */; };
@@ -671,6 +672,7 @@
 		10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoogleTranslate.swift; sourceTree = "<group>"; };
 		182FEAFBF2A567E7315C454A /* NyoraSyncClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSyncClient.swift; sourceTree = "<group>"; };
 		259AEEA262A257B43E68179D /* NavSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavSection.swift; path = NavSection.swift; sourceTree = "<group>"; };
+		2A3A5D830DD2C2ED379A4359 /* NyoraPillButtonStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraPillButtonStyle.swift; sourceTree = "<group>"; };
 		30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverRecovery.swift; sourceTree = "<group>"; };
 		3447DE77858D7745F1E077EE /* KitsuApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuApi.swift; sourceTree = "<group>"; };
 		344A1286965DEF3002F0D97B /* OcrProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OcrProvider.swift; sourceTree = "<group>"; };
@@ -2068,6 +2070,7 @@
 				FB662F012DA81B8200007514 /* MangaGridButtonStyle.swift */,
 				FB8E48DA2DC00782002A3621 /* SelectHighlightButtonStyle.swift */,
 				FBE3E4912DD163D900EF8145 /* BetterBorderedButtonStyle.swift */,
+				2A3A5D830DD2C2ED379A4359 /* NyoraPillButtonStyle.swift */,
 			);
 			path = ButtonStyles;
 			sourceTree = "<group>";
@@ -3215,6 +3218,7 @@
 				33D9D21480475186A7CBC5D9 /* ReaderToastView.swift in Sources */,
 				636D050278564B080A955458 /* NyoraDeviceRelay.swift in Sources */,
 				E585B2917B37652052FE5F43 /* NyoraTheme.swift in Sources */,
+				D0B3C1FF868C77D62E6A9C11 /* NyoraPillButtonStyle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

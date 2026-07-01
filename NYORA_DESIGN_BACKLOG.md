@@ -5,7 +5,7 @@ Porting nyora-android's UI design natively into Aidoku (iOS). Phase 1 (Poppins +
 Build check: `cd /Users/hasanraza/Desktop/kotatsu/Nyora/Aidoku && xcodebuild -project Aidoku.xcodeproj -scheme "Aidoku (iOS)" -sdk iphonesimulator -configuration Debug -destination 'generic/platform=iOS Simulator' -clonedSourcePackagesDirPath /tmp/aidoku-spm -skipPackagePluginValidation build`
 
 ## Phase 2 — Reusable style primitives (foundational, low-risk)
-- [ ] ND-001 | Nyora pill ButtonStyle (fully-rounded, indigo fill / white variant) | area:library | android:res/values/styles.xml Widget.Nyora.Button.Pill | target:iOS/New/Utilities/ButtonStyles/NyoraPillButtonStyle.swift | new SwiftUI ButtonStyle renders a cornerPill capsule with Poppins SemiBold label; compiles and previews
+- [x] ND-001 | Nyora pill ButtonStyle (fully-rounded, indigo fill / white variant) | area:library | android:res/values/styles.xml Widget.Nyora.Button.Pill | target:iOS/New/Utilities/ButtonStyles/NyoraPillButtonStyle.swift | new SwiftUI ButtonStyle renders a cornerPill capsule with Poppins SemiBold label; compiles and previews ✓ .nyoraPill / .nyoraPillWhite Capsule styles w/ Poppins SemiBold, press scale; registered + BUILD SUCCEEDED
 - [ ] ND-002 | Tinted-card ViewModifier (flat, surface tint + 1px outline, cornerCard) | area:library | android:res/values/styles.xml Widget.Nyora.Card.Tinted | target:iOS/New/Utilities/NyoraCardStyle.swift | `.nyoraTintedCard()` modifier applies slateOnSurface fill, 1px indigo-tint border, 20pt corners, 0 shadow
 
 ## Phase 3 — Library grid restyle
