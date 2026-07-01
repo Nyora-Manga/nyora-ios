@@ -174,6 +174,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Reader.pageNumbers": false,
                 "Reader.infoBar": true,
                 "Reader.infoBarTransparent": true,
+                "Reader.chapterToast": true,
                 "Reader.cfBrightness": 0.0,
                 "Reader.cfContrast": 0.0,
                 "Reader.cfInvert": false,

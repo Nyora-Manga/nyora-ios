@@ -227,6 +227,14 @@ struct ReaderSettingsView: View {
                             value: .toggle(.init())
                         )
                     )
+                    SettingView(
+                        setting: .init(
+                            key: "Reader.chapterToast",
+                            title: NSLocalizedString("READER_CHAPTER_TOAST"),
+                            notification: .init("Reader.chapterToast"),
+                            value: .toggle(.init(subtitle: NSLocalizedString("READER_CHAPTER_TOAST_SUBTITLE")))
+                        )
+                    )
                     NavigationLink(destination: ReaderControlsConfigView()) {
                         Text(NSLocalizedString("READER_CONTROLS"))
                     }

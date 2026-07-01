@@ -581,6 +581,8 @@
 "READER_FULLSCREEN" = "Fullscreen";
 "PAGE_NUMBERS" = "Page Numbers";
 "PAGE_NUMBERS_SUBTITLE" = "Show the current page number on each page.";
+"READER_CHAPTER_TOAST" = "Chapter Change Toast";
+"READER_CHAPTER_TOAST_SUBTITLE" = "Briefly show the chapter name when a new chapter begins";
 "READER_INFO_BAR" = "Information Bar";
 "READER_INFO_BAR_SUBTITLE" = "Show the current time and reading progress while the reader controls are hidden";
 "READER_INFO_BAR_TRANSPARENT" = "Transparent Information Bar";

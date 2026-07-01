@@ -28,6 +28,7 @@
 		2954DCCC05A0E7F45A9DC37F /* TranslationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91157E161122819CBE01C634 /* TranslationModels.swift */; };
 		30EAB0012FC051B5000BFEDF /* CoverRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */; };
 		327147DDABB9F319C8591880 /* LanguagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08445594D90A53709E9CD7C5 /* LanguagePickerView.swift */; };
+		33D9D21480475186A7CBC5D9 /* ReaderToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDC154ABFA4CE599400D8C2 /* ReaderToastView.swift */; };
 		37F3E66D2850F62100A944E0 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F3E66C2850F62100A944E0 /* Collection.swift */; };
 		3B0299147D7CA03B983C727D /* NavConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E298DAD3D47DB5A4B144DE /* NavConfigView.swift */; };
 		3D261020E8F5780A9CCA1D95 /* ReaderControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855E127D4FA3E40C740BF7A /* ReaderControl.swift */; };
@@ -714,6 +715,7 @@
 		D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuLoginView.swift; sourceTree = "<group>"; };
 		D855E127D4FA3E40C740BF7A /* ReaderControl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderControl.swift; sourceTree = "<group>"; };
 		E86FCD4C820B864346BDB2A4 /* TapGrid.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGrid.swift; sourceTree = "<group>"; };
+		ECDC154ABFA4CE599400D8C2 /* ReaderToastView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ReaderToastView.swift; path = ReaderToastView.swift; sourceTree = "<group>"; };
 		F8350600443A42A7B3E16EEB /* NyoraLanguageStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraLanguageStore.swift; sourceTree = "<group>"; };
 		F869329BD4B66D09F2D7FCA4 /* AutoScrollController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AutoScrollController.swift; sourceTree = "<group>"; };
 		F929ECB6129D6A935832CA47 /* EnhancedColorsProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EnhancedColorsProcessor.swift; sourceTree = "<group>"; };
@@ -1449,6 +1451,7 @@
 				8E1118EED6E55A56A960F20A /* ReaderAnimationMode.swift */,
 				B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */,
 				F869329BD4B66D09F2D7FCA4 /* AutoScrollController.swift */,
+				ECDC154ABFA4CE599400D8C2 /* ReaderToastView.swift */,
 			);
 			path = Reader;
 			sourceTree = "<group>";
@@ -3174,6 +3177,7 @@
 				049F8D83FEAD2104540BFB31 /* NavSection.swift in Sources */,
 				3B0299147D7CA03B983C727D /* NavConfigView.swift in Sources */,
 				76B69A65C0CD98B0993A4F0B /* EnhancedColorsProcessor.swift in Sources */,
+				33D9D21480475186A7CBC5D9 /* ReaderToastView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

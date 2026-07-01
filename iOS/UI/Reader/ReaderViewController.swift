@@ -54,6 +54,8 @@ class ReaderViewController: BaseObservingViewController {
 
     // persistent reader info bar overlay (NP-018)
     private lazy var infoBarView = ReaderInfoBarView()
+    // transient chapter-change toast (NP-035)
+    private lazy var toastView = ReaderToastView()
     private var toolbarViewWidthConstraint: NSLayoutConstraint?
 
     private lazy var volumeButtonHandler: VolumeButtonHandler = {
@@ -307,6 +309,9 @@ class ReaderViewController: BaseObservingViewController {
         infoBarView.isHidden = true
         view.addSubview(infoBarView)
 
+        // transient chapter-change toast (NP-035)
+        view.addSubview(toastView)
+
         // auto-scroll on-screen control (NP-019)
         view.addSubview(autoScrollControlView)
 
@@ -350,6 +355,17 @@ class ReaderViewController: BaseObservingViewController {
             infoBarView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             infoBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             infoBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
+            toastView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            toastView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            toastView.leadingAnchor.constraint(
+                greaterThanOrEqualTo: view.safeAreaLayoutGuide.leadingAnchor,
+                constant: 16
+            ),
+            toastView.trailingAnchor.constraint(
+                lessThanOrEqualTo: view.safeAreaLayoutGuide.trailingAnchor,
+                constant: -16
+            ),
 
             autoScrollControlView.bottomAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.bottomAnchor,
@@ -1114,6 +1130,33 @@ extension ReaderViewController: ReaderHoldingDelegate {
         self.chapter = chapter
         self.chaptersToMark = [chapter]
         loadNavbarTitle()
+        showChapterToast()
+    }
+
+    /// Show a transient toast announcing the current chapter, gated on the
+    /// Reader.chapterToast preference (NP-035, mirrors android
+    /// isReaderChapterToastEnabled + ReaderToastView.showTemporary).
+    private func showChapterToast() {
+        guard UserDefaults.standard.bool(forKey: "Reader.chapterToast") else { return }
+        let title = chapterToastTitle()
+        guard !title.isEmpty else { return }
+        toastView.showTemporary(title)
+    }
+
+    /// Human-readable chapter title used for the chapter-change toast.
+    private func chapterToastTitle() -> String {
+        var components: [String] = []
+        if let volumeNum = chapter.volumeNumber {
+            components.append(String(format: NSLocalizedString("VOLUME_X", comment: ""), volumeNum))
+        }
+        if let chapterNum = chapter.chapterNumber {
+            components.append(String(format: NSLocalizedString("CHAPTER_X", comment: ""), chapterNum))
+        }
+        var result = components.joined(separator: " ")
+        if let chapterTitle = chapter.title, !chapterTitle.isEmpty {
+            result = result.isEmpty ? chapterTitle : "\(result): \(chapterTitle)"
+        }
+        return result
     }
 
     func setCurrentPage(_ page: Int, position: Double? = nil) {
