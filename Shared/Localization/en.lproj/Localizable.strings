@@ -567,6 +567,8 @@
 "CONFIGURE_TAP_GRID" = "Configure Tap Grid";
 "TAP_GRID_FOOTER" = "Assign an action to each of the nine screen zones.";
 "ZONES" = "Zones";
+"LONG_PRESS_ZONES" = "Long Press Zones";
+"LONG_PRESS_ZONES_FOOTER" = "Assign an action triggered by a long press on each zone.";
 "ZONE_TOP" = "Top";
 "ZONE_MIDDLE" = "Middle";
 "ZONE_BOTTOM" = "Bottom";

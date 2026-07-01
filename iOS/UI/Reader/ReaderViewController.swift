@@ -100,6 +100,13 @@ class ReaderViewController: BaseObservingViewController {
         return tap
     }()
 
+    // long-press gesture for the configurable tap grid (NP-008)
+    private lazy var gridLongPressGesture: UILongPressGestureRecognizer = {
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(handleGridLongPress(_:)))
+        gesture.delegate = self
+        return gesture
+    }()
+
     var statusBarHidden = false
 
     override var preferredStatusBarUpdateAnimation: UIStatusBarAnimation {
@@ -225,6 +232,7 @@ class ReaderViewController: BaseObservingViewController {
         fakeZoomTapGesture.isEnabled = !UserDefaults.standard.bool(forKey: "Reader.disableDoubleTap")
         view.addGestureRecognizer(fakeZoomTapGesture)
         view.addGestureRecognizer(barToggleTapGesture)
+        view.addGestureRecognizer(gridLongPressGesture)
 
         // page offset tap gesture
         let pageOffsetGesture = UITapGestureRecognizer(target: self, action: #selector(toggleOffset))
@@ -1027,6 +1035,20 @@ extension ReaderViewController {
         }
     }
 
+    @objc func handleGridLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        guard useTapGrid, gestureRecognizer.state == .began else { return }
+        let point = gestureRecognizer.location(in: view)
+        let relativePoint = CGPoint(
+            x: point.x / view.bounds.width,
+            y: point.y / view.bounds.height
+        )
+        let area = TapGridSettings.area(for: relativePoint)
+        let action = TapGridSettings.action(for: area, isLongTap: true)
+        guard action != .none else { return }
+        UISelectionFeedbackGenerator().selectionChanged()
+        performGridAction(action)
+    }
+
     func performGridAction(_ action: TapGridAction) {
         switch action {
             case .none:
@@ -1218,9 +1240,21 @@ extension ReaderViewController {
 // MARK: - UIGestureRecognizerDelegate
 extension ReaderViewController: UIGestureRecognizerDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer === gridLongPressGesture {
+            // only claim long presses when the configurable tap grid is active
+            return useTapGrid
+        }
         guard let pan = gestureRecognizer as? UIPanGestureRecognizer else { return true }
         let velocity = pan.velocity(in: pan.view)
         return velocity.y > velocity.x && (abs(velocity.x) < 40 || abs(velocity.y) > abs(velocity.x) * 3)
+    }
+
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        // allow the grid long-press to coexist with the reader's scroll/zoom gestures
+        gestureRecognizer === gridLongPressGesture || otherGestureRecognizer === gridLongPressGesture
     }
 }
 

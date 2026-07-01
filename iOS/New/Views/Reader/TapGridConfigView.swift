@@ -9,9 +9,11 @@ import SwiftUI
 
 struct TapGridConfigView: View {
     @State private var mapping: [TapGridArea: TapGridAction]
+    @State private var longMapping: [TapGridArea: TapGridAction]
 
     init() {
         self._mapping = State(initialValue: TapGridSettings.currentMapping())
+        self._longMapping = State(initialValue: TapGridSettings.currentLongMapping())
     }
 
     private static let spacing: CGFloat = 6
@@ -42,9 +44,26 @@ struct TapGridConfigView: View {
             }
 
             Section {
+                ForEach(TapGridArea.allCases, id: \.rawValue) { area in
+                    Picker(selection: longBindingFor(area)) {
+                        ForEach(TapGridAction.allCases, id: \.rawValue) { action in
+                            Text(action.title).tag(action)
+                        }
+                    } label: {
+                        Text(areaTitle(area))
+                    }
+                }
+            } header: {
+                Text(NSLocalizedString("LONG_PRESS_ZONES"))
+            } footer: {
+                Text(NSLocalizedString("LONG_PRESS_ZONES_FOOTER"))
+            }
+
+            Section {
                 Button(role: .destructive) {
                     TapGridSettings.reset()
                     mapping = TapGridSettings.currentMapping()
+                    longMapping = TapGridSettings.currentLongMapping()
                     notifyChange()
                 } label: {
                     Text(NSLocalizedString("RESET_TO_DEFAULT"))
@@ -103,6 +122,17 @@ struct TapGridConfigView: View {
             set: { newValue in
                 mapping[area] = newValue
                 TapGridSettings.setAction(newValue, for: area)
+                notifyChange()
+            }
+        )
+    }
+
+    private func longBindingFor(_ area: TapGridArea) -> Binding<TapGridAction> {
+        Binding(
+            get: { longMapping[area] ?? .none },
+            set: { newValue in
+                longMapping[area] = newValue
+                TapGridSettings.setLongAction(newValue, for: area)
                 notifyChange()
             }
         )

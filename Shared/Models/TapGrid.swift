@@ -71,6 +71,7 @@ enum TapGridAction: String, CaseIterable {
 /// Loads/saves the reader tap-grid configuration from UserDefaults.
 enum TapGridSettings {
     static let defaultsKey = "Reader.tapGrid"
+    static let longDefaultsKey = "Reader.tapGridLong"
 
     /// Default mapping: left column + top edges = previous page, right column + bottom edges = next page,
     /// center = toggle UI (matching the android defaults).
@@ -86,6 +87,12 @@ enum TapGridSettings {
         .bottomRight: .nextPage
     ]
 
+    /// Default long-tap mapping: only the center zone shows the menu (matching the android defaults);
+    /// all other zones default to no action.
+    static let defaultLongActions: [TapGridArea: TapGridAction] = [
+        .center: .openMenu
+    ]
+
     /// The full 9-zone mapping, backfilling defaults for any missing/invalid stored values.
     static func currentMapping() -> [TapGridArea: TapGridAction] {
         var result = defaultActions
@@ -99,8 +106,28 @@ enum TapGridSettings {
         return result
     }
 
-    static func action(for area: TapGridArea) -> TapGridAction {
-        currentMapping()[area] ?? .none
+    /// The full 9-zone long-tap mapping, backfilling defaults for missing/invalid stored values.
+    static func currentLongMapping() -> [TapGridArea: TapGridAction] {
+        var result: [TapGridArea: TapGridAction] = [:]
+        for area in TapGridArea.allCases {
+            result[area] = defaultLongActions[area] ?? .none
+        }
+        if let stored = UserDefaults.standard.dictionary(forKey: longDefaultsKey) as? [String: String] {
+            for (key, value) in stored {
+                if let area = TapGridArea(rawValue: key), let action = TapGridAction(rawValue: value) {
+                    result[area] = action
+                }
+            }
+        }
+        return result
+    }
+
+    static func action(for area: TapGridArea, isLongTap: Bool = false) -> TapGridAction {
+        if isLongTap {
+            return currentLongMapping()[area] ?? .none
+        } else {
+            return currentMapping()[area] ?? .none
+        }
     }
 
     static func setAction(_ action: TapGridAction, for area: TapGridArea) {
@@ -115,8 +142,21 @@ enum TapGridSettings {
         UserDefaults.standard.set(mapping, forKey: defaultsKey)
     }
 
+    static func setLongAction(_ action: TapGridAction, for area: TapGridArea) {
+        var mapping = UserDefaults.standard.dictionary(forKey: longDefaultsKey) as? [String: String] ?? [:]
+        // seed with defaults if empty so partial edits keep sensible neighbours
+        if mapping.isEmpty {
+            for area in TapGridArea.allCases {
+                mapping[area.rawValue] = (defaultLongActions[area] ?? .none).rawValue
+            }
+        }
+        mapping[area.rawValue] = action.rawValue
+        UserDefaults.standard.set(mapping, forKey: longDefaultsKey)
+    }
+
     static func reset() {
         UserDefaults.standard.removeObject(forKey: defaultsKey)
+        UserDefaults.standard.removeObject(forKey: longDefaultsKey)
     }
 
     /// Maps a relative point (0-1) to its grid area.
