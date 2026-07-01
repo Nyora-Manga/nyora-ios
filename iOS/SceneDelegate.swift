@@ -5,6 +5,7 @@
 //  Created by Skitty on 12/29/21.
 //
 
+import SwiftUI
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -37,6 +38,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             self.window = window
             window.makeKeyAndVisible()
 
+            presentStartScreenIfNeeded(on: window)
+
             let incognitoBannerView = IncognitoBannerView()
             self.incognitoBannerView = incognitoBannerView
             incognitoBannerView.translatesAutoresizingMaskIntoConstraints = false
@@ -55,6 +58,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let delegate = UIApplication.shared.delegate as? AppDelegate
         {
             delegate.handleUrl(url: url)
+        }
+    }
+
+    /// On first launch, present the Nyora start page (Sign in / Create account /
+    /// Continue as guest) full-screen over the main tab UI. Shown once, gated on
+    /// the `Nyora.completedStart` flag.
+    private func presentStartScreenIfNeeded(on window: UIWindow) {
+        guard !UserDefaults.standard.bool(forKey: NyoraStartView.completedKey) else { return }
+
+        let hosting = UIHostingController(
+            rootView: NyoraAccentTint {
+                NyoraStartView {
+                    UserDefaults.standard.set(true, forKey: NyoraStartView.completedKey)
+                    window.rootViewController?.dismiss(animated: true)
+                }
+            }
+        )
+        hosting.modalPresentationStyle = .fullScreen
+        hosting.isModalInPresentation = true
+
+        DispatchQueue.main.async {
+            window.rootViewController?.present(hosting, animated: false)
         }
     }
 

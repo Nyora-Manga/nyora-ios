@@ -23,6 +23,7 @@
 		0C807DDD27D47C2D0042EE7B /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C807DDC27D47C2D0042EE7B /* CircularProgressView.swift */; };
 		0E0354DEEC549E62F24EA80F /* AccentColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955F2F74E9E812227602DD9B /* AccentColorView.swift */; };
 		112A6301835CD80A0D98DC78 /* UsernamePasswordTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A394EB074C10FD7002E24C6E /* UsernamePasswordTracker.swift */; };
+		11B00ACE43F82B5252EB5FEF /* NyoraStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9195FD8686B5C5EF6142ADAD /* NyoraStartView.swift */; };
 		1AFA4B9ECEF58ADA23497450 /* KitsuTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866B83B509B09A6591CB704D /* KitsuTracker.swift */; };
 		1EB95D165E6EB8B6D2BA7452 /* ReaderAnimationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1118EED6E55A56A960F20A /* ReaderAnimationMode.swift */; };
 		2690B12D90028F56F1EB4F61 /* AutoScrollController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F869329BD4B66D09F2D7FCA4 /* AutoScrollController.swift */; };
@@ -729,6 +730,7 @@
 		8E41E90BB517AF2ABC308D9B /* TranslationController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationController.swift; sourceTree = "<group>"; };
 		91157E161122819CBE01C634 /* TranslationModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationModels.swift; sourceTree = "<group>"; };
 		911E27CDB95380C3115CAF72 /* DiscoverView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DiscoverView.swift; sourceTree = "<group>"; };
+		9195FD8686B5C5EF6142ADAD /* NyoraStartView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraStartView.swift; sourceTree = "<group>"; };
 		91D7BEF72DD7E46800898539 /* Aidoku-IOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Aidoku-IOS.xcconfig"; sourceTree = "<group>"; };
 		91D7BEF92DD7E48400898539 /* Aidoku-MACOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Aidoku-MACOS.xcconfig"; sourceTree = "<group>"; };
 		91D7BEFB2DD7E4BB00898539 /* Aidoku.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Aidoku.xcconfig; sourceTree = "<group>"; };
@@ -1333,6 +1335,7 @@
 				182FEAFBF2A567E7315C454A /* NyoraSyncClient.swift */,
 				88D04FA91678DC60A6F95C3F /* NyoraAccountView.swift */,
 				C073DAF8B78415A1EB6A0691 /* NyoraDeviceRelay.swift */,
+				9195FD8686B5C5EF6142ADAD /* NyoraStartView.swift */,
 			);
 			name = Sync;
 			path = Sync;
@@ -3273,6 +3276,7 @@
 				803D8488CB10839AF45DEEA2 /* AniListClient.swift in Sources */,
 				F7F356A9D21B86789E1ED76E /* NyoraTitleSearchView.swift in Sources */,
 				7160A1C489F86E95ADECBFE2 /* ContinueReadingSection.swift in Sources */,
+				11B00ACE43F82B5252EB5FEF /* NyoraStartView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
