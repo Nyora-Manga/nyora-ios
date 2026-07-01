@@ -159,13 +159,6 @@ extension Settings {
                 value: .page(.init(items: []))
             )
         ]))),
-        .init(value: .group(.init(items: [
-            .init(
-                key: "Appearance.navSections",
-                title: NSLocalizedString("NAV_CONFIG"),
-                value: .page(.init(items: []))
-            )
-        ]))),
         .init(
             title: NSLocalizedString("LAYOUT"),
             value: .group(.init(items: [
