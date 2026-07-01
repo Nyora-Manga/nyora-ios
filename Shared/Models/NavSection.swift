@@ -53,8 +53,10 @@ enum NavSection: String, CaseIterable {
 enum NavConfig {
     static let key = "Appearance.navSections"
 
-    /// Default ordering matches the historical hardcoded tab order.
-    static let defaultSections: [NavSection] = [.discover, .library, .browse, .history, .search, .settings]
+    /// Nyora nav destinations (mirrors nyora-android): Discover / Favourites / Explore / History / Settings.
+    /// Universal search lives in the Discover top bar (not a bottom tab), so `.search` is not a default tab
+    /// but remains available as an opt-in section in NavConfigView.
+    static let defaultSections: [NavSection] = [.discover, .library, .browse, .history, .settings]
 
     /// The ordered list of enabled sections, always guaranteeing the required
     /// sections are present and at least one browsable section exists.
