@@ -16,6 +16,10 @@ class SearchViewController: UIViewController {
     private var isSearchBarActive = false
     private var cancellables = Set<AnyCancellable>()
 
+    /// When pushed from the Discover top search bar (NX-005), auto-focus the field.
+    private let autoActivateSearch: Bool
+    private var hasAutoActivatedSearch = false
+
     private var sources: [AidokuRunner.Source] = [] {
         didSet {
             viewModel.sources = sources
@@ -142,7 +146,8 @@ class SearchViewController: UIViewController {
         return headerHostingController
     }()
 
-    init() {
+    init(autoActivateSearch: Bool = false) {
+        self.autoActivateSearch = autoActivateSearch
         super.init(nibName: nil, bundle: nil)
         // fix search bar not activating on first present
         navigationItem.searchController = searchController
@@ -229,6 +234,15 @@ class SearchViewController: UIViewController {
         if let containerView = searchController.searchBar.value(forKey: "_scopeBarContainerView") as? UIView {
             containerView.alpha = 1
             containerView.isHidden = false
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // NX-005: when opened from the Discover top search bar, focus the field.
+        if autoActivateSearch && !hasAutoActivatedSearch {
+            hasAutoActivatedSearch = true
+            searchController.searchBar.becomeFirstResponder()
         }
     }
 

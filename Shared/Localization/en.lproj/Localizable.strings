@@ -19,6 +19,7 @@
 "FIND_TO_READ_SUBTITLE" = "Searching your installed sources for a readable copy.";
 "FIND_TO_READ_NONE" = "No matches found";
 "FIND_TO_READ_NONE_TEXT" = "None of your installed sources have this title. Try installing more sources from Explore.";
+"DISCOVER_SEARCH_HINT" = "Search all sources";
 // Nav tab labels (Nyora): Library→Favourites, Browse→Explore
 "NAV_FAVOURITES" = "Favourites";
 "NAV_EXPLORE" = "Explore";

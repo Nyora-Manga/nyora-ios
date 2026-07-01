@@ -53,6 +53,19 @@ struct DiscoverView: View {
             }
             .navigationTitle(NSLocalizedString("DISCOVER", comment: ""))
             .navigationBarTitleDisplayMode(.automatic)
+            .toolbar {
+                // NX-005 — universal search entry point that stays reachable in
+                // every feed state (loading / empty / loaded / failed).
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        openUniversalSearch()
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 17, weight: .semibold))
+                    }
+                    .accessibilityLabel(NSLocalizedString("SEARCH", comment: ""))
+                }
+            }
             .task {
                 guard !hasLoaded else { return }
                 hasLoaded = true
@@ -123,9 +136,13 @@ struct DiscoverView: View {
     private func loadedView(feed: AniListFeed) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                DiscoverHeroCard(source: nil, manga: feed.hero, onSelect: openSearch)
+                // NX-005 — android-style universal search bar at the top of the feed.
+                searchBar
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
+
+                DiscoverHeroCard(source: nil, manga: feed.hero, onSelect: openSearch)
+                    .padding(.horizontal, 16)
 
                 if !feed.trending.isEmpty {
                     DiscoverRecommendationPager(
@@ -147,6 +164,45 @@ struct DiscoverView: View {
             }
             .padding(.bottom, 24)
         }
+    }
+
+    // MARK: - Universal search
+
+    /// Android-style tappable search field. Opens the universal search screen,
+    /// which queries every installed source concurrently and shows the matches
+    /// grouped by source.
+    private var searchBar: some View {
+        Button {
+            openUniversalSearch()
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(accentManager.color)
+                Text(NSLocalizedString("DISCOVER_SEARCH_HINT", comment: ""))
+                    .font(.poppins(15, weight: .regular))
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 16)
+            .frame(height: 46)
+            .background(
+                RoundedRectangle(cornerRadius: 23, style: .continuous)
+                    .fill(Color.nyoraCardSurface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 23, style: .continuous)
+                    .strokeBorder(Color.nyoraCardOutline, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// Push the shared universal search screen onto the Discover navigation stack.
+    private func openUniversalSearch() {
+        let searchController = SearchViewController(autoActivateSearch: true)
+        searchController.title = NSLocalizedString("SEARCH", comment: "")
+        path.push(searchController)
     }
 
     // MARK: - Loading
