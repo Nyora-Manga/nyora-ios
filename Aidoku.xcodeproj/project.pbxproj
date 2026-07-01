@@ -90,6 +90,7 @@
 		C410B501630CDA838A6409E8 /* NyoraSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E880AAAE669C883263D2A7 /* NyoraSource.swift */; };
 		C618055CD8D1AFF0D6BCC967 /* ReaderInfoBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */; };
 		C9E7B4224661C3BDA0E3371B /* NavSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259AEEA262A257B43E68179D /* NavSection.swift */; };
+		CF1E147C068557808F42CB9E /* DiscoverRecommendationPager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8456EF1C2D8D301837724C8B /* DiscoverRecommendationPager.swift */; };
 		D0B3C1FF868C77D62E6A9C11 /* NyoraPillButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3A5D830DD2C2ED379A4359 /* NyoraPillButtonStyle.swift */; };
 		D25477168BD5C13D55CFD9D6 /* TranslationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E41E90BB517AF2ABC308D9B /* TranslationController.swift */; };
 		D6063582C3824F3C8DAD1886 /* KitsuTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866B83B509B09A6591CB704D /* KitsuTracker.swift */; };
@@ -714,6 +715,7 @@
 		7C63F0D62F48FD4B007D1811 /* TextSinglePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSinglePageViewController.swift; sourceTree = "<group>"; };
 		7CF79D392F31E81300BF0800 /* ReaderPagedTextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderPagedTextViewController.swift; sourceTree = "<group>"; };
 		7CF79D3A2F31E81300BF0800 /* TextPaginator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPaginator.swift; sourceTree = "<group>"; };
+		8456EF1C2D8D301837724C8B /* DiscoverRecommendationPager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DiscoverRecommendationPager.swift; sourceTree = "<group>"; };
 		866B83B509B09A6591CB704D /* KitsuTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuTracker.swift; sourceTree = "<group>"; };
 		88D04FA91678DC60A6F95C3F /* NyoraAccountView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraAccountView.swift; sourceTree = "<group>"; };
 		8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryDisplayMode.swift; sourceTree = "<group>"; };
@@ -1298,6 +1300,7 @@
 				911E27CDB95380C3115CAF72 /* DiscoverView.swift */,
 				59440D46C54F57872B570EDE /* DiscoverHeroCard.swift */,
 				5A987742D16EA3790E69E361 /* DiscoverRailView.swift */,
+				8456EF1C2D8D301837724C8B /* DiscoverRecommendationPager.swift */,
 			);
 			name = Discover;
 			path = Discover;
@@ -3252,6 +3255,7 @@
 				3E42FD7FC0AF603A7FC170D3 /* DiscoverView.swift in Sources */,
 				050B780C8CEDA36A1A32C1FD /* DiscoverHeroCard.swift in Sources */,
 				521056C85B593607AB6AC6C2 /* DiscoverRailView.swift in Sources */,
+				CF1E147C068557808F42CB9E /* DiscoverRecommendationPager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

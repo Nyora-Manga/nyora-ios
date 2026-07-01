@@ -101,11 +101,22 @@ struct DiscoverView: View {
                     let component = home.components[index]
                     let manga = component.value.railManga
                     if !manga.isEmpty {
-                        DiscoverRailView(
-                            source: source,
-                            title: component.title,
-                            manga: manga
-                        )
+                        // A "big scroller" is the Nyora featured/recommendation
+                        // carousel — render it as the swipeable pager (ND-015);
+                        // everything else stays a horizontal rail (ND-014).
+                        if component.value.isBigScroller {
+                            DiscoverRecommendationPager(
+                                source: source,
+                                title: component.title,
+                                manga: manga
+                            )
+                        } else {
+                            DiscoverRailView(
+                                source: source,
+                                title: component.title,
+                                manga: manga
+                            )
+                        }
                     }
                 }
             }
@@ -162,6 +173,13 @@ private extension Home {
 }
 
 private extension HomeComponent.Value {
+    /// Whether this is the featured "big scroller" carousel, which Discover
+    /// renders as the swipeable recommendation pager rather than a rail.
+    var isBigScroller: Bool {
+        if case .bigScroller = self { return true }
+        return false
+    }
+
     /// The manga entries a horizontal rail can render for this component, if any.
     /// Non-manga components (image scrollers, filters, plain links) yield nothing.
     var railManga: [AidokuRunner.Manga] {
