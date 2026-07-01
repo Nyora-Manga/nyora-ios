@@ -16,6 +16,7 @@ class BrowseViewController: BaseTableViewController {
 
     private lazy var refreshControl = UIRefreshControl()
     private lazy var emptyStackView = EmptyPageStackView()
+    private lazy var searchHeroView = NyoraSearchHeroView()
 
     override var tableViewStyle: UITableView.Style {
         .grouped
@@ -34,6 +35,11 @@ class BrowseViewController: BaseTableViewController {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController
+
+        // Nyora search-hero pill: a large tinted pill card that opens the search field.
+        searchHeroView.onTap = { [weak self] in
+            self?.navigationItem.searchController?.searchBar.becomeFirstResponder()
+        }
 
         // toolbar buttons
         let deleteButton = UIBarButtonItem(
@@ -74,6 +80,9 @@ class BrowseViewController: BaseTableViewController {
 
         refreshControl.addTarget(self, action: #selector(refreshSourceLists(_:)), for: .valueChanged)
         tableView.refreshControl = refreshControl
+
+        // install the search-hero as the table header (sized in viewDidLayoutSubviews)
+        tableView.tableHeaderView = searchHeroView
 
         // empty text
         emptyStackView.imageSystemName = "globe"
@@ -149,6 +158,17 @@ class BrowseViewController: BaseTableViewController {
                 await self.viewModel.loadPinnedSources()
                 self.updateDataSource()
             }
+        }
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // Size the search-hero header to the table width.
+        guard let header = tableView.tableHeaderView else { return }
+        let targetSize = CGSize(width: tableView.bounds.width, height: NyoraSearchHeroView.preferredHeight)
+        if header.frame.size != targetSize {
+            header.frame = CGRect(origin: .zero, size: targetSize)
+            tableView.tableHeaderView = header
         }
     }
 

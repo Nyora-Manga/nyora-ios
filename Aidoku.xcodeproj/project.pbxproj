@@ -77,6 +77,7 @@
 		A0A9BB9C56C836C786EF4FA1 /* NyoraAltTitleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */; };
 		A1D3D6D382085367109ED25B /* NyoraRatingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B622854854C3846D734AED79 /* NyoraRatingStore.swift */; };
 		A436FFEBDFA37033CE627BDA /* VolumeButtonHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501E78B384245931983B9C1C /* VolumeButtonHandler.swift */; };
+		A44ACA0A934B29B6627963CD /* NyoraSearchHeroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A898BE80227BE4599149D44D /* NyoraSearchHeroView.swift */; };
 		A4BD99AC0A465E2D1865A74E /* EnhancedColorsProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F929ECB6129D6A935832CA47 /* EnhancedColorsProcessor.swift */; };
 		ABB803807E5E9E03B5B795E2 /* NyoraLanguageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8350600443A42A7B3E16EEB /* NyoraLanguageStore.swift */; };
 		ABDA9BE702D7EBD9ED57D88F /* LibraryDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */; };
@@ -723,6 +724,7 @@
 		95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceRefiner.swift; sourceTree = "<group>"; };
 		A1E880AAAE669C883263D2A7 /* NyoraSource.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSource.swift; sourceTree = "<group>"; };
 		A394EB074C10FD7002E24C6E /* UsernamePasswordTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernamePasswordTracker.swift; sourceTree = "<group>"; };
+		A898BE80227BE4599149D44D /* NyoraSearchHeroView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSearchHeroView.swift; sourceTree = "<group>"; };
 		B3965F14F6A6C1E800310550 /* KitsuModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuModels.swift; sourceTree = "<group>"; };
 		B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderInfoBarView.swift; sourceTree = "<group>"; };
 		B622854854C3846D734AED79 /* NyoraRatingStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraRatingStore.swift; sourceTree = "<group>"; };
@@ -1917,6 +1919,7 @@
 				FB034E932EAAB6A50072EEEB /* OIDCLoginController.swift */,
 				FB248CC62EA55E3100BECD2E /* SelfHostedSourceSetupView.swift */,
 				FB662E8E2DA813E300007514 /* SourceTableCell.swift */,
+				A898BE80227BE4599149D44D /* NyoraSearchHeroView.swift */,
 			);
 			path = Browse;
 			sourceTree = "<group>";
@@ -3223,6 +3226,7 @@
 				E585B2917B37652052FE5F43 /* NyoraTheme.swift in Sources */,
 				D0B3C1FF868C77D62E6A9C11 /* NyoraPillButtonStyle.swift in Sources */,
 				68D289DEC2E215066DE7BCBE /* NyoraCardStyle.swift in Sources */,
+				A44ACA0A934B29B6627963CD /* NyoraSearchHeroView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
