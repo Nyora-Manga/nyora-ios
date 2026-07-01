@@ -22,6 +22,9 @@ struct SettingsTrackingView: View {
     @State private var logoutTrackerName: String?
     @State private var showLogoutAlert = false
 
+    @State private var loginFormTracker: (any UsernamePasswordTracker)?
+    @State private var showLoginForm = false
+
     private let iconSize: CGFloat = 42
     private let iconCornerRadius: CGFloat = 42 * 0.225
 
@@ -149,6 +152,20 @@ struct SettingsTrackingView: View {
             }
         }
         .navigationTitle(NSLocalizedString("TRACKING"))
+        .sheet(isPresented: $showLoginForm) {
+            if let tracker = loginFormTracker {
+                KitsuLoginView(tracker: tracker) { success in
+                    showLoginForm = false
+                    if success {
+                        if let index = trackers.firstIndex(where: { $0.id == tracker.id }) {
+                            trackers[index] = tracker
+                        }
+                        trackersNeedingRelogin.remove(tracker.id)
+                        NotificationCenter.default.post(name: .updateTrackers, object: nil)
+                    }
+                }
+            }
+        }
         .alert(String(format: NSLocalizedString("LOGOUT_FROM_%@"), logoutTrackerName ?? ""), isPresented: $showLogoutAlert) {
             Button(NSLocalizedString("CANCEL"), role: .cancel) {}
             Button(NSLocalizedString("LOGOUT"), role: .destructive) {
@@ -290,6 +307,13 @@ extension SettingsTrackingView {
     }
 
     func login(to tracker: Tracker) async {
+        if let passwordTracker = tracker as? UsernamePasswordTracker {
+            await MainActor.run {
+                loginFormTracker = passwordTracker
+                showLoginForm = true
+            }
+            return
+        }
         if let tracker = tracker as? OAuthTracker {
             guard let url = await tracker.getAuthenticationUrl() else { return }
             let session = ASWebAuthenticationSession(url: url, callbackURLScheme: "aidoku") { callbackURL, error in

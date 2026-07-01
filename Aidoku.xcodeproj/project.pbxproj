@@ -15,9 +15,12 @@
 		04B48CFC2CD6838C00F719D0 /* ShikimoriApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B48CFA2CD6838600F719D0 /* ShikimoriApi.swift */; };
 		04B48CFE2CD6B3B000F719D0 /* ShikimoriQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B48CFD2CD6B3AD00F719D0 /* ShikimoriQueries.swift */; };
 		04B48CFF2CD6B3B000F719D0 /* ShikimoriQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B48CFD2CD6B3AD00F719D0 /* ShikimoriQueries.swift */; };
+		0A267C2330909BBBA6F8A748 /* KitsuApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3447DE77858D7745F1E077EE /* KitsuApi.swift */; };
 		0B3A1A0FED57ED2101904423 /* TapGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86FCD4C820B864346BDB2A4 /* TapGrid.swift */; };
 		0C807DDD27D47C2D0042EE7B /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C807DDC27D47C2D0042EE7B /* CircularProgressView.swift */; };
 		0E0354DEEC549E62F24EA80F /* AccentColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955F2F74E9E812227602DD9B /* AccentColorView.swift */; };
+		112A6301835CD80A0D98DC78 /* UsernamePasswordTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A394EB074C10FD7002E24C6E /* UsernamePasswordTracker.swift */; };
+		1AFA4B9ECEF58ADA23497450 /* KitsuTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866B83B509B09A6591CB704D /* KitsuTracker.swift */; };
 		1EB95D165E6EB8B6D2BA7452 /* ReaderAnimationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1118EED6E55A56A960F20A /* ReaderAnimationMode.swift */; };
 		2690B12D90028F56F1EB4F61 /* AutoScrollController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F869329BD4B66D09F2D7FCA4 /* AutoScrollController.swift */; };
 		2954DCCC05A0E7F45A9DC37F /* TranslationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91157E161122819CBE01C634 /* TranslationModels.swift */; };
@@ -34,8 +37,10 @@
 		4875B8252BA6F2C3001E39CA /* MangaUpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4875B8242BA6F2C3001E39CA /* MangaUpdateManager.swift */; };
 		4875B8262BA6F2C3001E39CA /* MangaUpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4875B8242BA6F2C3001E39CA /* MangaUpdateManager.swift */; };
 		48E20A272B78420E00BFFED8 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E20A262B78420E00BFFED8 /* NavigationController.swift */; };
+		4CE26D93E0348E599B6064DB /* KitsuModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3965F14F6A6C1E800310550 /* KitsuModels.swift */; };
 		56815D982FBC7078001486C8 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56815D972FBC7078001486C8 /* NotificationManager.swift */; };
 		56815D992FBC7078001486C8 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56815D972FBC7078001486C8 /* NotificationManager.swift */; };
+		58EABF91C7B1C74B0383ED16 /* UsernamePasswordTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A394EB074C10FD7002E24C6E /* UsernamePasswordTracker.swift */; };
 		5D6E964A75144C864A98CD90 /* TapGridConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */; };
 		627AE6E6211B2B61EB98FA5E /* TranslationOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9724D8E3412C42844B315DC /* TranslationOverlayView.swift */; };
 		66B9F8A49F92C21E35DCB4F0 /* ProgressIndicatorMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBAC496ECD1A591AFA82EFC6 /* ProgressIndicatorMode.swift */; };
@@ -46,11 +51,14 @@
 		723D3AFE2E0DC5C4003ED4CF /* DownloadedMangaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723D3AFC2E0DC5C4003ED4CF /* DownloadedMangaView.swift */; };
 		72B441A44F9DBC7456D9FEF0 /* NyoraSyncClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182FEAFBF2A567E7315C454A /* NyoraSyncClient.swift */; };
 		72D7D349B54F376B6197F22D /* NyoraSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E880AAAE669C883263D2A7 /* NyoraSource.swift */; };
+		742DDD08314C06C1DC1C5DE2 /* KitsuLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */; };
 		7C63F0D72F48FD4B007D1811 /* TextDoublePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C63F0D52F48FD4B007D1811 /* TextDoublePageViewController.swift */; };
 		7C63F0D82F48FD4B007D1811 /* TextSinglePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C63F0D62F48FD4B007D1811 /* TextSinglePageViewController.swift */; };
 		7C63F0D92F48FD4B007D1811 /* ChapterTransitionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C63F0D42F48FD4B007D1811 /* ChapterTransitionViewController.swift */; };
 		7CF79D3D2F31E81300BF0800 /* ReaderPagedTextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CF79D392F31E81300BF0800 /* ReaderPagedTextViewController.swift */; };
 		7CF79D3E2F31E81300BF0800 /* TextPaginator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CF79D3A2F31E81300BF0800 /* TextPaginator.swift */; };
+		87402B78F801CF24039ED759 /* KitsuApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3447DE77858D7745F1E077EE /* KitsuApi.swift */; };
+		87A404D42AD9AF718C7366A8 /* KitsuModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3965F14F6A6C1E800310550 /* KitsuModels.swift */; };
 		892F2733E12D908A19A4197B /* MangaTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC957E858BF86E567DE49FA4 /* MangaTranslator.swift */; };
 		A436FFEBDFA37033CE627BDA /* VolumeButtonHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501E78B384245931983B9C1C /* VolumeButtonHandler.swift */; };
 		ABDA9BE702D7EBD9ED57D88F /* LibraryDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */; };
@@ -58,6 +66,7 @@
 		C410B501630CDA838A6409E8 /* NyoraSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E880AAAE669C883263D2A7 /* NyoraSource.swift */; };
 		C618055CD8D1AFF0D6BCC967 /* ReaderInfoBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */; };
 		D25477168BD5C13D55CFD9D6 /* TranslationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E41E90BB517AF2ABC308D9B /* TranslationController.swift */; };
+		D6063582C3824F3C8DAD1886 /* KitsuTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866B83B509B09A6591CB704D /* KitsuTracker.swift */; };
 		DC4F70CA47A4AFD3B3C0A0E0 /* ColorFilterProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0724DE86CCBF1987A523779A /* ColorFilterProcessor.swift */; };
 		DFA62BB8ADFA6C7D4AD53D2F /* GoogleTranslate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */; };
 		E02BB0548DF87A744D0F26C4 /* ReaderZoomMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763ADD6FC150FB34E07A909D /* ReaderZoomMode.swift */; };
@@ -640,6 +649,7 @@
 		10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoogleTranslate.swift; sourceTree = "<group>"; };
 		182FEAFBF2A567E7315C454A /* NyoraSyncClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSyncClient.swift; sourceTree = "<group>"; };
 		30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverRecovery.swift; sourceTree = "<group>"; };
+		3447DE77858D7745F1E077EE /* KitsuApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuApi.swift; sourceTree = "<group>"; };
 		344A1286965DEF3002F0D97B /* OcrProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OcrProvider.swift; sourceTree = "<group>"; };
 		37F3E66C2850F62100A944E0 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		48177B8D2B75C40400AD41B4 /* MangaUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaUpdatesView.swift; sourceTree = "<group>"; };
@@ -662,6 +672,7 @@
 		7C63F0D62F48FD4B007D1811 /* TextSinglePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSinglePageViewController.swift; sourceTree = "<group>"; };
 		7CF79D392F31E81300BF0800 /* ReaderPagedTextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderPagedTextViewController.swift; sourceTree = "<group>"; };
 		7CF79D3A2F31E81300BF0800 /* TextPaginator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPaginator.swift; sourceTree = "<group>"; };
+		866B83B509B09A6591CB704D /* KitsuTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuTracker.swift; sourceTree = "<group>"; };
 		88D04FA91678DC60A6F95C3F /* NyoraAccountView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraAccountView.swift; sourceTree = "<group>"; };
 		8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryDisplayMode.swift; sourceTree = "<group>"; };
 		8E1118EED6E55A56A960F20A /* ReaderAnimationMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderAnimationMode.swift; sourceTree = "<group>"; };
@@ -676,9 +687,12 @@
 		955F2F74E9E812227602DD9B /* AccentColorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccentColorView.swift; sourceTree = "<group>"; };
 		95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceRefiner.swift; sourceTree = "<group>"; };
 		A1E880AAAE669C883263D2A7 /* NyoraSource.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSource.swift; sourceTree = "<group>"; };
+		A394EB074C10FD7002E24C6E /* UsernamePasswordTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernamePasswordTracker.swift; sourceTree = "<group>"; };
+		B3965F14F6A6C1E800310550 /* KitsuModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuModels.swift; sourceTree = "<group>"; };
 		B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderInfoBarView.swift; sourceTree = "<group>"; };
 		C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGridConfigView.swift; sourceTree = "<group>"; };
 		CBAC496ECD1A591AFA82EFC6 /* ProgressIndicatorMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressIndicatorMode.swift; sourceTree = "<group>"; };
+		D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuLoginView.swift; sourceTree = "<group>"; };
 		E86FCD4C820B864346BDB2A4 /* TapGrid.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGrid.swift; sourceTree = "<group>"; };
 		F869329BD4B66D09F2D7FCA4 /* AutoScrollController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AutoScrollController.swift; sourceTree = "<group>"; };
 		F9724D8E3412C42844B315DC /* TranslationOverlayView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationOverlayView.swift; sourceTree = "<group>"; };
@@ -1240,6 +1254,17 @@
 			);
 			name = Sync;
 			path = Sync;
+			sourceTree = "<group>";
+		};
+		EAA89B5FDE6FF8F5F591CC4A /* kitsu */ = {
+			isa = PBXGroup;
+			children = (
+				B3965F14F6A6C1E800310550 /* KitsuModels.swift */,
+				3447DE77858D7745F1E077EE /* KitsuApi.swift */,
+				866B83B509B09A6591CB704D /* KitsuTracker.swift */,
+			);
+			name = kitsu;
+			path = kitsu;
 			sourceTree = "<group>";
 		};
 		FB0051202FAF01ED004B4A6F /* Migration */ = {
@@ -2097,6 +2122,7 @@
 				955F2F74E9E812227602DD9B /* AccentColorView.swift */,
 				93FB7412A66C9729E21F3BA9 /* AmoledTheme.swift */,
 				08445594D90A53709E9CD7C5 /* LanguagePickerView.swift */,
+				D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -2280,6 +2306,7 @@
 				FB0E1CC9288AE50700B67BA9 /* OAuthTracker.swift */,
 				FB1A4E632E78A82D006F4BA8 /* EnhancedTracker.swift */,
 				FB619E3E2E94A61D00E3B565 /* PageTracker.swift */,
+				A394EB074C10FD7002E24C6E /* UsernamePasswordTracker.swift */,
 			);
 			path = Tracking;
 			sourceTree = "<group>";
@@ -2308,6 +2335,7 @@
 				FBF925962F4DFB6B0049CB43 /* mangabaka */,
 				04B48CF62CD6835700F719D0 /* shikimori */,
 				1871B4712E81241200C272AD /* bangumi */,
+				EAA89B5FDE6FF8F5F591CC4A /* kitsu */,
 			);
 			path = Trackers;
 			sourceTree = "<group>";
@@ -3103,6 +3131,11 @@
 				C618055CD8D1AFF0D6BCC967 /* ReaderInfoBarView.swift in Sources */,
 				2690B12D90028F56F1EB4F61 /* AutoScrollController.swift in Sources */,
 				327147DDABB9F319C8591880 /* LanguagePickerView.swift in Sources */,
+				58EABF91C7B1C74B0383ED16 /* UsernamePasswordTracker.swift in Sources */,
+				87A404D42AD9AF718C7366A8 /* KitsuModels.swift in Sources */,
+				0A267C2330909BBBA6F8A748 /* KitsuApi.swift in Sources */,
+				D6063582C3824F3C8DAD1886 /* KitsuTracker.swift in Sources */,
+				742DDD08314C06C1DC1C5DE2 /* KitsuLoginView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3274,6 +3307,10 @@
 				FB82A5C32DF8622700366BC8 /* LocalModels.swift in Sources */,
 				72D7D349B54F376B6197F22D /* NyoraSource.swift in Sources */,
 				FBF3CFE9D0E2A599DFAF9752 /* TapGrid.swift in Sources */,
+				112A6301835CD80A0D98DC78 /* UsernamePasswordTracker.swift in Sources */,
+				4CE26D93E0348E599B6064DB /* KitsuModels.swift in Sources */,
+				87402B78F801CF24039ED759 /* KitsuApi.swift in Sources */,
+				1AFA4B9ECEF58ADA23497450 /* KitsuTracker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

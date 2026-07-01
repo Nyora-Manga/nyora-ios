@@ -413,6 +413,8 @@
 "LOGOUT_CONFIRM" = "Are you sure you want to log out?";
 "USERNAME" = "Username";
 "EMAIL" = "Email";
+"EMAIL_OR_USERNAME" = "Email or Username";
+"KITSU_LOGIN_INFO" = "Enter your Kitsu account email or username and password to log in.";
 "PASSWORD" = "Password";
 "LOGIN_FAILED" = "Log In Failed";
 "LOGIN_FAILED_TEXT" = "Failed to log in to the source. Make sure your credentials are entered correctly.";
