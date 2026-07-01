@@ -18,6 +18,7 @@ struct MangaDetailsHeaderView: View {
     @Binding var chapters: [AidokuRunner.Chapter]
     @Binding var nextChapter: AidokuRunner.Chapter?
     @Binding var readingInProgress: Bool
+    @Binding var readChapterCount: Int
     @Binding var allChaptersLocked: Bool
     @Binding var allChaptersRead: Bool
     @Binding var initialDataLoaded: Bool
@@ -59,6 +60,7 @@ struct MangaDetailsHeaderView: View {
         chapters: Binding<[AidokuRunner.Chapter]>,
         nextChapter: Binding<AidokuRunner.Chapter?>,
         readingInProgress: Binding<Bool>,
+        readChapterCount: Binding<Int>,
         allChaptersLocked: Binding<Bool>,
         allChaptersRead: Binding<Bool>,
         initialDataLoaded: Binding<Bool>,
@@ -80,6 +82,7 @@ struct MangaDetailsHeaderView: View {
         self._chapters = chapters
         self._nextChapter = nextChapter
         self._readingInProgress = readingInProgress
+        self._readChapterCount = readChapterCount
         self._allChaptersLocked = allChaptersLocked
         self._allChaptersRead = allChaptersRead
         self._initialDataLoaded = initialDataLoaded
@@ -186,6 +189,8 @@ struct MangaDetailsHeaderView: View {
             .padding(.bottom, 14)
             .padding(.horizontal, 20)
 
+            progressView
+
             if let description = manga.description, !description.isEmpty {
                 ExpandableTextView(text: description, expanded: $descriptionExpanded)
                     .fixedSize(horizontal: false, vertical: true)
@@ -241,6 +246,7 @@ struct MangaDetailsHeaderView: View {
                 .ignoresSafeArea(edges: .top)
         }
         .animation(.default, value: animationTrigger)
+        .animation(.default, value: readChapterCount)
         .animation(.default, value: descriptionExpanded)
         .foregroundStyle(.primary)
         .textCase(.none)
@@ -313,6 +319,39 @@ struct MangaDetailsHeaderView: View {
             }
             .frame(height: 300)
             .allowsHitTesting(false)
+        }
+    }
+
+    // Reading progress bar + "Chapter X of Y" + read percentage, derived from history.
+    // Mirrors nyora-android DetailsActivity.onHistoryChanged (chapter_d_of_d + percent_string_pattern + progress bar).
+    @ViewBuilder
+    var progressView: some View {
+        let total = chapters.count
+        let read = min(max(readChapterCount, 0), total)
+        // only show when there is reading history and at least one chapter
+        if total > 0 && (read > 0 || readingInProgress) {
+            let fraction = total > 0 ? min(1, max(0, Double(read) / Double(total))) : 0
+            let isCompleted = fraction >= 0.99999
+            let percent = isCompleted ? 100 : Int(fraction * 100)
+            let current = min(read + 1, total)
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text(String(format: NSLocalizedString("CHAPTER_X_OF_Y"), current, total))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Spacer(minLength: 8)
+                    Text(String(format: NSLocalizedString("PERCENT_READ_PATTERN"), percent))
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .contentTransitionDisabledPlease()
+                }
+                ProgressView(value: fraction)
+                    .tint(.accentColor)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 14)
+            .transition(.opacity)
         }
     }
 
@@ -623,6 +662,7 @@ private struct MangaActionButtonStyle: ButtonStyle {
         chapters: Binding.constant([]),
         nextChapter: Binding.constant(nil),
         readingInProgress: Binding.constant(false),
+        readChapterCount: Binding.constant(0),
         allChaptersLocked: Binding.constant(false),
         allChaptersRead: Binding.constant(false),
         initialDataLoaded: Binding.constant(true),

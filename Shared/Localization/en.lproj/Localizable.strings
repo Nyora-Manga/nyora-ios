@@ -349,6 +349,8 @@
 "VOL_SPACE_X" = "Vol. %g";
 "CH_SPACE_X" = "Ch. %g";
 "NO_CHAPTERS" = "No Chapters";
+"CHAPTER_X_OF_Y" = "Chapter %1$d of %2$d";
+"PERCENT_READ_PATTERN" = "%d%%";
 "NO_CHAPTERS_AVAILABLE" = "No Chapters Available";
 "START_READING" = "Start Reading";
 "CONTINUE_READING" = "Continue Reading";

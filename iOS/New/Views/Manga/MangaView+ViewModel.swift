@@ -26,6 +26,7 @@ extension MangaView {
 
         @Published var nextChapter: AidokuRunner.Chapter?
         @Published var readingInProgress = false
+        @Published var readChapterCount = 0
         @Published var allChaptersLocked = false
         @Published var allChaptersRead = false
         @Published var initialDataLoaded = false
@@ -821,6 +822,13 @@ extension MangaView.ViewModel {
     }
 
     private func updateReadButton() {
+        // count fully-read chapters (page == -1) among the displayed chapters
+        readChapterCount = chapters.reduce(into: 0) { count, chapter in
+            if readingHistory[chapter.id]?.page == -1 {
+                count += 1
+            }
+        }
+
         let nextChapter = getNextChapter()
         switch nextChapter {
             case .none:
