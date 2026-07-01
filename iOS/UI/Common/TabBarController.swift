@@ -170,6 +170,18 @@ class TabBarController: UITabBarController {
     private func setUpTabs() {
         enabledSections = NavConfig.enabledSections
 
+        // The tab bar shows at most 5 tabs; a 6th collapses the extras into a system "More"
+        // overflow, whose navigation controller wraps the pushed Settings screen — which already
+        // carries its own NavigationStack — producing two stacked nav bars (a double back button)
+        // on Settings → Appearance. Keep Settings a direct top-level tab (never in "More") by
+        // capping to 5, always preserving the required section(s).
+        if enabledSections.count > 5 {
+            let required = enabledSections.filter(\.isRequired)
+            let others = enabledSections.filter { !$0.isRequired }
+            let kept = Set(required + Array(others.prefix(max(0, 5 - required.count))))
+            enabledSections = enabledSections.filter { kept.contains($0) }
+        }
+
         let discoverPath = NavigationCoordinator(rootViewController: nil)
         let discoverHostingController = UIHostingController(rootView: NyoraAccentTint {
             DiscoverView()
