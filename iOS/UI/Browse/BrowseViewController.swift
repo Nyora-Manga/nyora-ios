@@ -24,7 +24,7 @@ class BrowseViewController: BaseTableViewController {
         let card = QuickActionsCard(
             onLocal: { [weak self] in self?.openLocalSource() },
             onBookmarks: { [weak self] in self?.openBookmarks() },
-            onRandom: { [weak self] in self?.openRandomSource() },
+            onRandom: { [weak self] in self?.openRandomManga() },
             onDownloads: { [weak self] in self?.openDownloads() }
         )
         let host = UIHostingController(rootView: card)
@@ -344,11 +344,28 @@ extension BrowseViewController {
         }
     }
 
-    /// Random: open a random installed source (excluding the local source).
-    func openRandomSource() {
+    /// Random: fetch and open a random manga from a random installed source.
+    /// Falls back to opening the source itself if no manga can be fetched.
+    func openRandomManga() {
         let candidates = SourceManager.shared.sources.filter { $0.id != LocalSourceRunner.sourceKey }
-        guard let source = candidates.randomElement() else { return }
-        push(source: source)
+        guard let source = candidates.randomElement() else {
+            openAddSourcePage()
+            return
+        }
+        Task { @MainActor in
+            let manga: AidokuRunner.Manga? = try? await source
+                .getSearchMangaList(query: nil, page: 1, filters: [])
+                .entries
+                .randomElement()
+            if let manga {
+                self.navigationController?.pushViewController(
+                    MangaViewController(source: source, manga: manga, parent: self),
+                    animated: true
+                )
+            } else {
+                self.push(source: source)
+            }
+        }
     }
 
     /// Downloads: present the download queue.
