@@ -14,9 +14,11 @@ import AidokuRunner
 import SwiftUI
 
 struct DiscoverRailView: View {
-    let source: AidokuRunner.Source
+    let source: AidokuRunner.Source?
     let title: String?
     let manga: [AidokuRunner.Manga]
+    /// When set, taps invoke this instead of opening source details directly.
+    var onSelect: ((AidokuRunner.Manga) -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -29,7 +31,7 @@ struct DiscoverRailView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 12) {
                     ForEach(manga.indices, id: \.self) { index in
-                        DiscoverRailCard(source: source, manga: manga[index])
+                        DiscoverRailCard(source: source, manga: manga[index], onSelect: onSelect)
                     }
                 }
                 .padding(.horizontal, 16)
@@ -39,8 +41,9 @@ struct DiscoverRailView: View {
 }
 
 private struct DiscoverRailCard: View {
-    let source: AidokuRunner.Source
+    let source: AidokuRunner.Source?
     let manga: AidokuRunner.Manga
+    var onSelect: ((AidokuRunner.Manga) -> Void)?
 
     @EnvironmentObject private var path: NavigationCoordinator
 
@@ -87,6 +90,10 @@ private struct DiscoverRailCard: View {
     }
 
     private func openDetails() {
-        path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
+        if let onSelect {
+            onSelect(manga)
+        } else if let source {
+            path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
+        }
     }
 }

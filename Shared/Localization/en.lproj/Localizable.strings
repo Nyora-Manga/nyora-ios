@@ -11,8 +11,14 @@
 
 // Discover (Nyora)
 "DISCOVER" = "Discover";
-"DISCOVER_EMPTY_MESSAGE" = "Install a source with a home feed to start discovering new manga.";
+"DISCOVER_EMPTY_MESSAGE" = "Couldn't load the discover feed. Pull to try again.";
 "DISCOVER_SECTION_COUNT" = "%d items";
+"TRENDING" = "Trending";
+"POPULAR" = "Popular";
+"FIND_TO_READ" = "Find to read";
+"FIND_TO_READ_SUBTITLE" = "Searching your installed sources for a readable copy.";
+"FIND_TO_READ_NONE" = "No matches found";
+"FIND_TO_READ_NONE_TEXT" = "None of your installed sources have this title. Try installing more sources from Explore.";
 // Nav tab labels (Nyora): Library→Favourites, Browse→Explore
 "NAV_FAVOURITES" = "Favourites";
 "NAV_EXPLORE" = "Explore";

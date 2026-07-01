@@ -16,8 +16,11 @@ import AidokuRunner
 import SwiftUI
 
 struct DiscoverHeroCard: View {
-    let source: AidokuRunner.Source
+    let source: AidokuRunner.Source?
     let manga: AidokuRunner.Manga
+    /// When set, taps invoke this instead of opening source details directly.
+    /// Used by the AniList feed to run a universal search for the title.
+    var onSelect: ((AidokuRunner.Manga) -> Void)?
 
     static let height: CGFloat = 240
 
@@ -99,6 +102,10 @@ struct DiscoverHeroCard: View {
     }
 
     private func openDetails() {
-        path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
+        if let onSelect {
+            onSelect(manga)
+        } else if let source {
+            path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
+        }
     }
 }

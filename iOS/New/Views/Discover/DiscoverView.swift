@@ -2,15 +2,15 @@
 //  DiscoverView.swift
 //  Aidoku (iOS) — Nyora fork
 //
-//  ND-012 — Discover screen scaffold.
+//  ND-012 / NX-002 — Discover screen.
 //
-//  A new vertical-feed screen (the Nyora "Discover" signature surface, ported
-//  from nyora-android's fragment_discover.xml). This scaffold loads home data
-//  from the first installed source that provides a home layout via the existing
-//  `AidokuRunner.Source.getHome()` path, and renders loading / empty / error
-//  states plus a minimal component overview. Later phases (ND-013 hero card,
-//  ND-014 rails, ND-015 recommendation pager) replace the placeholder feed with
-//  the full Nyora hero + rails + pager layout.
+//  The Nyora "Discover" signature surface (ported from nyora-android's
+//  fragment_discover.xml). NX-002 rewires the feed to source from AniList
+//  (auth-free GraphQL) rather than the first installed reader source: a hero
+//  (top trending), a "Trending" recommendation pager, and a "Popular" rail.
+//  AniList entries aren't tied to a readable source, so tapping one presents a
+//  universal search (``NyoraTitleSearchView``) that finds a readable copy across
+//  the installed sources.
 //
 
 import AidokuRunner
@@ -19,14 +19,28 @@ import SwiftUI
 struct DiscoverView: View {
     enum LoadState {
         case loading
-        case loaded(source: AidokuRunner.Source, home: Home)
+        case loaded(AniListFeed)
         case empty
         case failed(Error)
     }
 
+    struct AniListFeed {
+        let hero: AidokuRunner.Manga
+        let trending: [AidokuRunner.Manga]
+        let popular: [AidokuRunner.Manga]
+    }
+
+    /// Identifiable wrapper so an AniList entry can drive a `.sheet(item:)`.
+    struct SearchTarget: Identifiable {
+        let manga: AidokuRunner.Manga
+        var id: String { manga.key }
+    }
+
     @State private var state: LoadState = .loading
     @State private var hasLoaded = false
+    @State private var searchTarget: SearchTarget?
     @ObservedObject private var accentManager = AccentManager.shared
+    @EnvironmentObject private var path: NavigationCoordinator
 
     var body: some View {
         content
@@ -44,11 +58,18 @@ struct DiscoverView: View {
                 hasLoaded = true
                 await load()
             }
-            .onReceive(NotificationCenter.default.publisher(for: .updateSourceList)) { _ in
-                // Sources load asynchronously after launch (and on install), so the
-                // initial load() can race ahead of them and land on .empty. Re-run
-                // once the source list is available so Discover self-heals.
-                Task { await reloadIfNeeded() }
+            .sheet(item: $searchTarget) { target in
+                NyoraTitleSearchView(title: target.manga.title, cover: target.manga.cover) { source, result in
+                    searchTarget = nil
+                    // Defer the push so the sheet finishes dismissing first.
+                    DispatchQueue.main.async {
+                        path.push(MangaViewController(
+                            source: source,
+                            manga: result,
+                            parent: path.rootViewController
+                        ))
+                    }
+                }
             }
     }
 
@@ -57,8 +78,8 @@ struct DiscoverView: View {
         switch state {
             case .loading:
                 loadingView
-            case let .loaded(source, home):
-                loadedView(source: source, home: home)
+            case let .loaded(feed):
+                loadedView(feed: feed)
             case .empty:
                 emptyView
             case let .failed(error):
@@ -98,42 +119,30 @@ struct DiscoverView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // Placeholder vertical feed proving the home data is wired in. Replaced by
-    // the Nyora hero + rails + pager in ND-013..ND-015.
-    private func loadedView(source: AidokuRunner.Source, home: Home) -> some View {
+    // AniList-backed feed: hero (top trending) + "Trending" pager + "Popular" rail.
+    private func loadedView(feed: AniListFeed) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text(source.name)
-                    .font(.poppins(28, weight: .bold))
+                DiscoverHeroCard(source: nil, manga: feed.hero, onSelect: openSearch)
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
 
-                if let hero = home.heroManga {
-                    DiscoverHeroCard(source: source, manga: hero)
-                        .padding(.horizontal, 16)
+                if !feed.trending.isEmpty {
+                    DiscoverRecommendationPager(
+                        source: nil,
+                        title: NSLocalizedString("TRENDING", comment: ""),
+                        manga: feed.trending,
+                        onSelect: openSearch
+                    )
                 }
 
-                ForEach(home.components.indices, id: \.self) { index in
-                    let component = home.components[index]
-                    let manga = component.value.railManga
-                    if !manga.isEmpty {
-                        // A "big scroller" is the Nyora featured/recommendation
-                        // carousel — render it as the swipeable pager (ND-015);
-                        // everything else stays a horizontal rail (ND-014).
-                        if component.value.isBigScroller {
-                            DiscoverRecommendationPager(
-                                source: source,
-                                title: component.title,
-                                manga: manga
-                            )
-                        } else {
-                            DiscoverRailView(
-                                source: source,
-                                title: component.title,
-                                manga: manga
-                            )
-                        }
-                    }
+                if !feed.popular.isEmpty {
+                    DiscoverRailView(
+                        source: nil,
+                        title: NSLocalizedString("POPULAR", comment: ""),
+                        manga: feed.popular,
+                        onSelect: openSearch
+                    )
                 }
             }
             .padding(.bottom, 24)
@@ -142,87 +151,31 @@ struct DiscoverView: View {
 
     // MARK: - Loading
 
-    /// Re-run the load only from the "stuck" states, so a good render isn't clobbered
-    /// and an in-flight load isn't interrupted when the source list updates.
-    private func reloadIfNeeded() async {
-        switch state {
-            case .empty, .failed: await load()
-            case .loading, .loaded: break
-        }
+    /// Present the universal "find this title to read" sheet for an AniList entry.
+    private func openSearch(_ manga: AidokuRunner.Manga) {
+        searchTarget = SearchTarget(manga: manga)
     }
 
     private func load() async {
         state = .loading
-
-        guard let source = SourceManager.shared.sources.first(where: { $0.features.providesHome }) else {
-            state = .empty
-            return
-        }
-
         do {
-            let home = try await source.getHome()
-            if home.components.isEmpty {
+            async let trendingTask = AniListClient.shared.trending()
+            async let popularTask = AniListClient.shared.popular()
+            let trending = try await trendingTask
+            let popular = try await popularTask
+
+            guard let hero = trending.first else {
                 state = .empty
-            } else {
-                state = .loaded(source: source, home: home)
+                return
             }
+            // Hero is the top trending entry; keep it out of the pager below it.
+            state = .loaded(AniListFeed(
+                hero: hero,
+                trending: Array(trending.dropFirst().prefix(12)),
+                popular: popular
+            ))
         } catch {
             state = .failed(error)
-        }
-    }
-}
-
-private extension Home {
-    /// The first manga entry across the home components, used as the hero.
-    var heroManga: AidokuRunner.Manga? {
-        for component in components {
-            switch component.value {
-                case let .bigScroller(entries, _):
-                    if let first = entries.first { return first }
-                case let .scroller(entries, _):
-                    for entry in entries {
-                        if case let .manga(manga) = entry.value { return manga }
-                    }
-                case let .mangaList(_, _, entries, _):
-                    for entry in entries {
-                        if case let .manga(manga) = entry.value { return manga }
-                    }
-                case let .mangaChapterList(_, entries, _):
-                    if let first = entries.first?.manga { return first }
-                default:
-                    continue
-            }
-        }
-        return nil
-    }
-}
-
-private extension HomeComponent.Value {
-    /// Whether this is the featured "big scroller" carousel, which Discover
-    /// renders as the swipeable recommendation pager rather than a rail.
-    var isBigScroller: Bool {
-        if case .bigScroller = self { return true }
-        return false
-    }
-
-    /// The manga entries a horizontal rail can render for this component, if any.
-    /// Non-manga components (image scrollers, filters, plain links) yield nothing.
-    var railManga: [AidokuRunner.Manga] {
-        switch self {
-            case let .bigScroller(entries, _):
-                entries
-            case let .scroller(entries, _):
-                entries.compactMap { link in
-                    if case let .manga(manga) = link.value { manga } else { nil }
-                }
-            case let .mangaList(_, _, entries, _):
-                entries.compactMap { link in
-                    if case let .manga(manga) = link.value { manga } else { nil }
-                }
-            case let .mangaChapterList(_, entries, _):
-                entries.map { $0.manga }
-            default:
-                []
         }
     }
 }

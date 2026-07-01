@@ -15,9 +15,11 @@ import AidokuRunner
 import SwiftUI
 
 struct DiscoverRecommendationPager: View {
-    let source: AidokuRunner.Source
+    let source: AidokuRunner.Source?
     let title: String?
     let manga: [AidokuRunner.Manga]
+    /// When set, taps invoke this instead of opening source details directly.
+    var onSelect: ((AidokuRunner.Manga) -> Void)?
 
     @State private var selection = 0
 
@@ -35,7 +37,7 @@ struct DiscoverRecommendationPager: View {
 
             TabView(selection: $selection) {
                 ForEach(manga.indices, id: \.self) { index in
-                    DiscoverRecommendationCard(source: source, manga: manga[index])
+                    DiscoverRecommendationCard(source: source, manga: manga[index], onSelect: onSelect)
                         .padding(.horizontal, 16)
                         .tag(index)
                 }
@@ -52,8 +54,9 @@ struct DiscoverRecommendationPager: View {
 }
 
 private struct DiscoverRecommendationCard: View {
-    let source: AidokuRunner.Source
+    let source: AidokuRunner.Source?
     let manga: AidokuRunner.Manga
+    var onSelect: ((AidokuRunner.Manga) -> Void)?
 
     @EnvironmentObject private var path: NavigationCoordinator
 
@@ -114,7 +117,11 @@ private struct DiscoverRecommendationCard: View {
     }
 
     private func openDetails() {
-        path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
+        if let onSelect {
+            onSelect(manga)
+        } else if let source {
+            path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
+        }
     }
 }
 
