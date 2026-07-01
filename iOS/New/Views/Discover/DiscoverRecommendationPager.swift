@@ -82,7 +82,8 @@ private struct DiscoverRecommendationCard: View {
                     source: source,
                     imageUrl: manga.cover ?? "",
                     downsampleWidth: 200,
-                    contentMode: .fill
+                    contentMode: .fill,
+                    showsLoadingIndicator: true
                 )
                 .frame(width: coverWidth, height: Self.coverHeight)
                 .clipShape(RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous))

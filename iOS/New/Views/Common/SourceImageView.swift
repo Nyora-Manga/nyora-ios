@@ -9,6 +9,32 @@ import AidokuRunner
 import NukeUI
 import SwiftUI
 
+/// Animated shimmer skeleton shown while a cover loads (opt-in, used by Discover).
+struct ShimmerSkeleton: View {
+    @State private var animating = false
+
+    var body: some View {
+        Color(uiColor: .secondarySystemFill)
+            .overlay(
+                GeometryReader { geo in
+                    LinearGradient(
+                        gradient: Gradient(colors: [.clear, Color.white.opacity(0.28), .clear]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: geo.size.width * 0.7)
+                    .offset(x: animating ? geo.size.width : -geo.size.width * 0.7)
+                }
+            )
+            .clipped()
+            .onAppear {
+                withAnimation(.linear(duration: 1.1).repeatForever(autoreverses: false)) {
+                    animating = true
+                }
+            }
+    }
+}
+
 struct SourceImageView: View {
     var source: AidokuRunner.Source?
 
@@ -18,6 +44,9 @@ struct SourceImageView: View {
     var downsampleWidth: CGFloat?
     var contentMode: ContentMode = .fill
     var placeholder = "MangaPlaceholder"
+    /// When true, shows an animated shimmer while loading instead of the static
+    /// placeholder image — the "lazy loader" used by the Discover feed's covers.
+    var showsLoadingIndicator = false
 
     @State private var imageRequest: ImageRequest?
 
@@ -33,6 +62,11 @@ struct SourceImageView: View {
                 )
                     .frame(width: width, height: height)
                     .id(state.image != nil ? imageUrl : "placeholder") // ensures only opacity is animated
+            } else if showsLoadingIndicator && state.image == nil && state.error == nil {
+                // still loading + caller opted in → shimmer skeleton
+                ShimmerSkeleton()
+                    .frame(width: width, height: height)
+                    .id("loading")
             } else {
                 let result = if let image = state.image {
                     image

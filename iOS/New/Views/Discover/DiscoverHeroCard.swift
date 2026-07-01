@@ -38,7 +38,8 @@ struct DiscoverHeroCard: View {
                     source: source,
                     imageUrl: manga.cover ?? "",
                     downsampleWidth: 800,
-                    contentMode: .fill
+                    contentMode: .fill,
+                    showsLoadingIndicator: true
                 )
                 .frame(maxWidth: .infinity)
                 .frame(height: Self.height)

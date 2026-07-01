@@ -29,7 +29,7 @@ struct DiscoverRailView: View {
             }
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top, spacing: 12) {
+                LazyHStack(alignment: .top, spacing: 12) {
                     ForEach(manga.indices, id: \.self) { index in
                         DiscoverRailCard(source: source, manga: manga[index], onSelect: onSelect)
                     }
@@ -62,7 +62,8 @@ private struct DiscoverRailCard: View {
                     source: source,
                     imageUrl: manga.cover ?? "",
                     downsampleWidth: 300,
-                    contentMode: .fill
+                    contentMode: .fill,
+                    showsLoadingIndicator: true
                 )
                 .frame(width: Self.width, height: coverHeight)
                 .clipped()
