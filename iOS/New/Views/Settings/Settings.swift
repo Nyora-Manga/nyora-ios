@@ -152,19 +152,6 @@ extension Settings {
                 )
             ]))
         ),
-        .init(
-            value: .group(.init(
-                footer: NSLocalizedString("AMOLED_THEME_TEXT"),
-                items: [
-                    .init(
-                        key: "Appearance.amoled",
-                        title: NSLocalizedString("AMOLED_THEME"),
-                        notification: "Appearance.amoled",
-                        value: .toggle(.init())
-                    )
-                ]
-            ))
-        ),
         .init(value: .group(.init(items: [
             .init(
                 key: "Appearance.appLanguage",
