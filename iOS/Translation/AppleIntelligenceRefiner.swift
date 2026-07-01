@@ -21,6 +21,11 @@ final class AppleIntelligenceRefiner {
     }
     private(set) var state: State = .unsupportedOS
     private var sessionStorage: Any?
+    // Separate session for primary on-device translation (its own instruction
+    // context, keyed by target language). Stored as `Any?` because @available
+    // can't decorate stored properties.
+    private var translateSessionStorage: Any?
+    private var translateSessionTargetLang: String?
 
     private init() { refreshAvailability() }
 
@@ -85,6 +90,65 @@ final class AppleIntelligenceRefiner {
         #endif
     }
 
+    /// Translate a batch of strings on-device with Apple Intelligence — used
+    /// when Apple Intelligence is the PRIMARY engine (not just the refine
+    /// step). Returns one translation per input in the same order; falls back
+    /// to the input on any error or safety-filter refusal so a bubble never
+    /// disappears. Caller should check `isReady` first.
+    func translate(_ texts: [String], sourceLang: String, targetLanguage: String) async -> [String] {
+        #if canImport(FoundationModels)
+        guard #available(iOS 26.0, *), isReady, !texts.isEmpty else { return texts }
+        guard let session = ensureTranslateSession(sourceLang: sourceLang, targetLang: targetLanguage) else { return texts }
+
+        var out: [String] = []
+        out.reserveCapacity(texts.count)
+        for original in texts {
+            let trimmed = original.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { out.append(""); continue }
+            do {
+                let response = try await session.respond(to: trimmed)
+                let cleaned = response.content
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                    .trimmingCharacters(in: CharacterSet(charactersIn: "\"'`「」『』"))
+                // Safety-filter refusals ("I can't assist with that request")
+                // are treated as "no translation" so we keep the source text
+                // instead of painting the refusal into the bubble.
+                if cleaned.isEmpty || Self.isRefusal(cleaned) {
+                    out.append(original)
+                } else {
+                    out.append(cleaned)
+                }
+            } catch {
+                out.append(original)
+            }
+        }
+        return out
+        #else
+        return texts
+        #endif
+    }
+
+    /// Heuristic detector for Apple Intelligence safety-filter refusals.
+    static func isRefusal(_ s: String) -> Bool {
+        let lower = s.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !lower.isEmpty else { return false }
+        let refusalPrefixes = [
+            "i can't", "i cannot", "i'm not able", "i am not able",
+            "i'm unable", "i am unable", "i'm sorry, but", "i am sorry, but",
+            "sorry, i can", "sorry, but i", "unfortunately, i",
+            "as an ai", "as a language model",
+        ]
+        for prefix in refusalPrefixes where lower.hasPrefix(prefix) { return true }
+        let refusalPhrases = [
+            "can't assist with that request", "can't help with that request",
+            "cannot assist with that request", "cannot help with that request",
+            "unable to assist with that", "i don't feel comfortable",
+            "i'm not comfortable", "violates my guidelines", "against my guidelines",
+        ]
+        for phrase in refusalPhrases where lower.contains(phrase) { return true }
+        return false
+    }
+
     #if canImport(FoundationModels)
     @available(iOS 26.0, *)
     private func ensureSession() -> LanguageModelSession? {
@@ -94,6 +158,25 @@ final class AppleIntelligenceRefiner {
             + "preserving meaning and tone. You output only the rewritten line."
         let s = LanguageModelSession(instructions: instructions)
         sessionStorage = s
+        return s
+    }
+
+    @available(iOS 26.0, *)
+    private func ensureTranslateSession(sourceLang: String, targetLang: String) -> LanguageModelSession? {
+        if let existing = translateSessionStorage as? LanguageModelSession,
+           translateSessionTargetLang == targetLang {
+            return existing
+        }
+        let instructions = """
+        You are an expert manga translator. Translate the given \(sourceLang) \
+        dialogue into natural, fluent \(targetLang). Preserve tone, register, \
+        and intensity (shouts, whispers, formal/casual). Render SFX with a \
+        short evocative equivalent. Output ONLY the translation — no quotes, \
+        no source text, no notes, no romaji, no markdown.
+        """
+        let s = LanguageModelSession(instructions: instructions)
+        translateSessionStorage = s
+        translateSessionTargetLang = targetLang
         return s
     }
     #endif

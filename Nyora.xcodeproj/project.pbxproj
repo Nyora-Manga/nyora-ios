@@ -91,8 +91,10 @@
 		AC9B01027AD590641D751535 /* ReaderControlsConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA102C0AB6E77B78488FA74 /* ReaderControlsConfigView.swift */; };
 		B06F4BEFAF23244C3262D02D /* NyoraLanguageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8350600443A42A7B3E16EEB /* NyoraLanguageStore.swift */; };
 		B2260FD21C1E03EC27FE7011 /* ColorFilterConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 938868F450FEB8271A8B23A9 /* ColorFilterConfigView.swift */; };
+		C0DCE74C827ED31DDBD4DA40 /* TranslationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73BE4F64C74E0AEBBDB9717C /* TranslationSettingsView.swift */; };
 		C410B501630CDA838A6409E8 /* NyoraSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E880AAAE669C883263D2A7 /* NyoraSource.swift */; };
 		C618055CD8D1AFF0D6BCC967 /* ReaderInfoBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */; };
+		C98F51A236079A753BCC1D84 /* ByokTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2B6E1C95277AB604FBFC83 /* ByokTranslator.swift */; };
 		C9E7B4224661C3BDA0E3371B /* NavSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 259AEEA262A257B43E68179D /* NavSection.swift */; };
 		CF1E147C068557808F42CB9E /* DiscoverRecommendationPager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8456EF1C2D8D301837724C8B /* DiscoverRecommendationPager.swift */; };
 		D0B3C1FF868C77D62E6A9C11 /* NyoraPillButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3A5D830DD2C2ED379A4359 /* NyoraPillButtonStyle.swift */; };
@@ -716,6 +718,7 @@
 		723D3AF82E0DC5A5003ED4CF /* DownloadedMangaInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadedMangaInfo.swift; sourceTree = "<group>"; };
 		723D3AFB2E0DC5C4003ED4CF /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		723D3AFC2E0DC5C4003ED4CF /* DownloadedMangaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadedMangaView.swift; sourceTree = "<group>"; };
+		73BE4F64C74E0AEBBDB9717C /* TranslationSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationSettingsView.swift; sourceTree = "<group>"; };
 		763ADD6FC150FB34E07A909D /* ReaderZoomMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = iOS/UI/Reader/ReaderZoomMode.swift; sourceTree = SOURCE_ROOT; };
 		7C63F0D42F48FD4B007D1811 /* ChapterTransitionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterTransitionViewController.swift; sourceTree = "<group>"; };
 		7C63F0D52F48FD4B007D1811 /* TextDoublePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextDoublePageViewController.swift; sourceTree = "<group>"; };
@@ -755,6 +758,7 @@
 		D855E127D4FA3E40C740BF7A /* ReaderControl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderControl.swift; sourceTree = "<group>"; };
 		E4E8285D41654FEE6D51441A /* Poppins-Black.ttf */ = {isa = PBXFileReference; includeInIndex = 1; path = "Poppins-Black.ttf"; sourceTree = "<group>"; };
 		E86FCD4C820B864346BDB2A4 /* TapGrid.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGrid.swift; sourceTree = "<group>"; };
+		EC2B6E1C95277AB604FBFC83 /* ByokTranslator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ByokTranslator.swift; sourceTree = "<group>"; };
 		ECDC154ABFA4CE599400D8C2 /* ReaderToastView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ReaderToastView.swift; path = ReaderToastView.swift; sourceTree = "<group>"; };
 		F8350600443A42A7B3E16EEB /* NyoraLanguageStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraLanguageStore.swift; sourceTree = "<group>"; };
 		F869329BD4B66D09F2D7FCA4 /* AutoScrollController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AutoScrollController.swift; sourceTree = "<group>"; };
@@ -1288,6 +1292,7 @@
 				91157E161122819CBE01C634 /* TranslationModels.swift */,
 				F9724D8E3412C42844B315DC /* TranslationOverlayView.swift */,
 				8E41E90BB517AF2ABC308D9B /* TranslationController.swift */,
+				EC2B6E1C95277AB604FBFC83 /* ByokTranslator.swift */,
 			);
 			name = Translation;
 			path = Translation;
@@ -2235,6 +2240,7 @@
 				08445594D90A53709E9CD7C5 /* LanguagePickerView.swift */,
 				D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */,
 				43E298DAD3D47DB5A4B144DE /* NavConfigView.swift */,
+				73BE4F64C74E0AEBBDB9717C /* TranslationSettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -2690,7 +2696,7 @@
 					};
 				};
 			};
-			buildConfigurationList = FB1B4829277CE18D0056D02C /* Build configuration list for PBXProject "Aidoku" */;
+			buildConfigurationList = FB1B4829277CE18D0056D02C /* Build configuration list for PBXProject "Nyora" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -3277,6 +3283,8 @@
 				F7F356A9D21B86789E1ED76E /* NyoraTitleSearchView.swift in Sources */,
 				7160A1C489F86E95ADECBFE2 /* ContinueReadingSection.swift in Sources */,
 				11B00ACE43F82B5252EB5FEF /* NyoraStartView.swift in Sources */,
+				C98F51A236079A753BCC1D84 /* ByokTranslator.swift in Sources */,
+				C0DCE74C827ED31DDBD4DA40 /* TranslationSettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3696,8 +3704,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_NAME = Nyora;
 				PRODUCT_MODULE_NAME = Aidoku;
+				PRODUCT_NAME = Nyora;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3740,8 +3748,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_NAME = Nyora;
 				PRODUCT_MODULE_NAME = Aidoku;
+				PRODUCT_NAME = Nyora;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3778,8 +3786,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 2.0;
-				PRODUCT_NAME = Nyora;
 				PRODUCT_MODULE_NAME = Aidoku;
+				PRODUCT_NAME = Nyora;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -3814,8 +3822,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 2.0;
-				PRODUCT_NAME = Nyora;
 				PRODUCT_MODULE_NAME = Aidoku;
+				PRODUCT_NAME = Nyora;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -3884,7 +3892,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		FB1B4829277CE18D0056D02C /* Build configuration list for PBXProject "Aidoku" */ = {
+		FB1B4829277CE18D0056D02C /* Build configuration list for PBXProject "Nyora" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FB1B4848277CE1920056D02C /* Debug */,

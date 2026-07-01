@@ -9,15 +9,28 @@ import SwiftUI
 actor MangaTranslator {
     private let ocr = OcrProvider()
     private let googleTranslate = GoogleTranslate()
+    private let byok = ByokTranslator()
+
+    /// Optional bring-your-own-key config, passed through when the engine is `.byok`.
+    struct ByokConfig {
+        let endpoint: String
+        let apiKey: String
+        let model: String
+    }
 
     /// Stream the translation of one page.
-    /// - useAppleIntelligence: run the on-device refine layer when available.
+    /// - engine: which backend translates the merged OCR bubbles.
+    /// - useAppleIntelligence: run the on-device refine/polish layer afterwards
+    ///   when available (independent of the primary engine).
+    /// - byokConfig: required when `engine == .byok`.
     nonisolated func translatePageStream(
         cgImage: CGImage,
         imageSize: CGSize,
         sourceLang: String,
         targetLang: String,
-        useAppleIntelligence: Bool
+        engine: TranslationEngine = .google,
+        useAppleIntelligence: Bool,
+        byokConfig: ByokConfig? = nil
     ) -> AsyncStream<[TranslatedBlock]> {
         AsyncStream { continuation in
             Task {
@@ -41,17 +54,49 @@ actor MangaTranslator {
                 }
                 continuation.yield(blocks)
 
-                // 3) Machine translation (fast layer)
+                // 3) Primary translation — select the engine.
                 let originals = blocks.map(\.originalText)
-                let mt = (try? await googleTranslate.translateBatch(originals, to: targetCode)) ?? originals
+                let aiReady = await AppleIntelligenceRefiner.shared.isReady
+                var effectiveEngine = engine
+                // Fall back to Google if Apple Intelligence was requested but
+                // isn't available (Simulator, iOS < 26, not enabled).
+                if effectiveEngine == .appleIntelligence, !aiReady {
+                    effectiveEngine = .google
+                }
+
+                let mt: [String]
+                switch effectiveEngine {
+                case .google:
+                    mt = (try? await googleTranslate.translateBatch(originals, to: targetCode)) ?? originals
+                case .appleIntelligence:
+                    mt = await AppleIntelligenceRefiner.shared.translate(
+                        originals, sourceLang: sourceLang, targetLanguage: targetLang)
+                case .byok:
+                    // Seed the LLM with a fast Google draft, then let the model
+                    // produce the final, context-aware translation. If BYOK is
+                    // misconfigured the draft (or original) is kept.
+                    let draft = (try? await googleTranslate.translateBatch(originals, to: targetCode)) ?? originals
+                    if let cfg = byokConfig {
+                        mt = await byok.translate(
+                            originals: originals,
+                            mtDrafts: draft,
+                            sourceLang: sourceLang,
+                            targetLang: targetLang,
+                            config: .init(endpoint: cfg.endpoint, apiKey: cfg.apiKey, model: cfg.model))
+                    } else {
+                        mt = draft
+                    }
+                }
                 for i in blocks.indices where i < mt.count {
                     blocks[i].translatedText = mt[i]
                     blocks[i].state = .mt
                 }
                 continuation.yield(blocks)
 
-                // 4) Apple Intelligence refine (on-device polish)
-                if useAppleIntelligence, await AppleIntelligenceRefiner.shared.isReady {
+                // 4) Apple Intelligence refine (on-device polish). Skipped when
+                // Apple Intelligence was already the primary engine (no point
+                // polishing its own output twice).
+                if useAppleIntelligence, effectiveEngine != .appleIntelligence, aiReady {
                     let polished = await AppleIntelligenceRefiner.shared.refine(
                         originals: originals, drafts: blocks.map(\.translatedText), targetLanguage: targetLang)
                     for i in blocks.indices where i < polished.count {

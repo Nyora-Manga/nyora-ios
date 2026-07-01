@@ -307,6 +307,8 @@ extension SettingsView {
             UpscaleModelListView()
         } else if key == "Tracking" {
             SettingsTrackingView()
+        } else if key == "Translation" {
+            TranslationSettingsView()
         } else if key == "About" {
             SettingsAboutView()
         } else if key == "Insights" {
