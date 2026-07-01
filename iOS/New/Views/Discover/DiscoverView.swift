@@ -29,6 +29,13 @@ struct DiscoverView: View {
 
     var body: some View {
         content
+            .overlay(alignment: .bottomTrailing) {
+                // ND-019 — detached circular "Continue reading" button. Self-hides
+                // when there is no in-progress reading history.
+                ContinueReadingButton()
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 24)
+            }
             .navigationTitle(NSLocalizedString("DISCOVER", comment: ""))
             .navigationBarTitleDisplayMode(.automatic)
             .task {

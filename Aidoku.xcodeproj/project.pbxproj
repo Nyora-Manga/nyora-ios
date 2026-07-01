@@ -101,6 +101,7 @@
 		E585B2917B37652052FE5F43 /* NyoraTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5980D478D9C0DE81DEA39865 /* NyoraTheme.swift */; };
 		E8326297D5816EF8D628EE34 /* QuickActionsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB4625576D11D11C31A5FF3 /* QuickActionsCard.swift */; };
 		E9906D9F543D99D683D909D0 /* AppleIntelligenceRefiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */; };
+		EAC05BBB6A4EEBBE04D94D43 /* ContinueReadingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD6F3605A3A8DF808A2D250B /* ContinueReadingButton.swift */; };
 		EC6804FB5AA04B797947D29D /* OcrProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344A1286965DEF3002F0D97B /* OcrProvider.swift */; };
 		FB0051222FAF054D004B4A6F /* MigrateSelectSeriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0051212FAF053F004B4A6F /* MigrateSelectSeriesView.swift */; };
 		FB0051262FAF0574004B4A6F /* MigrateResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0051252FAF056E004B4A6F /* MigrateResultsView.swift */; };
@@ -1193,6 +1194,7 @@
 		FBFF58922E7F2BEF009367B7 /* SettingView+Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingView+Environment.swift"; sourceTree = "<group>"; };
 		FBFF58942E807280009367B7 /* DoneButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoneButton.swift; sourceTree = "<group>"; };
 		FC957E858BF86E567DE49FA4 /* MangaTranslator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MangaTranslator.swift; sourceTree = "<group>"; };
+		FD6F3605A3A8DF808A2D250B /* ContinueReadingButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContinueReadingButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -1988,6 +1990,7 @@
 				FB89D75E2ED11E3C0026937C /* SelectionCheckView.swift */,
 				FBD796672ED1333C00BD05F4 /* DoubleBadgeView.swift */,
 				FB1DD89A2EF0C7700007FC78 /* IncognitoBannerView.swift */,
+				FD6F3605A3A8DF808A2D250B /* ContinueReadingButton.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -3256,6 +3259,7 @@
 				050B780C8CEDA36A1A32C1FD /* DiscoverHeroCard.swift in Sources */,
 				521056C85B593607AB6AC6C2 /* DiscoverRailView.swift in Sources */,
 				CF1E147C068557808F42CB9E /* DiscoverRecommendationPager.swift in Sources */,
+				EAC05BBB6A4EEBBE04D94D43 /* ContinueReadingButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
