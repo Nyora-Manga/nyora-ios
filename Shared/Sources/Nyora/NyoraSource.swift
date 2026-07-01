@@ -103,7 +103,7 @@ actor NyoraSourceRunner: Runner {
         // ~960 helper catalog entries here made Browse an unusable tab wall.
         // Global search still spans every source. The catalog (for the details
         // header's translation language) is fetched lazily in `languageCode`.
-        Self.featuredSources.map { .init(id: $0.id, name: $0.name, kind: .default) }
+        return Self.featuredSources.map { AidokuRunner.Listing(id: $0.id, name: $0.name, kind: .default) }
     }
 
     /// Outcome of fetching one featured source's popular list for the Home.
@@ -207,48 +207,69 @@ actor NyoraSourceRunner: Runner {
             // driven through listings (per parser source) instead.
             return .init(entries: [], hasNextPage: false)
         }
-        // Global search spans every installed parser source; single page.
-        guard page == 1 else { return .init(entries: [], hasNextPage: false) }
-        let res: NyoraGlobalSearchResponse = try await helper.get(
-            "search/global",
-            items: [.init(name: "q", value: query), .init(name: "limit", value: "10")]
-        )
 
-        // The helper fans a query out across ~67 matching parser sources, so a
-        // popular title (e.g. "One Piece" → 25 copies) comes back dozens of
-        // times across the groups. Left flat, the primary discovery surface is
-        // an unusable wall of duplicate covers with no quality ordering.
+        // Search is the primary discovery surface, so it must be fast. The
+        // helper's `/search/global` fans a query out across ~68 upstream sources
+        // server-side, which regularly takes 60–90s — past URLSession's default
+        // request timeout — so the search spinner hangs and then fails outright.
         //
-        // 1. Order the groups so curated featured sources surface first (stable
-        //    otherwise), giving a deterministic, quality-first ordering.
-        // 2. Collapse identical titles down to their first (highest-priority)
-        //    occurrence so each title appears once, from the best source.
-        // Each entry's key still carries its own parser source id, so opening a
-        // result and reading it is unaffected.
-        let featuredRank = Dictionary(
-            uniqueKeysWithValues: Self.featuredSources.enumerated().map { ($0.element.id, $0.offset) }
-        )
-        let orderedGroups = res.groups
-            .enumerated()
-            .sorted { lhs, rhs in
-                let lhsRank = featuredRank[lhs.element.sourceId] ?? Int.max
-                let rhsRank = featuredRank[rhs.element.sourceId] ?? Int.max
-                if lhsRank != rhsRank { return lhsRank < rhsRank }
-                return lhs.offset < rhs.offset // keep the helper's order stable within a tier
-            }
-            .map { $0.element }
+        // Instead we fan out client-side across only the curated featured
+        // sources using the fast per-source `/sources/search` endpoint (~1–2s
+        // each, run concurrently). Results return in a couple of seconds, are
+        // quality-focused (same sources shown on Home/Browse), and paginate per
+        // source. Each request is bounded by NyoraHelper's request timeout, so a
+        // single slow source can't stall the whole search.
+        let sources = Self.featuredSources
+        var pages: [(entries: [AidokuRunner.Manga], hasNextPage: Bool)?] =
+            Array(repeating: nil, count: sources.count)
 
+        await withTaskGroup(
+            of: (Int, (entries: [AidokuRunner.Manga], hasNextPage: Bool)?).self
+        ) { group in
+            for (index, source) in sources.enumerated() {
+                group.addTask { [helper, sourceKey] in
+                    do {
+                        let res: NyoraBrowseResponse = try await helper.get(
+                            "sources/search",
+                            items: [
+                                .init(name: "id", value: source.id),
+                                .init(name: "q", value: query),
+                                .init(name: "page", value: String(page))
+                            ]
+                        )
+                        let manga = res.entries.map {
+                            $0.intoManga(sourceKey: sourceKey, parserSource: source.id, helper: helper)
+                        }
+                        return (index, (manga, res.hasNextPage))
+                    } catch {
+                        return (index, nil)
+                    }
+                }
+            }
+            for await (index, result) in group {
+                pages[index] = result
+            }
+        }
+
+        // Featured sources are already in priority order, so iterating them in
+        // order yields a deterministic, quality-first result set. Collapse
+        // identical titles down to their highest-priority source so each title
+        // appears once; each entry's key still carries its own parser source id,
+        // so opening a result and reading it is unaffected. `hasNextPage` is true
+        // if any featured source reports more pages.
         var seenTitles = Set<String>()
-        let entries = orderedGroups
-            .flatMap { group in
-                group.entries.map { $0.intoManga(sourceKey: sourceKey, parserSource: group.sourceId, helper: helper) }
-            }
-            .filter { manga in
+        var entries: [AidokuRunner.Manga] = []
+        var hasNextPage = false
+        for result in pages {
+            guard let result else { continue }
+            if result.hasNextPage { hasNextPage = true }
+            for manga in result.entries {
                 let normalized = manga.title.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !normalized.isEmpty else { return true }
-                return seenTitles.insert(normalized).inserted
+                if !normalized.isEmpty && !seenTitles.insert(normalized).inserted { continue }
+                entries.append(manga)
             }
-        return .init(entries: filteringNsfw(entries), hasNextPage: false)
+        }
+        return .init(entries: filteringNsfw(entries), hasNextPage: hasNextPage)
     }
 
     // MARK: Details / pages
@@ -343,9 +364,18 @@ actor NyoraSourceRunner: Runner {
 
 actor NyoraHelper {
     let server: URL
+    private let session: URLSession
 
     init(server: URL) {
         self.server = server
+        // Bound every request: a single call should never hang the UI. Per-source
+        // browse/search calls return in ~1–2s, so a 20s cap lets one slow or
+        // hanging upstream source fail fast instead of blocking the whole
+        // (concurrent) search/Home fan-out for URLSession's default 60s.
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 20
+        config.timeoutIntervalForResource = 30
+        self.session = URLSession(configuration: config)
     }
 
     func get<T: Decodable & Sendable>(_ path: String, items: [URLQueryItem] = []) async throws -> T {
@@ -357,7 +387,7 @@ actor NyoraHelper {
 
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
             // The helper returns {"error": "..."} on failure.
             if let err = try? JSONDecoder().decode(NyoraErrorResponse.self, from: data) {
@@ -445,18 +475,6 @@ private struct NyoraDetailsResponse: Decodable, Sendable {
 
 private struct NyoraPagesResponse: Decodable, Sendable {
     let pages: [NyoraPage]
-}
-
-private struct NyoraGlobalSearchGroup: Decodable, Sendable {
-    let sourceId: String
-    let sourceName: String
-    let entries: [NyoraManga]
-    let error: String?
-}
-
-private struct NyoraGlobalSearchResponse: Decodable, Sendable {
-    let query: String
-    let groups: [NyoraGlobalSearchGroup]
 }
 
 // MARK: - Mappers
