@@ -192,6 +192,14 @@ class ReaderViewController: BaseObservingViewController {
         return button
     }()
 
+    // save current page to Photos (NP-032)
+    private lazy var saveButton = UIBarButtonItem(
+        image: UIImage(systemName: "square.and.arrow.down"),
+        style: .plain,
+        target: self,
+        action: #selector(saveCurrentPage)
+    )
+
     // in-reader rotate / orientation-lock quick control (NP-016)
     private lazy var orientationButton: UIBarButtonItem = {
         let button = UIBarButtonItem(
@@ -783,6 +791,10 @@ class ReaderViewController: BaseObservingViewController {
             orientationButton.tintColor = currentOrientationSetting == "device" ? nil : .tintColor
             right.append(orientationButton)
         }
+        // save current page to Photos (NP-032)
+        if controls.contains(.save) {
+            right.append(saveButton)
+        }
         navigationItem.rightBarButtonItems = right
 
         toolbarView.setSliderVisible(controls.contains(.slider))
@@ -802,6 +814,22 @@ class ReaderViewController: BaseObservingViewController {
             navigationItem.rightBarButtonItems = items
             hideAutoScrollControl()
         }
+    }
+
+    /// Saves the currently displayed page image to the Photos library (NP-032).
+    @objc func saveCurrentPage() {
+        guard let image = reader?.currentPageImage() else {
+            let alert = UIAlertController(
+                title: NSLocalizedString("SAVE_TO_PHOTOS"),
+                message: NSLocalizedString("NO_PAGE_TO_SAVE", comment: ""),
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: NSLocalizedString("OK"), style: .default))
+            present(alert, animated: true)
+            return
+        }
+        UISelectionFeedbackGenerator().selectionChanged()
+        image.saveToAlbum(viewController: self)
     }
 
     @objc func openReaderSettings() {

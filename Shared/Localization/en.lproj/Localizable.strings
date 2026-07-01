@@ -602,6 +602,8 @@
 "READER_CONTROL_CHAPTER_LIST" = "Chapter List";
 "READER_CONTROL_ROTATION" = "Screen Rotation";
 "READER_CONTROL_TIMER" = "Auto-Scroll Timer";
+"READER_CONTROL_SAVE" = "Save Page";
+"NO_PAGE_TO_SAVE" = "There is no page image to save right now.";
 "TAP_GRID_FOOTER" = "Assign an action to each of the nine screen zones.";
 "ZONES" = "Zones";
 "LONG_PRESS_ZONES" = "Long Press Zones";

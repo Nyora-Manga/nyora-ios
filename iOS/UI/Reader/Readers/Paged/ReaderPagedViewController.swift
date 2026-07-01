@@ -1323,4 +1323,42 @@ extension ReaderPagedViewController {
     private func saveSplitPosition(for key: String, page: Int, offset: Int) {
         Self.splitPosition[key] = (page, offset)
     }
+
+    // MARK: - Save current page (NP-032)
+
+    func currentPageImage() -> UIImage? {
+        let current = pageViewController.viewControllers?.first
+        if let doublePage = current as? ReaderDoublePageViewController {
+            let first = doublePage.firstPageController.pageView?.imageView.image
+            let second = doublePage.secondPageController.pageView?.imageView.image
+            guard let first else { return second }
+            guard let second else { return first }
+            // draw both pages side by side in reading order
+            let ordered = doublePage.direction == .rtl ? [second, first] : [first, second]
+            return Self.combineHorizontally(ordered)
+        }
+        if let single = current as? ReaderPageViewController {
+            return single.pageView?.imageView.image
+        }
+        return nil
+    }
+
+    private static func combineHorizontally(_ images: [UIImage]) -> UIImage? {
+        let nonEmpty = images.filter { $0.size.width > 0 && $0.size.height > 0 }
+        guard !nonEmpty.isEmpty else { return nil }
+        let height = nonEmpty.map { $0.size.height }.max() ?? 0
+        let width = nonEmpty.reduce(0) { $0 + $1.size.width * (height / $1.size.height) }
+        guard width > 0, height > 0 else { return nonEmpty.first }
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height), format: format)
+        return renderer.image { _ in
+            var x: CGFloat = 0
+            for image in nonEmpty {
+                let scaledWidth = image.size.width * (height / image.size.height)
+                image.draw(in: CGRect(x: x, y: 0, width: scaledWidth, height: height))
+                x += scaledWidth
+            }
+        }
+    }
 }

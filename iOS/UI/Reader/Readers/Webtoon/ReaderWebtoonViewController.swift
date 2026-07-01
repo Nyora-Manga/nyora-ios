@@ -297,6 +297,13 @@ extension ReaderWebtoonViewController: UIContextMenuInteractionDelegate {
         })
     }
 
+    /// The image of the page currently centered on screen, for saving to Photos (NP-032).
+    func currentPageImage() -> UIImage? {
+        guard let indexPath = getCurrentPagePath() else { return nil }
+        let node = collectionNode.nodeForItem(at: indexPath) as? ReaderWebtoonPageNode
+        return node?.imageNode.image
+    }
+
     /// Reloads the page image for the given webtoon page node
     @MainActor
     private func reloadPageImage(for node: ReaderWebtoonPageNode) async {

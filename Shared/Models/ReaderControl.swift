@@ -16,6 +16,7 @@ enum ReaderControl: String, CaseIterable {
     case pagesSheet
     case screenRotation
     case timer
+    case save
 
     var title: String {
         switch self {
@@ -25,6 +26,7 @@ enum ReaderControl: String, CaseIterable {
             case .pagesSheet: NSLocalizedString("READER_CONTROL_CHAPTER_LIST")
             case .screenRotation: NSLocalizedString("READER_CONTROL_ROTATION")
             case .timer: NSLocalizedString("READER_CONTROL_TIMER")
+            case .save: NSLocalizedString("READER_CONTROL_SAVE")
         }
     }
 
@@ -36,6 +38,7 @@ enum ReaderControl: String, CaseIterable {
             case .pagesSheet: "list.bullet"
             case .screenRotation: "rotate.right"
             case .timer: "timer"
+            case .save: "square.and.arrow.down"
         }
     }
 }
