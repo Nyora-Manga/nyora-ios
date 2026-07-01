@@ -118,7 +118,7 @@ struct DiscoverView: View {
 
     private var emptyView: some View {
         VStack(spacing: 12) {
-            Image(systemName: "sparkles")
+            Image(systemName: "chart.line.uptrend.xyaxis")
                 .font(.system(size: 44, weight: .regular))
                 .foregroundStyle(accentManager.color)
             Text(NSLocalizedString("DISCOVER", comment: ""))

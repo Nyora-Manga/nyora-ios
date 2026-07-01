@@ -31,7 +31,7 @@ enum NavSection: String, CaseIterable {
 
     var systemImage: String {
         switch self {
-            case .discover: "sparkles"
+            case .discover: "chart.line.uptrend.xyaxis"
             case .library: "books.vertical.fill"
             case .browse: "globe"
             case .history: "clock.fill"
