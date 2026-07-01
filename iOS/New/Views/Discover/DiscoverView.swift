@@ -43,6 +43,12 @@ struct DiscoverView: View {
                 hasLoaded = true
                 await load()
             }
+            .onReceive(NotificationCenter.default.publisher(for: .updateSourceList)) { _ in
+                // Sources load asynchronously after launch (and on install), so the
+                // initial load() can race ahead of them and land on .empty. Re-run
+                // once the source list is available so Discover self-heals.
+                Task { await reloadIfNeeded() }
+            }
     }
 
     @ViewBuilder
@@ -134,6 +140,15 @@ struct DiscoverView: View {
     }
 
     // MARK: - Loading
+
+    /// Re-run the load only from the "stuck" states, so a good render isn't clobbered
+    /// and an in-flight load isn't interrupted when the source list updates.
+    private func reloadIfNeeded() async {
+        switch state {
+            case .empty, .failed: await load()
+            case .loading, .loaded: break
+        }
+    }
 
     private func load() async {
         state = .loading
