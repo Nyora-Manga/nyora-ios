@@ -437,6 +437,7 @@
 "INCOGNITO_MODE" = "Incognito Mode";
 "INCOGNITO_MODE_TEXT" = "Pauses reading history when enabled";
 "APPEARANCE" = "Appearance";
+"ACCENT_COLOR" = "Accent Color";
 "APPEARANCE_LIGHT" = "Light";
 "APPEARANCE_DARK" = "Dark";
 "USE_SYSTEM_APPEARANCE" = "Use System Appearance";

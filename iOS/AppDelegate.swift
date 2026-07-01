@@ -115,6 +115,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "General.icloudSync": false,
                 "General.appearance": 0,
                 "General.useSystemAppearance": true,
+                "Appearance.accentColor": AccentColor.default.rawValue,
                 "Appearance.layout": "standard",
                 "Appearance.customPortraitRows": UIDevice.current.userInterfaceIdiom == .pad ? 5 : 2,
                 "Appearance.customLandscapeRows": UIDevice.current.userInterfaceIdiom == .pad ? 6 : 4,

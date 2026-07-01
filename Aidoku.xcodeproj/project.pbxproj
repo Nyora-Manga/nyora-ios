@@ -17,6 +17,7 @@
 		04B48CFF2CD6B3B000F719D0 /* ShikimoriQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B48CFD2CD6B3AD00F719D0 /* ShikimoriQueries.swift */; };
 		0B3A1A0FED57ED2101904423 /* TapGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86FCD4C820B864346BDB2A4 /* TapGrid.swift */; };
 		0C807DDD27D47C2D0042EE7B /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C807DDC27D47C2D0042EE7B /* CircularProgressView.swift */; };
+		0E0354DEEC549E62F24EA80F /* AccentColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955F2F74E9E812227602DD9B /* AccentColorView.swift */; };
 		2954DCCC05A0E7F45A9DC37F /* TranslationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91157E161122819CBE01C634 /* TranslationModels.swift */; };
 		30EAB0012FC051B5000BFEDF /* CoverRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */; };
 		37F3E66D2850F62100A944E0 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F3E66C2850F62100A944E0 /* Collection.swift */; };
@@ -659,6 +660,7 @@
 		91D7BEFB2DD7E4BB00898539 /* Aidoku.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Aidoku.xcconfig; sourceTree = "<group>"; };
 		91D7BEFF2DD8881300898539 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		938868F450FEB8271A8B23A9 /* ColorFilterConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ColorFilterConfigView.swift; sourceTree = "<group>"; };
+		955F2F74E9E812227602DD9B /* AccentColorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccentColorView.swift; sourceTree = "<group>"; };
 		95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceRefiner.swift; sourceTree = "<group>"; };
 		A1E880AAAE669C883263D2A7 /* NyoraSource.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSource.swift; sourceTree = "<group>"; };
 		C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGridConfigView.swift; sourceTree = "<group>"; };
@@ -2070,6 +2072,7 @@
 				FB55C0AE2DF1E2650019A551 /* SourceListsView.swift */,
 				FB7984132E0C9F1D000761A9 /* UpscaleModelListView.swift */,
 				FB5E5D002E32BFC300843E27 /* TapZonesSelectView.swift */,
+				955F2F74E9E812227602DD9B /* AccentColorView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -3067,6 +3070,7 @@
 				A436FFEBDFA37033CE627BDA /* VolumeButtonHandler.swift in Sources */,
 				0B3A1A0FED57ED2101904423 /* TapGrid.swift in Sources */,
 				5D6E964A75144C864A98CD90 /* TapGridConfigView.swift in Sources */,
+				0E0354DEEC549E62F24EA80F /* AccentColorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

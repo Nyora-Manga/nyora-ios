@@ -317,6 +317,8 @@ extension SettingsView {
     func customContentHandler(_ setting: Setting) -> some View {
         if setting.key == "Appearance.layout" {
             LayoutSettingView()
+        } else if setting.key == "Appearance.accentColor" {
+            AccentColorView()
         } else if setting.key == "Library.defaultCategory" {
             let newSetting = {
                 var setting = setting

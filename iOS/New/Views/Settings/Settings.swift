@@ -158,6 +158,16 @@ extension Settings {
             )
         ]))),
         .init(
+            title: NSLocalizedString("ACCENT_COLOR"),
+            value: .group(.init(items: [
+                .init(
+                    key: "Appearance.accentColor",
+                    title: NSLocalizedString("ACCENT_COLOR"),
+                    value: .custom
+                )
+            ]))
+        ),
+        .init(
             title: NSLocalizedString("LAYOUT"),
             value: .group(.init(items: [
                 .init(
