@@ -539,6 +539,7 @@
 // Reader Settings
 "DOWNSAMPLE_IMAGES" = "Downsample Images";
 "CROP_BORDERS" = "Crop Borders";
+"GRAYSCALE" = "Grayscale";
 "DISABLE_QUICK_ACTIONS" = "Disable Quick Actions";
 "DISABLE_DOUBLE_TAP_ZOOM" = "Disable Double Tap Zoom";
 "LIVE_TEXT" = "Live Text";

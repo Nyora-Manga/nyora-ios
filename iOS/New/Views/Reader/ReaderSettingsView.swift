@@ -103,6 +103,14 @@ struct ReaderSettingsView: View {
                         )
                         SettingView(
                             setting: .init(
+                                key: "Reader.cfGrayscale",
+                                title: NSLocalizedString("GRAYSCALE"),
+                                notification: .init("Reader.cfGrayscale"),
+                                value: .toggle(.init())
+                            )
+                        )
+                        SettingView(
+                            setting: .init(
                                 key: "Reader.disableQuickActions",
                                 title: NSLocalizedString("DISABLE_QUICK_ACTIONS"),
                                 value: .toggle(.init())
