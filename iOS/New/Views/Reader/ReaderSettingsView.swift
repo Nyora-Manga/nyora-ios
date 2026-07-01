@@ -13,6 +13,7 @@ struct ReaderSettingsView: View {
 
     @State private var readingMode: ReadingMode?
     @State private var tapZones: DefaultTapZones
+    @State private var cfBrightness: Double
     @StateObject private var downsampleImages = UserDefaultsBool(key: "Reader.downsampleImages")
     @StateObject private var upscaleImages = UserDefaultsBool(key: "Reader.upscaleImages")
     @StateObject private var splitWideImages = UserDefaultsBool(key: "Reader.splitWideImages")
@@ -37,6 +38,9 @@ struct ReaderSettingsView: View {
         self._tapZones = State(
             initialValue: UserDefaults.standard.string(forKey: "Reader.tapZones")
                 .flatMap(DefaultTapZones.init) ?? .disabled
+        )
+        self._cfBrightness = State(
+            initialValue: UserDefaults.standard.double(forKey: "Reader.cfBrightness")
         )
     }
 
@@ -109,6 +113,21 @@ struct ReaderSettingsView: View {
                                 value: .toggle(.init())
                             )
                         )
+                        VStack(spacing: 4) {
+                            HStack {
+                                Text(NSLocalizedString("BRIGHTNESS"))
+                                Spacer()
+                                Text("\(Int((cfBrightness * 100).rounded()))")
+                                    .foregroundStyle(.secondary)
+                                    .monospacedDigit()
+                            }
+                            Slider(value: $cfBrightness, in: -1...1, step: 0.01) { editing in
+                                if !editing {
+                                    UserDefaults.standard.set(cfBrightness, forKey: "Reader.cfBrightness")
+                                    NotificationCenter.default.post(name: .init("Reader.cfBrightness"), object: nil)
+                                }
+                            }
+                        }
                         SettingView(
                             setting: .init(
                                 key: "Reader.disableQuickActions",
