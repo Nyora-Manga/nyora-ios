@@ -152,6 +152,14 @@ struct ReaderSettingsView: View {
                                 value: .toggle(.init())
                             )
                         )
+                        SettingView(
+                            setting: .init(
+                                key: "Reader.pageNumbers",
+                                title: NSLocalizedString("PAGE_NUMBERS"),
+                                notification: .init("Reader.pageNumbers"),
+                                value: .toggle(.init(subtitle: NSLocalizedString("PAGE_NUMBERS_SUBTITLE")))
+                            )
+                        )
                     }
                     SettingView(
                         setting: .init(

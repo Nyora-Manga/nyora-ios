@@ -19,6 +19,18 @@ class ReaderPageView: UIView {
     let imageView = GIFImageView()
     let progressView = CircularProgressView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
 
+    // Bottom-trailing on-page page-number overlay (Reader.pageNumbers).
+    private let pageNumberLabel: UILabel = {
+        let label = UILabel()
+        label.font = .preferredFont(forTextStyle: .footnote)
+        label.textColor = .tertiaryLabel
+        label.textAlignment = .right
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    private var pageNumberObserver: NSObjectProtocol?
+
     @available(iOS 16.0, *)
     var imageAnalaysisInteraction: ImageAnalysisInteraction? {
         imageView.interactions.first as? ImageAnalysisInteraction
@@ -82,6 +94,16 @@ class ReaderPageView: UIView {
         imageWidthConstraint = imageView.widthAnchor.constraint(equalTo: widthAnchor)
         imageWidthConstraint?.isActive = true
 
+        addSubview(pageNumberLabel)
+
+        pageNumberObserver = NotificationCenter.default.addObserver(
+            forName: .init("Reader.pageNumbers"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updatePageNumber()
+        }
+
         translationObserver = NotificationCenter.default.addObserver(
             forName: .translationSettingsChanged,
             object: nil,
@@ -95,7 +117,23 @@ class ReaderPageView: UIView {
         if let translationObserver {
             NotificationCenter.default.removeObserver(translationObserver)
         }
+        if let pageNumberObserver {
+            NotificationCenter.default.removeObserver(pageNumberObserver)
+        }
         translationTask?.cancel()
+    }
+
+    /// Show/hide and populate the on-page page-number overlay based on the
+    /// current page and the Reader.pageNumbers preference. Only shown for image
+    /// pages (not text pages).
+    private func updatePageNumber() {
+        let enabled = UserDefaults.standard.bool(forKey: "Reader.pageNumbers")
+        if enabled, let page = currentPage, !page.isTextPage {
+            pageNumberLabel.text = "\(page.index + 1)"
+            pageNumberLabel.isHidden = false
+        } else {
+            pageNumberLabel.isHidden = true
+        }
     }
 
     func constrain() {
@@ -108,13 +146,17 @@ class ReaderPageView: UIView {
             imageView.heightAnchor.constraint(lessThanOrEqualTo: heightAnchor),
             imageView.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor),
             imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: centerYAnchor)
+            imageView.centerYAnchor.constraint(equalTo: centerYAnchor),
+
+            pageNumberLabel.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -8),
+            pageNumberLabel.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -8)
         ])
     }
 
     func setPage(_ page: Page, sourceId: String? = nil, skipProcessing: Bool = false) async -> Bool {
         // Store current page data for reload functionality
         self.currentPage = page
+        updatePageNumber()
 
         if sourceId != nil {
             self.sourceId = sourceId

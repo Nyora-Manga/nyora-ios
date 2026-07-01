@@ -170,6 +170,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Reader.invertNavigation": false,
                 "Reader.autoScrollSpeed": 0.5,
                 "Reader.fullscreen": true,
+                "Reader.pageNumbers": false,
                 "Reader.infoBar": true,
                 "Reader.infoBarTransparent": true,
                 "Reader.cfBrightness": 0.0,

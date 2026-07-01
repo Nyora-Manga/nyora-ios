@@ -577,6 +577,8 @@
 "AUTO_SCROLL" = "Auto-scroll";
 "AUTO_SCROLL_SPEED" = "Auto-scroll Speed";
 "READER_FULLSCREEN" = "Fullscreen";
+"PAGE_NUMBERS" = "Page Numbers";
+"PAGE_NUMBERS_SUBTITLE" = "Show the current page number on each page.";
 "READER_INFO_BAR" = "Information Bar";
 "READER_INFO_BAR_SUBTITLE" = "Show the current time and reading progress while the reader controls are hidden";
 "READER_INFO_BAR_TRANSPARENT" = "Transparent Information Bar";
