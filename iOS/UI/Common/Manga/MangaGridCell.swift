@@ -63,6 +63,25 @@ class MangaGridCell: UICollectionViewCell {
         return label
     }()
 
+    // Bottom reading-progress bar overlay (nyora-android library cover style).
+    private lazy var progressBarTrack: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(white: 0, alpha: 0.35)
+        view.clipsToBounds = true
+        view.isHidden = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    private lazy var progressBarFill: UIView = {
+        let view = UIView()
+        view.backgroundColor = NyoraTheme.indigo
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    private var progressBarFillWidth: NSLayoutConstraint?
+
     private var progressTaskId: MangaIdentifier?
 
     private var url: String?
@@ -115,6 +134,9 @@ class MangaGridCell: UICollectionViewCell {
         overlayView.layer.insertSublayer(gradient, at: 0)
         overlayView.layer.cornerRadius = layer.cornerRadius
         contentView.addSubview(overlayView)
+
+        progressBarTrack.addSubview(progressBarFill)
+        contentView.addSubview(progressBarTrack)
 
         titleLabel.textColor = .white
         titleLabel.numberOfLines = 2
@@ -191,8 +213,31 @@ class MangaGridCell: UICollectionViewCell {
 
             progressBadge.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
             progressBadge.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
-            progressBadge.heightAnchor.constraint(equalToConstant: 18)
+            progressBadge.heightAnchor.constraint(equalToConstant: 18),
+
+            progressBarTrack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            progressBarTrack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            progressBarTrack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            progressBarTrack.heightAnchor.constraint(equalToConstant: 4),
+
+            progressBarFill.leadingAnchor.constraint(equalTo: progressBarTrack.leadingAnchor),
+            progressBarFill.topAnchor.constraint(equalTo: progressBarTrack.topAnchor),
+            progressBarFill.bottomAnchor.constraint(equalTo: progressBarTrack.bottomAnchor)
         ])
+    }
+
+    /// Updates the bottom progress-bar fill to the given 0...1 fraction.
+    private func setProgressBar(fraction: Double) {
+        progressBarFillWidth?.isActive = false
+        let clamped = CGFloat(min(1, max(0, fraction)))
+        // A zero multiplier is invalid, so use a tiny sliver for empty progress.
+        let width = progressBarFill.widthAnchor.constraint(
+            equalTo: progressBarTrack.widthAnchor,
+            multiplier: max(0.0001, clamped)
+        )
+        width.isActive = true
+        progressBarFillWidth = width
+        progressBarTrack.isHidden = false
     }
 
     override func layoutSubviews() {
@@ -209,6 +254,7 @@ class MangaGridCell: UICollectionViewCell {
         progressTaskId = nil
         progressBadge.isHidden = true
         progressBadge.text = nil
+        progressBarTrack.isHidden = true
     }
 }
 
@@ -221,6 +267,7 @@ extension MangaGridCell {
         let mode = ProgressIndicatorMode.current
         guard mode != .none, let identifier else {
             progressBadge.isHidden = true
+            progressBarTrack.isHidden = true
             return
         }
         progressTaskId = identifier
@@ -252,8 +299,10 @@ extension MangaGridCell {
                 if progress.isValid {
                     self.progressBadge.text = progress.label
                     self.progressBadge.isHidden = false
+                    self.setProgressBar(fraction: progress.fillFraction)
                 } else {
                     self.progressBadge.isHidden = true
+                    self.progressBarTrack.isHidden = true
                 }
             }
         }

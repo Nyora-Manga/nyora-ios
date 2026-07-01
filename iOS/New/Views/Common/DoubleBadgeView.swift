@@ -26,7 +26,7 @@ class DoubleBadgeView: UIView {
         let badgeView = UIView()
         badgeView.isHidden = true
         badgeView.backgroundColor = tintColor
-        badgeView.layer.cornerRadius = 5
+        badgeView.layer.cornerRadius = 10
         badgeView.addSubview(badgeLabel)
         return badgeView
     }()
@@ -43,7 +43,7 @@ class DoubleBadgeView: UIView {
         let badgeView = UIView()
         badgeView.isHidden = true
         badgeView.backgroundColor = .systemIndigo
-        badgeView.layer.cornerRadius = 5
+        badgeView.layer.cornerRadius = 10
         badgeView.addSubview(badgeLabel2)
         return badgeView
     }()
