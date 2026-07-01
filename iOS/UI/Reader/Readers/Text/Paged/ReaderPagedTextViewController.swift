@@ -489,7 +489,7 @@ extension ReaderPagedTextViewController: ReaderReaderDelegate {
         }
 
         if targetIndex >= 0 && targetIndex < pages.count {
-            move(toPage: targetIndex, animated: UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions"))
+            move(toPage: targetIndex, animated: ReaderAnimationMode.current.animatesPageTransition)
         } else if targetIndex < 0 {
             navigateToPreviousChapterTransition()
         }
@@ -505,7 +505,7 @@ extension ReaderPagedTextViewController: ReaderReaderDelegate {
         }
 
         if targetIndex >= 0 && targetIndex < pages.count {
-            move(toPage: targetIndex, animated: UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions"))
+            move(toPage: targetIndex, animated: ReaderAnimationMode.current.animatesPageTransition)
         } else if targetIndex >= pages.count {
             navigateToNextChapterTransition()
         }
@@ -560,7 +560,7 @@ extension ReaderPagedTextViewController: ReaderReaderDelegate {
     /// First call shows the transition info page; second call (when already on it) triggers the chapter load.
     private func navigateToPreviousChapterTransition() {
         guard let currentVC = pageViewController.viewControllers?.first else { return }
-        let animated = UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
+        let animated = ReaderAnimationMode.current.animatesPageTransition
 
         // Already on the transition page — trigger the chapter load
         if let transitionVC = currentVC as? ChapterTransitionViewController {
@@ -590,7 +590,7 @@ extension ReaderPagedTextViewController: ReaderReaderDelegate {
     /// First call shows the transition info page; second call (when already on it) triggers the chapter load.
     private func navigateToNextChapterTransition() {
         guard let currentVC = pageViewController.viewControllers?.first else { return }
-        let animated = UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
+        let animated = ReaderAnimationMode.current.animatesPageTransition
 
         // Already on the transition page — trigger the chapter load
         if let transitionVC = currentVC as? ChapterTransitionViewController {

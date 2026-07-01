@@ -543,7 +543,7 @@ extension ReaderWebtoonViewController: ReaderReaderDelegate {
         )
         scrollView.setContentOffset(
             offset,
-            animated: UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
+            animated: ReaderAnimationMode.current.animatesPageTransition
         )
     }
 
@@ -557,7 +557,7 @@ extension ReaderWebtoonViewController: ReaderReaderDelegate {
         )
         scrollView.setContentOffset(
             offset,
-            animated: UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
+            animated: ReaderAnimationMode.current.animatesPageTransition
         )
     }
 

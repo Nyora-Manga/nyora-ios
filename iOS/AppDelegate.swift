@@ -175,6 +175,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Reader.tapZones": "disabled",
                 "Reader.invertTapZones": false,
                 "Reader.animatePageTransitions": true,
+                "Reader.animation": "slide",
                 "Reader.backgroundColor": "black",
                 "Reader.pagesToPreload": 2,
                 "Reader.pagedPageLayout": "auto",
@@ -288,6 +289,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Install the AMOLED background swizzles (no-op until the flag is enabled).
         AmoledTheme.install()
+
+        // Migrate the legacy boolean page-transition toggle to the new picker.
+        ReaderAnimationMode.migrateIfNeeded()
 
         BackupManager.shared.register()
         MangaManager.shared.register()

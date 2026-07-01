@@ -723,7 +723,7 @@ extension ReaderTextViewController {
 // MARK: - Reader Delegate
 extension ReaderTextViewController: ReaderReaderDelegate {
     func moveLeft() {
-        let animated = UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
+        let animated = ReaderAnimationMode.current.animatesPageTransition
         let prevHeight = showsPreviousTransition ? transitionPageHeight : 0
 
         // Already scrolled into the previous transition area
@@ -743,7 +743,7 @@ extension ReaderTextViewController: ReaderReaderDelegate {
     }
 
     func moveRight() {
-        let animated = UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
+        let animated = ReaderAnimationMode.current.animatesPageTransition
         let maxOffset = scrollView.contentSize.height - scrollView.bounds.height
 
         // Check if we're already in the next transition area

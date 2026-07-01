@@ -391,16 +391,48 @@ extension ReaderPagedViewController {
         }
 
         let previousViewControllers = pageViewController.viewControllers ?? []
-        pageViewController.setViewControllers(
+        setPageViewControllers(
             [targetViewController],
             direction: forward ? .forward : .reverse,
-            animated: animated
-        ) { completed in
+            animated: animated,
+            previousViewControllers: previousViewControllers
+        )
+    }
+
+    /// Swaps the visible page controller honoring the current page-transition
+    /// animation style (none / slide / advanced depth).
+    private func setPageViewControllers(
+        _ viewControllers: [UIViewController],
+        direction: UIPageViewController.NavigationDirection,
+        animated: Bool,
+        previousViewControllers: [UIViewController]
+    ) {
+        let completion: (Bool) -> Void = { completed in
             self.pageViewController(
                 self.pageViewController,
                 didFinishAnimating: true,
                 previousViewControllers: previousViewControllers,
                 transitionCompleted: completed
+            )
+        }
+        if animated, ReaderAnimationMode.current == .advanced {
+            ReaderAnimationMode.applyAdvancedTransition(
+                to: pageViewController.view.layer,
+                forward: direction == .forward,
+                vertical: readingMode == .vertical
+            )
+            pageViewController.setViewControllers(
+                viewControllers,
+                direction: direction,
+                animated: false,
+                completion: completion
+            )
+        } else {
+            pageViewController.setViewControllers(
+                viewControllers,
+                direction: direction,
+                animated: animated,
+                completion: completion
             )
         }
     }
@@ -774,19 +806,12 @@ extension ReaderPagedViewController: ReaderReaderDelegate {
             let targetViewController = pageViewController(pageViewController, viewControllerBefore: currentViewController)
         {
             isTransitioning = true
-            let animated = UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
-            pageViewController.setViewControllers(
+            setPageViewControllers(
                 [targetViewController],
                 direction: .reverse,
-                animated: animated
-            ) { completed in
-                self.pageViewController(
-                    self.pageViewController,
-                    didFinishAnimating: true,
-                    previousViewControllers: [currentViewController],
-                    transitionCompleted: completed
-                )
-            }
+                animated: ReaderAnimationMode.current.animatesPageTransition,
+                previousViewControllers: [currentViewController]
+            )
         }
     }
 
@@ -797,19 +822,12 @@ extension ReaderPagedViewController: ReaderReaderDelegate {
             let targetViewController = pageViewController(pageViewController, viewControllerAfter: currentViewController)
         {
             isTransitioning = true
-            let animated = UserDefaults.standard.bool(forKey: "Reader.animatePageTransitions")
-            pageViewController.setViewControllers(
+            setPageViewControllers(
                 [targetViewController],
                 direction: .forward,
-                animated: animated
-            ) { completed in
-                self.pageViewController(
-                    self.pageViewController,
-                    didFinishAnimating: true,
-                    previousViewControllers: [currentViewController],
-                    transitionCompleted: completed
-                )
-            }
+                animated: ReaderAnimationMode.current.animatesPageTransition,
+                previousViewControllers: [currentViewController]
+            )
         }
     }
 

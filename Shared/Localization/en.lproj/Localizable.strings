@@ -597,6 +597,10 @@
 "DISABLED" = "Disabled";
 "INVERT_TAP_ZONES" = "Invert Tap Zones";
 "ANIMATE_PAGE_TRANSITIONS" = "Animate Page Transitions";
+"PAGE_ANIMATION" = "Page Animation";
+"PAGE_ANIMATION_NONE" = "None";
+"PAGE_ANIMATION_SLIDE" = "Slide";
+"PAGE_ANIMATION_ADVANCED" = "Advanced";
 "TEXT_READER" = "Text Reader";
 "TEXT_READER_STYLE" = "Reader Style";
 "TEXT_READER_PAGED" = "Paged";

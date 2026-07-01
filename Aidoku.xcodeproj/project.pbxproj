@@ -18,6 +18,7 @@
 		0B3A1A0FED57ED2101904423 /* TapGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86FCD4C820B864346BDB2A4 /* TapGrid.swift */; };
 		0C807DDD27D47C2D0042EE7B /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C807DDC27D47C2D0042EE7B /* CircularProgressView.swift */; };
 		0E0354DEEC549E62F24EA80F /* AccentColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955F2F74E9E812227602DD9B /* AccentColorView.swift */; };
+		1EB95D165E6EB8B6D2BA7452 /* ReaderAnimationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1118EED6E55A56A960F20A /* ReaderAnimationMode.swift */; };
 		2954DCCC05A0E7F45A9DC37F /* TranslationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91157E161122819CBE01C634 /* TranslationModels.swift */; };
 		30EAB0012FC051B5000BFEDF /* CoverRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */; };
 		37F3E66D2850F62100A944E0 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F3E66C2850F62100A944E0 /* Collection.swift */; };
@@ -659,6 +660,7 @@
 		7CF79D3A2F31E81300BF0800 /* TextPaginator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPaginator.swift; sourceTree = "<group>"; };
 		88D04FA91678DC60A6F95C3F /* NyoraAccountView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraAccountView.swift; sourceTree = "<group>"; };
 		8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryDisplayMode.swift; sourceTree = "<group>"; };
+		8E1118EED6E55A56A960F20A /* ReaderAnimationMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderAnimationMode.swift; sourceTree = "<group>"; };
 		8E41E90BB517AF2ABC308D9B /* TranslationController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationController.swift; sourceTree = "<group>"; };
 		91157E161122819CBE01C634 /* TranslationModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationModels.swift; sourceTree = "<group>"; };
 		91D7BEF72DD7E46800898539 /* Aidoku-IOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Aidoku-IOS.xcconfig"; sourceTree = "<group>"; };
@@ -1386,6 +1388,7 @@
 				FB1DD8582EF0491C0007FC78 /* LiquidLensView.swift */,
 				501E78B384245931983B9C1C /* VolumeButtonHandler.swift */,
 				763ADD6FC150FB34E07A909D /* ReaderZoomMode.swift */,
+				8E1118EED6E55A56A960F20A /* ReaderAnimationMode.swift */,
 			);
 			path = Reader;
 			sourceTree = "<group>";
@@ -3087,6 +3090,7 @@
 				ABDA9BE702D7EBD9ED57D88F /* LibraryDisplayMode.swift in Sources */,
 				66B9F8A49F92C21E35DCB4F0 /* ProgressIndicatorMode.swift in Sources */,
 				E02BB0548DF87A744D0F26C4 /* ReaderZoomMode.swift in Sources */,
+				1EB95D165E6EB8B6D2BA7452 /* ReaderAnimationMode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

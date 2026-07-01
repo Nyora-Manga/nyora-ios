@@ -474,9 +474,16 @@ extension Settings {
                     value: .toggle(.init())
                 ),
                 .init(
-                    key: "Reader.animatePageTransitions",
-                    title: NSLocalizedString("ANIMATE_PAGE_TRANSITIONS"),
-                    value: .toggle(.init())
+                    key: "Reader.animation",
+                    title: NSLocalizedString("PAGE_ANIMATION"),
+                    value: .select(.init(
+                        values: ["none", "slide", "advanced"],
+                        titles: [
+                            NSLocalizedString("PAGE_ANIMATION_NONE"),
+                            NSLocalizedString("PAGE_ANIMATION_SLIDE"),
+                            NSLocalizedString("PAGE_ANIMATION_ADVANCED")
+                        ]
+                    ))
                 )
             ]))
         ),
