@@ -53,19 +53,6 @@ struct DiscoverView: View {
             }
             .navigationTitle(NSLocalizedString("DISCOVER", comment: ""))
             .navigationBarTitleDisplayMode(.automatic)
-            .toolbar {
-                // NX-005 — universal search entry point that stays reachable in
-                // every feed state (loading / empty / loaded / failed).
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        openUniversalSearch()
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 17, weight: .semibold))
-                    }
-                    .accessibilityLabel(NSLocalizedString("SEARCH", comment: ""))
-                }
-            }
             .task {
                 guard !hasLoaded else { return }
                 hasLoaded = true
