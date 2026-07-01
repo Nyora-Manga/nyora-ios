@@ -71,6 +71,8 @@ actor NyoraSourceRunner: Runner {
 
     let features = SourceFeatures(
         providesListings: true,
+        providesHome: true,
+        dynamicListings: true,
         providesImageRequests: true,
         providesBaseUrl: true
     )
@@ -90,6 +92,48 @@ actor NyoraSourceRunner: Runner {
             AidokuRunner.Listing(id: "popular", name: NSLocalizedString("POPULAR"), kind: .default),
             AidokuRunner.Listing(id: "latest", name: NSLocalizedString("LATEST"), kind: .default),
         ]
+    }
+
+    /// Landing for this source: a "Popular" scroller (and "Latest" when available).
+    /// Without a Home the source view is just a blank search box, so this is what
+    /// makes browsing a source actually show content. Throws if Popular fails so
+    /// the UI shows an error + retry instead of a silent blank screen.
+    func getHome() async throws -> AidokuRunner.Home {
+        let popularRes: NyoraBrowseResponse = try await helper.get(
+            "sources/popular",
+            items: [.init(name: "id", value: parserSource), .init(name: "page", value: "1")]
+        )
+        var components: [AidokuRunner.HomeComponent] = []
+
+        let popular = filteringNsfw(popularRes.entries.map { $0.intoManga(sourceKey: sourceKey, helper: helper) })
+        if !popular.isEmpty {
+            components.append(.init(
+                title: NSLocalizedString("POPULAR"),
+                value: .scroller(
+                    entries: popular.map { $0.intoLink() },
+                    listing: AidokuRunner.Listing(id: "popular", name: NSLocalizedString("POPULAR"))
+                )
+            ))
+        }
+
+        // Latest is best-effort — some sources don't support it.
+        if let latestRes: NyoraBrowseResponse = try? await helper.get(
+            "sources/latest",
+            items: [.init(name: "id", value: parserSource), .init(name: "page", value: "1")]
+        ) {
+            let latest = filteringNsfw(latestRes.entries.map { $0.intoManga(sourceKey: sourceKey, helper: helper) })
+            if !latest.isEmpty {
+                components.append(.init(
+                    title: NSLocalizedString("LATEST"),
+                    value: .scroller(
+                        entries: latest.map { $0.intoLink() },
+                        listing: AidokuRunner.Listing(id: "latest", name: NSLocalizedString("LATEST"))
+                    )
+                ))
+            }
+        }
+
+        return .init(components: components)
     }
 
     func getMangaList(listing: AidokuRunner.Listing, page: Int) async throws -> AidokuRunner.MangaPageResult {
