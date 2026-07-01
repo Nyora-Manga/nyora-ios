@@ -192,6 +192,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Reader.pillarboxAmount": 15,
                 "Reader.pillarboxOrientation": "both",
                 "Reader.orientation": "device",
+                "Reader.controls": ReaderControlSettings.defaultControls.map { $0.rawValue },
 
                 // Text Reader defaults
                 "Reader.textReaderStyle": "scroll",

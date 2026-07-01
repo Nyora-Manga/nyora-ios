@@ -590,6 +590,14 @@
 "ZONE_EDGE" = "Edge";
 "TAP_GRID" = "Tap Grid";
 "CONFIGURE_TAP_GRID" = "Configure Tap Grid";
+"READER_CONTROLS" = "Reader Controls";
+"READER_CONTROLS_FOOTER" = "Choose which control buttons appear while reading.";
+"READER_CONTROL_PREV_CHAPTER" = "Previous Chapter";
+"READER_CONTROL_NEXT_CHAPTER" = "Next Chapter";
+"READER_CONTROL_SLIDER" = "Page Slider";
+"READER_CONTROL_CHAPTER_LIST" = "Chapter List";
+"READER_CONTROL_ROTATION" = "Screen Rotation";
+"READER_CONTROL_TIMER" = "Auto-Scroll Timer";
 "TAP_GRID_FOOTER" = "Assign an action to each of the nine screen zones.";
 "ZONES" = "Zones";
 "LONG_PRESS_ZONES" = "Long Press Zones";

@@ -94,6 +94,13 @@ class ReaderToolbarView: UIView {
             .store(in: &cancellables)
     }
 
+    /// Shows or hides the slider + page labels (customizable reader controls, NP-022).
+    func setSliderVisible(_ visible: Bool) {
+        sliderView.isHidden = !visible
+        currentPageLabel.isHidden = !visible
+        pagesLeftLabel.isHidden = !visible
+    }
+
     // allow slider thumb to be touched outside bounds
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         for subview in subviews where subview is ReaderSliderView {

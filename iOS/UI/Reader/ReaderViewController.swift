@@ -140,6 +140,58 @@ class ReaderViewController: BaseObservingViewController {
         return gesture
     }()
 
+    // customizable reader controls (NP-022)
+    private lazy var closeButton = UIBarButtonItem(
+        barButtonSystemItem: .close,
+        target: self,
+        action: #selector(close)
+    )
+    private lazy var chapterListButton = UIBarButtonItem(
+        image: UIImage(systemName: "list.bullet"),
+        style: .plain,
+        target: self,
+        action: #selector(openChapterList)
+    )
+    private lazy var prevChapterButton = UIBarButtonItem(
+        image: UIImage(systemName: "chevron.left.2"),
+        style: .plain,
+        target: self,
+        action: #selector(previousChapter)
+    )
+    private lazy var nextChapterButton = UIBarButtonItem(
+        image: UIImage(systemName: "chevron.right.2"),
+        style: .plain,
+        target: self,
+        action: #selector(nextChapter)
+    )
+    private lazy var moreButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(
+            image: UIImage(systemName: "safari"),
+            style: .plain,
+            target: self,
+            action: #selector(openWebView)
+        )
+        button.isEnabled = chapter.url != nil
+        return button
+    }()
+    private lazy var settingsButton = UIBarButtonItem(
+        image: UIImage(systemName: "textformat.size"),
+        style: .plain,
+        target: self,
+        action: #selector(openReaderSettings)
+    )
+    private lazy var translateButton: UIBarButtonItem = {
+        let translateOn = TranslationController.shared.enabled
+        let button = UIBarButtonItem(
+            image: UIImage(systemName: translateOn ? "character.bubble.fill" : "character.bubble"),
+            style: .plain,
+            target: self,
+            action: #selector(toggleTranslate(_:))
+        )
+        button.tintColor = translateOn ? .tintColor : nil
+        return button
+    }()
+
     // in-reader rotate / orientation-lock quick control (NP-016)
     private lazy var orientationButton: UIBarButtonItem = {
         let button = UIBarButtonItem(
@@ -194,51 +246,8 @@ class ReaderViewController: BaseObservingViewController {
         node.backgroundColor = .systemBackground
         navigationController?.navigationBar.prefersLargeTitles = false
 
-        // navbar buttons
-        navigationItem.leftBarButtonItems = [
-            UIBarButtonItem(
-                barButtonSystemItem: .close,
-                target: self,
-                action: #selector(close)
-            ),
-            UIBarButtonItem(
-                image: UIImage(systemName: "list.bullet"),
-                style: .plain,
-                target: self,
-                action: #selector(openChapterList)
-            )
-        ]
-        let moreButton = UIBarButtonItem(
-            image: UIImage(systemName: "safari"),
-            style: .plain,
-            target: self,
-            action: #selector(openWebView)
-        )
-        moreButton.isEnabled = chapter.url != nil
-        let translateOn = TranslationController.shared.enabled
-        let translateButton = UIBarButtonItem(
-            image: UIImage(systemName: translateOn ? "character.bubble.fill" : "character.bubble"),
-            style: .plain,
-            target: self,
-            action: #selector(toggleTranslate(_:))
-        )
-        translateButton.tintColor = translateOn ? .tintColor : nil
-        var rightItems: [UIBarButtonItem] = [
-            moreButton,
-            UIBarButtonItem(
-                image: UIImage(systemName: "textformat.size"),
-                style: .plain,
-                target: self,
-                action: #selector(openReaderSettings)
-            ),
-            translateButton
-        ]
-        // in-reader rotate / orientation-lock quick control (NP-016), iPhone only
-        if UIDevice.current.userInterfaceIdiom != .pad {
-            orientationButton.tintColor = currentOrientationSetting == "device" ? nil : .tintColor
-            rightItems.append(orientationButton)
-        }
-        navigationItem.rightBarButtonItems = rightItems
+        // navbar buttons (which controls are shown is driven by Reader.controls, NP-022)
+        applyReaderControls()
 
         // fix navbar being clear
         let navigationBarAppearance = UINavigationBarAppearance()
@@ -368,6 +377,10 @@ class ReaderViewController: BaseObservingViewController {
         }
         addObserver(forName: "Reader.disableDoubleTap") { [weak self] notification in
             self?.fakeZoomTapGesture.isEnabled = !(notification.object as? Bool ?? UserDefaults.standard.bool(forKey: "Reader.disableDoubleTap"))
+        }
+        // customizable reader controls (NP-022)
+        addObserver(forName: "Reader.controls") { [weak self] _ in
+            self?.applyReaderControls()
         }
         let reloadBlock: (Notification) -> Void = { [weak self] _ in
             guard let self else { return }
@@ -752,15 +765,39 @@ class ReaderViewController: BaseObservingViewController {
         }
     }
 
-    /// Adds or removes the auto-scroll navbar button depending on the active reader.
+    // MARK: - Customizable reader controls (NP-022)
+
+    /// Rebuilds the navbar / toolbar controls from the `Reader.controls` selection.
+    func applyReaderControls() {
+        let controls = ReaderControlSettings.current
+
+        var left: [UIBarButtonItem] = [closeButton]
+        if controls.contains(.prevChapter) { left.append(prevChapterButton) }
+        if controls.contains(.pagesSheet) { left.append(chapterListButton) }
+        if controls.contains(.nextChapter) { left.append(nextChapterButton) }
+        navigationItem.leftBarButtonItems = left
+
+        var right: [UIBarButtonItem] = [moreButton, settingsButton, translateButton]
+        // in-reader rotate / orientation-lock quick control (NP-016), iPhone only
+        if UIDevice.current.userInterfaceIdiom != .pad && controls.contains(.screenRotation) {
+            orientationButton.tintColor = currentOrientationSetting == "device" ? nil : .tintColor
+            right.append(orientationButton)
+        }
+        navigationItem.rightBarButtonItems = right
+
+        toolbarView.setSliderVisible(controls.contains(.slider))
+        updateAutoScrollButton()
+    }
+
+    /// Adds or removes the auto-scroll navbar button depending on the active reader + control selection.
     private func updateAutoScrollButton() {
-        let isScrollReader = reader is ReaderWebtoonViewController
+        let wantButton = (reader is ReaderWebtoonViewController) && ReaderControlSettings.isEnabled(.timer)
         var items = navigationItem.rightBarButtonItems ?? []
         let hasButton = items.contains(autoScrollButton)
-        if isScrollReader && !hasButton {
+        if wantButton && !hasButton {
             items.append(autoScrollButton)
             navigationItem.rightBarButtonItems = items
-        } else if !isScrollReader && hasButton {
+        } else if !wantButton && hasButton {
             items.removeAll { $0 == autoScrollButton }
             navigationItem.rightBarButtonItems = items
             hideAutoScrollControl()

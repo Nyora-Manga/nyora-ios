@@ -201,6 +201,9 @@ struct ReaderSettingsView: View {
                             value: .toggle(.init())
                         )
                     )
+                    NavigationLink(destination: ReaderControlsConfigView()) {
+                        Text(NSLocalizedString("READER_CONTROLS"))
+                    }
                     SettingView(
                         setting: .init(
                             key: "Reader.backgroundColor",
