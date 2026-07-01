@@ -175,6 +175,7 @@ struct HistoryView: View {
         let manga = viewModel.mangaCache[entry.mangaCacheKey]
         return HistoryEntryCell(
             entry: entry,
+            source: SourceManager.shared.source(for: entry.sourceKey),
             manga: manga,
             chapter: viewModel.chapterCache[entry.chapterCacheKey]
         ) {
@@ -271,6 +272,7 @@ struct HistoryView: View {
 private struct HistoryEntryCell: View, @MainActor Equatable {
     let entry: HistoryEntry
 
+    var source: AidokuRunner.Source?
     let manga: AidokuRunner.Manga?
     let chapter: AidokuRunner.Chapter?
 
@@ -284,6 +286,7 @@ private struct HistoryEntryCell: View, @MainActor Equatable {
         } label: {
             HStack(spacing: 12) {
                 MangaCoverView(
+                    source: source,
                     coverImage: manga?.cover ?? "",
                     width: Self.coverImageWidth,
                     height: Self.coverImageWidth * 3/2,
