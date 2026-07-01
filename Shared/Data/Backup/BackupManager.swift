@@ -106,7 +106,11 @@ actor BackupManager {
     }
 
     func createBackup(options: BackupOptions) async -> Backup {
-        await CoreDataManager.shared.container.performBackgroundTask { context in
+        // Pre-fetch live tracker state (async / networked) so the backup captures the full
+        // canonical tracking record (status/score/progress/dates), not just the link.
+        let trackStates: [String: TrackState] = options.tracking ? await fetchTrackStates() : [:]
+
+        return await CoreDataManager.shared.container.performBackgroundTask { context in
             let library: [BackupLibraryManga] = if options.libraryEntries {
                 CoreDataManager.shared.getLibraryManga(context: context).map {
                     BackupLibraryManga(libraryObject: $0, skipCategories: !options.categories)
@@ -137,7 +141,8 @@ actor BackupManager {
             }
             let trackItems: [BackupTrackItem] = if options.tracking {
                 CoreDataManager.shared.getTracks(context: context).compactMap {
-                    BackupTrackItem(trackObject: $0)
+                    let key = ($0.trackerId ?? "") + "|" + ($0.id ?? "")
+                    return BackupTrackItem(trackObject: $0, state: trackStates[key])
                 }
             } else {
                 []
@@ -183,6 +188,23 @@ actor BackupManager {
                 version: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
             )
         }
+    }
+
+    /// Fetches the live tracking state for every locally-linked, logged-in tracker so it can be
+    /// embedded in a backup. Keyed by `"<trackerId>|<remoteId>"`. Trackers that aren't logged in
+    /// or whose state can't be fetched are simply omitted (the link is still backed up).
+    private func fetchTrackStates() async -> [String: TrackState] {
+        let items: [TrackItem] = await CoreDataManager.shared.container.performBackgroundTask { context in
+            CoreDataManager.shared.getTracks(context: context).map { $0.toItem() }
+        }
+        var result: [String: TrackState] = [:]
+        for item in items {
+            guard let tracker = TrackerManager.getTracker(id: item.trackerId), tracker.isLoggedIn else { continue }
+            if let state = try? await tracker.getState(trackId: item.id) {
+                result[item.trackerId + "|" + item.id] = state
+            }
+        }
+        return result
     }
 
     private nonisolated func exportSettings(includeSensitive: Bool, sourceKeys: [String]) -> [String: JsonAnyValue] {
@@ -511,6 +533,18 @@ extension BackupManager {
                 }
                 if !result {
                     throw BackupError.track
+                }
+
+                // Push the backed-up canonical state back to each logged-in tracker service so
+                // the restore re-populates remote state and subsequently feeds sync
+                // (pushTracking reads live state from the tracker service).
+                for item in backupTrackItems {
+                    guard
+                        let update = item.trackUpdate,
+                        let tracker = TrackerManager.getTracker(id: item.trackerId),
+                        tracker.isLoggedIn
+                    else { continue }
+                    try? await tracker.update(trackId: item.id, update: update)
                 }
             }
         }
