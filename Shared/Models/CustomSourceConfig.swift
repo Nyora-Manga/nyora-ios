@@ -13,7 +13,7 @@ enum CustomSourceConfig {
     case local
     case komga(key: String, name: String, server: String)
     case kavita(key: String, name: String, server: String)
-    case nyora(key: String, name: String, server: String)
+    case nyora(key: String, name: String, server: String, parserSource: String, lang: String)
 }
 
 extension CustomSourceConfig {
@@ -27,8 +27,8 @@ extension CustomSourceConfig {
                 .komga(key: key, name: name, server: server)
             case let .kavita(key, name, server):
                 .kavita(key: key, name: name, server: server)
-            case let .nyora(key, name, server):
-                .nyora(key: key, name: name, server: server)
+            case let .nyora(key, name, server, parserSource, lang):
+                .nyora(key: key, name: name, lang: lang, parserSource: parserSource, server: server)
         }
     }
 }
@@ -78,7 +78,9 @@ extension CustomSourceConfig {
                 let key = try decodeString()
                 let name = try decodeString()
                 let server = try decodeString()
-                self = .nyora(key: key, name: name, server: server)
+                let parserSource = try decodeString()
+                let lang = try decodeString()
+                self = .nyora(key: key, name: name, server: server, parserSource: parserSource, lang: lang)
             default:
                 throw DecodingError.dataCorrupted(.init(
                     codingPath: [],
@@ -109,9 +111,9 @@ extension CustomSourceConfig {
                     varInt(UInt64(utf8.count), data: &bytes)
                     bytes.append(contentsOf: utf8)
                 }
-            case let .nyora(key, name, server):
+            case let .nyora(key, name, server, parserSource, lang):
                 bytes.append(4)
-                for string in [key, name, server] {
+                for string in [key, name, server, parserSource, lang] {
                     let utf8 = [UInt8](string.utf8)
                     varInt(UInt64(utf8.count), data: &bytes)
                     bytes.append(contentsOf: utf8)

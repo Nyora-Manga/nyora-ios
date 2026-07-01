@@ -2,12 +2,11 @@
 //  NyoraSource.swift
 //  Aidoku
 //
-//  A pure-Swift REST runner that backs an Aidoku source with the hosted Nyora
-//  parser helper (e.g. https://api.hasanraza.tech). One Aidoku "Nyora" source
-//  aggregates the helper's ~960 parser sources: each parser source is exposed
-//  as a Listing, global search spans all of them, and the underlying parser
-//  source id is carried inside each manga's `key` (there's no side channel in
-//  the Runner API). Modeled on KomgaSourceRunner.
+//  Per-source REST runner. The Nyora helper (https://api.hasanraza.tech) is a
+//  SOURCE REPOSITORY: each parser source it aggregates (parser:MANGADEX, …)
+//  becomes its OWN installable Aidoku source (like the Android per-source model),
+//  each with its own Popular/Latest listings + search backed by the helper's
+//  `/sources/*` endpoints for that one source id. Modeled on KomgaSourceRunner.
 //
 
 import AidokuRunner
@@ -20,21 +19,25 @@ import UIKit
 // MARK: - Source factory
 
 extension AidokuRunner.Source {
+    /// Build an Aidoku source for a SINGLE Nyora parser source.
+    /// - key: unique Aidoku source key ("nyora.<slug>").
+    /// - parserSource: the helper's source id, e.g. "parser:MANGADEX".
+    /// - lang: catalog language code (drives the source's language + details flag).
     static func nyora(
-        key: String = "nyora",
-        name: String = "Nyora",
+        key: String,
+        name: String,
+        lang: String,
+        parserSource: String,
         server: String
     ) -> AidokuRunner.Source {
         .init(
-            // `url` must be nil (or a package path with ≥2 path components) — it is
-            // used by SourceObject.load as a file path, NOT the server. A bare host
-            // URL has 0 path components and crashes there. Server lives in `urls` +
-            // the runner. (Komga does the same.)
+            // `url` must be nil (SourceObject.load treats it as a file path; a bare
+            // host URL has 0 path components and crashes there). Server → `urls`.
             url: nil,
             key: key,
             name: name,
             version: 1,
-            languages: ["multi"],
+            languages: [lang.isEmpty ? "multi" : lang],
             urls: URL(string: server).map { [$0] } ?? [],
             contentRating: .safe,
             config: .init(
@@ -43,7 +46,13 @@ extension AidokuRunner.Source {
             ),
             staticListings: [],
             staticFilters: [],
-            runner: NyoraSourceRunner(sourceKey: key, name: name, server: server)
+            runner: NyoraSourceRunner(
+                sourceKey: key,
+                name: name,
+                lang: lang,
+                parserSource: parserSource,
+                server: server
+            )
         )
     }
 }
@@ -53,146 +62,44 @@ extension AidokuRunner.Source {
 actor NyoraSourceRunner: Runner {
     static let sourceKeyPrefix = "nyora"
 
-    /// Separates the parser source id from the manga url inside a manga `key`.
-    /// A control char that never appears in a source id or url.
-    static let keyDelimiter = "\u{1}"
-
     let sourceKey: String
     private let name: String
+    private let lang: String
+    /// The helper source id this Aidoku source is bound to, e.g. "parser:MANGADEX".
+    private let parserSource: String
     private let helper: NyoraHelper
-
-    /// Cached mapping of parser source id -> language code, populated from the catalog.
-    /// Used to derive a title's translation language for the details header.
-    private var sourceLangs: [String: String] = [:]
 
     let features = SourceFeatures(
         providesListings: true,
-        providesHome: true,
-        dynamicListings: true,
         providesImageRequests: true,
         providesBaseUrl: true
     )
 
-    /// A small, hand-picked set of well-behaved parser sources surfaced on the
-    /// Home screen and as browse listing tabs. The helper aggregates ~960 parser
-    /// sources, but exposing every one as a listing tab produces an unusable
-    /// wall of ~960 chips. Discovery across *all* sources still happens through
-    /// global search (`getSearchMangaList`); these featured sources just give
-    /// Browse a clean, curated landing that's usable out of the box.
-    static let featuredSources: [(id: String, name: String)] = [
-        ("parser:MANGADEX", "MangaDex"),
-        ("parser:TOONILY", "Toonily"),
-        ("parser:MANHWAZ", "ManhwaZ"),
-        ("parser:ANISASCANS", "AnisaScans"),
-        ("parser:UTOON", "UToon"),
-        ("parser:MANGAGG", "MangaGg"),
-        ("parser:HMANGABAT", "MangaBat"),
-        ("parser:ISEKAISCAN", "IsekaiScan")
-    ]
-
-    init(sourceKey: String, name: String, server: String) {
+    init(sourceKey: String, name: String, lang: String, parserSource: String, server: String) {
         self.sourceKey = sourceKey
         self.name = name
+        self.lang = lang
+        self.parserSource = parserSource
         self.helper = NyoraHelper(server: URL(string: server) ?? URL(string: "https://api.hasanraza.tech")!)
     }
 
     // MARK: Browse
 
     func getListings() async throws -> [AidokuRunner.Listing] {
-        // Only the curated featured sources become listing tabs — surfacing all
-        // ~960 helper catalog entries here made Browse an unusable tab wall.
-        // Global search still spans every source. The catalog (for the details
-        // header's translation language) is fetched lazily in `languageCode`.
-        return Self.featuredSources.map { AidokuRunner.Listing(id: $0.id, name: $0.name, kind: .default) }
-    }
-
-    /// Outcome of fetching one featured source's popular list for the Home.
-    private enum HomeFetchOutcome: Sendable {
-        case component(AidokuRunner.HomeComponent) // succeeded, has entries
-        case empty                                 // succeeded but no entries (or all NSFW-filtered)
-        case failed                                // request threw (network/backend error)
-    }
-
-    /// Home screen: one horizontal "popular" scroller per curated featured
-    /// source. Sources are fetched concurrently and any that individually error
-    /// or return nothing are dropped, so a single flaky parser never blanks the
-    /// whole Home. But if *every* featured source fails (e.g. the backend is
-    /// down or offline), we throw so the UI shows an error + retry instead of a
-    /// silent blank Home. Tapping "more" on a scroller opens that source's listing.
-    func getHome() async throws -> AidokuRunner.Home {
-        let sources = Self.featuredSources
-        var outcomes: [HomeFetchOutcome] = Array(repeating: .failed, count: sources.count)
-
-        await withTaskGroup(of: (Int, HomeFetchOutcome).self) { group in
-            for (index, source) in sources.enumerated() {
-                group.addTask { [helper, sourceKey] in
-                    do {
-                        let res: NyoraBrowseResponse = try await helper.get(
-                            "sources/popular",
-                            items: [.init(name: "id", value: source.id), .init(name: "page", value: "1")]
-                        )
-                        let manga = self.filteringNsfw(
-                            res.entries.map { $0.intoManga(sourceKey: sourceKey, parserSource: source.id, helper: helper) }
-                        )
-                        guard !manga.isEmpty else { return (index, .empty) }
-                        let listing = AidokuRunner.Listing(id: source.id, name: source.name, kind: .default)
-                        let component = AidokuRunner.HomeComponent(
-                            title: source.name,
-                            value: .scroller(entries: manga.map { $0.intoLink() }, listing: listing)
-                        )
-                        return (index, .component(component))
-                    } catch {
-                        return (index, .failed)
-                    }
-                }
-            }
-            for await (index, outcome) in group {
-                outcomes[index] = outcome
-            }
-        }
-
-        // If every featured source errored (not merely returned empty), the
-        // backend is unreachable — surface it so the UI offers a retry.
-        if !sources.isEmpty && outcomes.allSatisfy({ if case .failed = $0 { true } else { false } }) {
-            throw SourceError.message("REQUEST_FAILED")
-        }
-
-        let components = outcomes.compactMap { outcome -> AidokuRunner.HomeComponent? in
-            if case let .component(component) = outcome { component } else { nil }
-        }
-        return .init(components: components)
-    }
-
-    private func cacheSourceLangs(_ entries: [NyoraCatalogEntry]) {
-        for entry in entries where !entry.lang.isEmpty {
-            sourceLangs[entry.id] = entry.lang
-        }
-    }
-
-    /// Language code for a parser source, fetching (and caching) the catalog on first miss.
-    private func languageCode(for parserSource: String) async -> String? {
-        if let lang = sourceLangs[parserSource] { return lang }
-        if let catalog: NyoraCatalogResponse = try? await helper.get("sources/catalog") {
-            cacheSourceLangs(catalog.entries)
-        }
-        return sourceLangs[parserSource]
-    }
-
-    /// When the global "disable NSFW content" toggle is on, drops any manga
-    /// flagged `.nsfw` so it never appears in browse/search results.
-    /// Mirrors android `AppSettings.isNsfwContentDisabled`.
-    private nonisolated func filteringNsfw(_ entries: [AidokuRunner.Manga]) -> [AidokuRunner.Manga] {
-        guard UserDefaults.standard.bool(forKey: "Sources.disableNsfw") else { return entries }
-        return entries.filter { $0.contentRating != .nsfw }
+        [
+            AidokuRunner.Listing(id: "popular", name: NSLocalizedString("POPULAR"), kind: .default),
+            AidokuRunner.Listing(id: "latest", name: NSLocalizedString("LATEST"), kind: .default),
+        ]
     }
 
     func getMangaList(listing: AidokuRunner.Listing, page: Int) async throws -> AidokuRunner.MangaPageResult {
+        let endpoint = listing.id == "latest" ? "sources/latest" : "sources/popular"
         let res: NyoraBrowseResponse = try await helper.get(
-            "sources/popular",
-            items: [.init(name: "id", value: listing.id), .init(name: "page", value: String(page))]
+            endpoint,
+            items: [.init(name: "id", value: parserSource), .init(name: "page", value: String(page))]
         )
         return .init(
-            entries: filteringNsfw(res.entries.map { $0.intoManga(sourceKey: sourceKey, parserSource: listing.id, helper: helper) }),
+            entries: filteringNsfw(res.entries.map { $0.intoManga(sourceKey: sourceKey, helper: helper) }),
             hasNextPage: res.hasNextPage
         )
     }
@@ -203,73 +110,26 @@ actor NyoraSourceRunner: Runner {
         filters _: [AidokuRunner.FilterValue]
     ) async throws -> AidokuRunner.MangaPageResult {
         guard let query, !query.isEmpty else {
-            // No query and no listing selected — nothing to show. Browsing is
-            // driven through listings (per parser source) instead.
             return .init(entries: [], hasNextPage: false)
         }
+        let res: NyoraBrowseResponse = try await helper.get(
+            "sources/search",
+            items: [
+                .init(name: "id", value: parserSource),
+                .init(name: "q", value: query),
+                .init(name: "page", value: String(page)),
+            ]
+        )
+        return .init(
+            entries: filteringNsfw(res.entries.map { $0.intoManga(sourceKey: sourceKey, helper: helper) }),
+            hasNextPage: res.hasNextPage
+        )
+    }
 
-        // Search is the primary discovery surface, so it must be fast. The
-        // helper's `/search/global` fans a query out across ~68 upstream sources
-        // server-side, which regularly takes 60–90s — past URLSession's default
-        // request timeout — so the search spinner hangs and then fails outright.
-        //
-        // Instead we fan out client-side across only the curated featured
-        // sources using the fast per-source `/sources/search` endpoint (~1–2s
-        // each, run concurrently). Results return in a couple of seconds, are
-        // quality-focused (same sources shown on Home/Browse), and paginate per
-        // source. Each request is bounded by NyoraHelper's request timeout, so a
-        // single slow source can't stall the whole search.
-        let sources = Self.featuredSources
-        var pages: [(entries: [AidokuRunner.Manga], hasNextPage: Bool)?] =
-            Array(repeating: nil, count: sources.count)
-
-        await withTaskGroup(
-            of: (Int, (entries: [AidokuRunner.Manga], hasNextPage: Bool)?).self
-        ) { group in
-            for (index, source) in sources.enumerated() {
-                group.addTask { [helper, sourceKey] in
-                    do {
-                        let res: NyoraBrowseResponse = try await helper.get(
-                            "sources/search",
-                            items: [
-                                .init(name: "id", value: source.id),
-                                .init(name: "q", value: query),
-                                .init(name: "page", value: String(page))
-                            ]
-                        )
-                        let manga = res.entries.map {
-                            $0.intoManga(sourceKey: sourceKey, parserSource: source.id, helper: helper)
-                        }
-                        return (index, (manga, res.hasNextPage))
-                    } catch {
-                        return (index, nil)
-                    }
-                }
-            }
-            for await (index, result) in group {
-                pages[index] = result
-            }
-        }
-
-        // Featured sources are already in priority order, so iterating them in
-        // order yields a deterministic, quality-first result set. Collapse
-        // identical titles down to their highest-priority source so each title
-        // appears once; each entry's key still carries its own parser source id,
-        // so opening a result and reading it is unaffected. `hasNextPage` is true
-        // if any featured source reports more pages.
-        var seenTitles = Set<String>()
-        var entries: [AidokuRunner.Manga] = []
-        var hasNextPage = false
-        for result in pages {
-            guard let result else { continue }
-            if result.hasNextPage { hasNextPage = true }
-            for manga in result.entries {
-                let normalized = manga.title.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-                if !normalized.isEmpty && !seenTitles.insert(normalized).inserted { continue }
-                entries.append(manga)
-            }
-        }
-        return .init(entries: filteringNsfw(entries), hasNextPage: hasNextPage)
+    /// When the global "disable NSFW content" toggle is on, drops `.nsfw` manga.
+    private nonisolated func filteringNsfw(_ entries: [AidokuRunner.Manga]) -> [AidokuRunner.Manga] {
+        guard UserDefaults.standard.bool(forKey: "Sources.disableNsfw") else { return entries }
+        return entries.filter { $0.contentRating != .nsfw }
     }
 
     // MARK: Details / pages
@@ -280,22 +140,17 @@ actor NyoraSourceRunner: Runner {
         needsChapters: Bool
     ) async throws -> AidokuRunner.Manga {
         guard needsDetails || needsChapters else { return manga }
-        let (parserSource, mangaUrl) = Self.splitKey(manga.key)
+        // manga.key is the opaque manga url for this source (source id is fixed).
         let res: NyoraDetailsResponse = try await helper.get(
             "manga/details",
-            items: [.init(name: "id", value: parserSource), .init(name: "url", value: mangaUrl)]
+            items: [.init(name: "id", value: parserSource), .init(name: "url", value: manga.key)]
         )
         var updated = manga
         if needsDetails {
-            // Stash alternate titles in the side store (the Manga model has no field for them).
             NyoraAltTitleStore.shared.set(res.manga.altTitles ?? [], for: manga.key)
-            // Stash the numeric rating too (the Manga model only has a content-rating enum).
             NyoraRatingStore.shared.set(res.manga.rating, for: manga.key)
-            // Stash the translation language derived from the parser source's catalog lang.
-            NyoraLanguageStore.shared.set(await languageCode(for: parserSource), for: manga.key)
-            let mapped = res.manga.intoManga(sourceKey: sourceKey, parserSource: parserSource, helper: helper)
-            // Rebuild with the original encoded key preserved (it carries the
-            // parser source id needed by later detail/page calls).
+            NyoraLanguageStore.shared.set(lang.isEmpty ? nil : lang, for: manga.key)
+            let mapped = res.manga.intoManga(sourceKey: sourceKey, helper: helper)
             updated = AidokuRunner.Manga(
                 sourceKey: sourceKey,
                 key: manga.key,
@@ -319,7 +174,6 @@ actor NyoraSourceRunner: Runner {
     }
 
     func getPageList(manga: AidokuRunner.Manga, chapter: AidokuRunner.Chapter) async throws -> [AidokuRunner.Page] {
-        let (parserSource, _) = Self.splitKey(manga.key)
         let res: NyoraPagesResponse = try await helper.get(
             "manga/pages",
             items: [.init(name: "id", value: parserSource), .init(name: "url", value: chapter.key)]
@@ -333,9 +187,6 @@ actor NyoraSourceRunner: Runner {
     // MARK: Images
 
     func getImageRequest(url: String, context _: PageContext?) async throws -> URLRequest {
-        // Covers and pages are already rewritten to <server>/image?u=…&h=… at
-        // mapping time; the helper performs the upstream fetch with the right
-        // headers, so the client just GETs the proxied URL.
         guard let url = URL(string: helper.rewriteImageHost(url)) else {
             throw SourceError.message("INVALID_URL")
         }
@@ -344,19 +195,6 @@ actor NyoraSourceRunner: Runner {
 
     func getBaseUrl() async throws -> URL? {
         helper.server
-    }
-
-    // MARK: Key encoding
-
-    static func makeKey(parserSource: String, mangaUrl: String) -> String {
-        "\(parserSource)\(keyDelimiter)\(mangaUrl)"
-    }
-
-    static func splitKey(_ key: String) -> (parserSource: String, mangaUrl: String) {
-        if let range = key.range(of: keyDelimiter) {
-            return (String(key[..<range.lowerBound]), String(key[range.upperBound...]))
-        }
-        return ("", key)
     }
 }
 
@@ -368,10 +206,6 @@ actor NyoraHelper {
 
     init(server: URL) {
         self.server = server
-        // Bound every request: a single call should never hang the UI. Per-source
-        // browse/search calls return in ~1–2s, so a 20s cap lets one slow or
-        // hanging upstream source fail fast instead of blocking the whole
-        // (concurrent) search/Home fan-out for URLSession's default 60s.
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 20
         config.timeoutIntervalForResource = 30
@@ -389,7 +223,6 @@ actor NyoraHelper {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            // The helper returns {"error": "..."} on failure.
             if let err = try? JSONDecoder().decode(NyoraErrorResponse.self, from: data) {
                 throw SourceError.message(err.error)
             }
@@ -398,16 +231,31 @@ actor NyoraHelper {
         return try JSONDecoder().decode(T.self, from: data)
     }
 
+    /// Fetch the helper's full source catalog (the "repository" listing).
+    func catalog() async throws -> [NyoraCatalogEntry] {
+        let res: NyoraCatalogResponse = try await get("sources/catalog")
+        return res.entries
+    }
+
     /// The helper rewrites cover/page URLs to its own loopback proxy
-    /// (`http://127.0.0.1:<port>/image?u=…`). Since we reach it over a public
-    /// domain, swap that local base for the configured server, preserving the
-    /// `/image?u=…&h=…` path+query. Port-agnostic.
+    /// (`http://127.0.0.1:<port>/image?u=…`). Swap that local base for the
+    /// configured server, preserving the `/image?u=…&h=…` path+query.
     nonisolated func rewriteImageHost(_ raw: String) -> String {
         guard let range = raw.range(of: "/image?u=") else { return raw }
         let base = server.absoluteString.hasSuffix("/")
             ? String(server.absoluteString.dropLast())
             : server.absoluteString
         return base + raw[range.lowerBound...]
+    }
+}
+
+// MARK: - Catalog fetch (repository listing)
+
+enum NyoraCatalog {
+    /// Fetch every parser source the helper offers, for the "add source" repo list.
+    static func fetchAll(server: String = "https://api.hasanraza.tech") async -> [NyoraCatalogEntry] {
+        guard let url = URL(string: server) else { return [] }
+        return (try? await NyoraHelper(server: url).catalog()) ?? []
     }
 }
 
@@ -453,8 +301,9 @@ private struct NyoraPage: Decodable, Sendable {
     let headers: [String: String]?
 }
 
-private struct NyoraCatalogEntry: Decodable, Sendable {
-    let id: String
+/// One entry in the helper's source catalog (a repository listing row).
+struct NyoraCatalogEntry: Decodable, Sendable, Identifiable, Hashable {
+    let id: String       // "parser:MANGADEX"
     let name: String
     let lang: String
 }
@@ -480,7 +329,7 @@ private struct NyoraPagesResponse: Decodable, Sendable {
 // MARK: - Mappers
 
 private extension NyoraManga {
-    func intoManga(sourceKey: String, parserSource: String, helper: NyoraHelper) -> AidokuRunner.Manga {
+    func intoManga(sourceKey: String, helper: NyoraHelper) -> AidokuRunner.Manga {
         let status: AidokuRunner.PublishingStatus = switch (state ?? "").uppercased() {
             case "ONGOING": .ongoing
             case "FINISHED": .completed
@@ -499,7 +348,7 @@ private extension NyoraManga {
         }()
         return .init(
             sourceKey: sourceKey,
-            key: NyoraSourceRunner.makeKey(parserSource: parserSource, mangaUrl: url ?? id),
+            key: url ?? id,
             title: title,
             cover: coverUrl.map { helper.rewriteImageHost($0) },
             authors: authors,

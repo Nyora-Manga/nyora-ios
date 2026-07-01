@@ -4,206 +4,132 @@
 //
 //  Created by Skitty on 5/23/25.
 //
+//  Nyora fork: the Nyora helper is a SOURCE REPOSITORY. This screen lists every
+//  parser source it offers (GET /sources/catalog) and installs each as its own
+//  Aidoku source — like the Android per-source model.
+//
 
 import AidokuRunner
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct AddSourceView: View {
+    // Kept for call-site compatibility (Browse passes the old WASM external list); unused.
     let allExternalSources: [ExternalSourceInfo]
 
-    @State private var externalSources: [SourceInfo2] = []
-    @State private var allSourcesInstalled: Bool = false
-
-    @State private var importing = false
-    @State private var searching = false
+    @State private var catalog: [NyoraCatalogEntry] = []
+    @State private var installedParserSources: Set<String> = []
+    @State private var loading = true
+    @State private var loadFailed = false
     @State private var searchText = ""
-    @State private var showLocalSetup = false
-    @State private var showKomgaSetup = false
-    @State private var showKavitaSetup = false
-    @State private var showNyoraSetup = false
-    @State private var showImportFailAlert = false
-
-    @State private var searchFocused: Bool? = false
 
     @Environment(\.dismiss) private var dismiss
 
-    init(externalSources: [ExternalSourceInfo]) {
+    init(externalSources: [ExternalSourceInfo] = []) {
         allExternalSources = externalSources
+    }
 
-        let result = filterExternalSources()
-        _externalSources = State(initialValue: result.0)
-        _allSourcesInstalled = State(initialValue: result.allSourcesInstalled)
+    private var filtered: [NyoraCatalogEntry] {
+        let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
+        return catalog
+            .filter { !installedParserSources.contains($0.id) }
+            .filter { q.isEmpty || $0.name.lowercased().contains(q) || $0.lang.lowercased().contains(q) }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     var body: some View {
         PlatformNavigationStack {
             List {
-                // Nyora fork: only the hosted Nyora helper source is offered.
-                // The import button and external (WASM repo) sources are hidden.
-                builtInSources
-            }
-            .contentMarginsPlease(.top, 4)
-            .customSearchable(
-                text: $searchText,
-                enabled: $searching,
-                focused: $searchFocused,
-                hidesNavigationBarDuringPresentation: false,
-                hidesSearchBarWhenScrolling: false,
-                onCancel: {
-                    // task delays slightly to prevent sheet from closing
-                    Task {
-                        searching = false
+                if loading {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                        Spacer()
+                    }
+                    .padding()
+                } else if loadFailed {
+                    infoView(
+                        title: NSLocalizedString("NO_AVAILABLE_SOURCES"),
+                        subtitle: "Couldn't reach the Nyora source server. Pull to retry."
+                    )
+                } else {
+                    let entries = filtered
+                    if entries.isEmpty {
+                        infoView(
+                            title: searchText.isEmpty
+                                ? NSLocalizedString("ALL_SOURCES_INSTALLED")
+                                : NSLocalizedString("NO_RESULTS"),
+                            subtitle: searchText.isEmpty ? "You've added every available source." : ""
+                        )
+                    } else {
+                        Section {
+                            ForEach(entries) { entry in
+                                ExternalSourceTableCell(
+                                    source: .init(
+                                        sourceId: entry.id,
+                                        name: entry.name,
+                                        languages: [entry.lang.isEmpty ? "multi" : entry.lang],
+                                        version: 1,
+                                        contentRating: .safe
+                                    ),
+                                    subtitle: entry.lang.isEmpty ? nil : entry.lang.uppercased(),
+                                    onGet: {
+                                        install(entry)
+                                        return true
+                                    }
+                                )
+                            }
+                        } header: {
+                            Text(String(format: NSLocalizedString("%i sources", comment: ""), entries.count))
+                        }
                     }
                 }
-            )
-            .animation(.default, value: searchText)
-            .animation(.default, value: searching)
-            .sheet(isPresented: $importing) {
-                DocumentPickerView(
-                    allowedContentTypes: [
-                        UTType(exportedAs: "app.aidoku.Aidoku.aix", conformingTo: .zip),
-                        .init(filenameExtension: "aix")!
-                    ],
-                    onDocumentsPicked: { urls in
-                        guard let url = urls.first else {
-                            return
-                        }
-                        Task {
-                            let result = await SourceManager.shared.importSource(from: url)
-                            if result == nil {
-                                showImportFailAlert = true
-                            } else {
-                                dismiss()
-                            }
-                        }
-                    }
-                )
-                .ignoresSafeArea()
             }
-            .alert(NSLocalizedString("IMPORT_FAIL"), isPresented: $showImportFailAlert) {
-                Button(NSLocalizedString("OK"), role: .cancel) {}
-            } message: {
-                Text(NSLocalizedString("SOURCE_IMPORT_FAIL_TEXT"))
-            }
+            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
+            .refreshable { await load() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    CloseButton {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    if !allExternalSources.isEmpty {
-                        AddSourceFilterMenu()
-                    }
+                    CloseButton { dismiss() }
                 }
             }
             .navigationTitle(NSLocalizedString("ADD_SOURCE"))
             .navigationBarTitleDisplayMode(.inline)
-            .onReceive(NotificationCenter.default.publisher(for: .filterExternalSources)) { _ in
-                let result = filterExternalSources()
-                withAnimation {
-                    externalSources = result.0
-                    allSourcesInstalled = result.allSourcesInstalled
-                }
+            .task { if catalog.isEmpty { await load() } }
+        }
+    }
+
+    private func load() async {
+        loading = true
+        loadFailed = false
+        let entries = await NyoraCatalog.fetchAll(server: SourceManager.nyoraServer)
+        installedParserSources = Set(
+            SourceManager.shared.sources
+                .filter { $0.key.hasPrefix("\(NyoraSourceRunner.sourceKeyPrefix).") }
+                .compactMap { UserDefaults.standard.string(forKey: "\($0.key).parserSource") }
+        )
+        catalog = entries
+        loadFailed = entries.isEmpty
+        loading = false
+    }
+
+    private func install(_ entry: NyoraCatalogEntry) {
+        Task {
+            await SourceManager.shared.addNyoraSource(id: entry.id, name: entry.name, lang: entry.lang)
+            await MainActor.run {
+                _ = installedParserSources.insert(entry.id)
             }
         }
-        .interactiveDismissDisabled(searching)
     }
 
-    var builtInSources: some View {
-        // Nyora fork: only the hosted Nyora helper source. Local/Komga/Kavita/demo
-        // and external WASM sources are intentionally removed.
-        Section {
-            ExternalSourceTableCell(
-                source: .init(
-                    sourceId: "nyora",
-                    name: "Nyora",
-                    languages: ["multi"],
-                    version: 1,
-                    contentRating: .safe
-                ),
-                subtitle: NSLocalizedString("Hosted Nyora content server"),
-                onGet: {
-                    showNyoraSetup = true
-                    return true
-                }
-            )
-            .background(NavigationLink("", destination: NyoraSetupView(), isActive: $showNyoraSetup).hidden())
-        }
-    }
-
-    func infoView(title: String, subtitle: String) -> some View {
+    private func infoView(title: String, subtitle: String) -> some View {
         VStack(spacing: 4) {
-            Text(title)
-                .fontWeight(.medium)
-            Text(subtitle)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
+            Text(title).fontWeight(.medium)
+            if !subtitle.isEmpty {
+                Text(subtitle)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding()
-    }
-
-    func checkAllSourcesInstalled() -> Bool {
-        let installedSources = SourceManager.shared.sources.map { $0.toInfo() }
-        return !allExternalSources.contains { source in
-            !installedSources.contains(where: { $0.sourceId == source.id })
-        }
-    }
-
-    func filterExternalSources() -> ([SourceInfo2], allSourcesInstalled: Bool) {
-        guard let appVersionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        else { return ([], true) }
-        let appVersion = SemanticVersion(appVersionString)
-        let selectedLanguages = UserDefaults.standard.stringArray(forKey: "Browse.languages") ?? []
-        let contentRatings = (UserDefaults.standard.stringArray(forKey: "Browse.contentRatings") ?? [])
-            .compactMap { SourceContentRating(stringValue: $0) }
-
-        var allSourcesInstalled = true
-
-        let installedSources = SourceManager.shared.sources.map { $0.toInfo() }
-        let result = allExternalSources
-            .compactMap { info -> SourceInfo2? in
-                // strip installed sources from external list
-                if installedSources.contains(where: { $0.sourceId == info.id }) {
-                    return nil
-                }
-                // this source isn't installed
-                allSourcesInstalled = false
-                // check version availability
-                if let minAppVersion = info.minAppVersion {
-                    let minAppVersion = SemanticVersion(minAppVersion)
-                    if minAppVersion > appVersion {
-                        return nil
-                    }
-                }
-                if let maxAppVersion = info.maxAppVersion {
-                    let maxAppVersion = SemanticVersion(maxAppVersion)
-                    if maxAppVersion < appVersion {
-                        return nil
-                    }
-                }
-                // hide unselected content ratings
-                let contentRating = info.resolvedContentRating
-                if !contentRatings.contains(where: { $0 == contentRating }) {
-                    return nil
-                }
-                // hide unselected languages
-                if !selectedLanguages.contains(where: { info.languages?.contains($0) ?? (info.lang == $0) }) {
-                    return nil
-                }
-                return info.toInfo()
-            }
-            // sort first by name, then by language
-            .sorted { $0.name < $1.name }
-            .sorted {
-                let lhsLang = $0.languages.count == 1 ? $0.languages[0] : "multi"
-                let rhsLang = $1.languages.count == 1 ? $1.languages[0] : "multi"
-                let lhs = SourceManager.languageCodes.firstIndex(of: lhsLang) ?? Int.max
-                let rhs = SourceManager.languageCodes.firstIndex(of: rhsLang) ?? Int.max
-                return lhs < rhs
-            }
-        return (result, allSourcesInstalled)
     }
 }

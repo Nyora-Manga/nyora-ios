@@ -53,13 +53,75 @@ class SourceManager {
         }
     }
 
-    /// Nyora fork: this is a single-backend build, so the hosted Nyora source is
-    /// pre-installed on first launch — the app is usable out of the box with no
-    /// manual "Add source" step.
+    /// The Nyora helper server (source repository) all Nyora sources point at.
+    static let nyoraServer = "https://api.hasanraza.tech"
+
+    /// A few popular parser sources pre-installed on first launch so the app is
+    /// usable out of the box. The user adds/removes more from Browse → Add source
+    /// (which lists the helper's full ~960-source catalog like a repository).
+    private static let defaultNyoraSources: [(id: String, name: String, lang: String)] = [
+        ("parser:MANGADEX", "MangaDex", "en"),
+        ("parser:WEEBCENTRAL", "Weeb Central", "en"),
+        ("parser:BATOTO", "Bato.to", "en"),
+    ]
+
+    /// Nyora fork: pre-install a curated default set once (first launch), only if
+    /// the user has no Nyora sources yet.
     private func ensureDefaultNyoraSource() async {
-        guard !sources.contains(where: { $0.key.hasPrefix("\(NyoraSourceRunner.sourceKeyPrefix).") }) else { return }
-        guard let server = URL(string: "https://api.hasanraza.tech") else { return }
-        await createCustomSource(kind: .nyora, name: "Nyora", server: server)
+        guard !UserDefaults.standard.bool(forKey: "Nyora.defaultsInstalled") else { return }
+        guard !sources.contains(where: { $0.key.hasPrefix("\(NyoraSourceRunner.sourceKeyPrefix).") }) else {
+            UserDefaults.standard.set(true, forKey: "Nyora.defaultsInstalled")
+            return
+        }
+        for entry in Self.defaultNyoraSources {
+            await addNyoraSource(id: entry.id, name: entry.name, lang: entry.lang)
+        }
+        UserDefaults.standard.set(true, forKey: "Nyora.defaultsInstalled")
+    }
+
+    /// Install one Nyora parser source (a repository entry) as its own Aidoku
+    /// source. No-op if already installed. Returns the Aidoku source key.
+    @discardableResult
+    func addNyoraSource(id parserSource: String, name: String, lang: String) async -> String {
+        // already installed? (match by the bound parser source id)
+        if let existing = sources.first(where: {
+            UserDefaults.standard.string(forKey: "\($0.key).parserSource") == parserSource
+        }) {
+            return existing.key
+        }
+
+        let slug = parserSource
+            .replacingOccurrences(of: "parser:", with: "")
+            .lowercased()
+        var key = "\(NyoraSourceRunner.sourceKeyPrefix).\(slug)"
+        var counter = 1
+        while hasSourceInstalled(id: key) {
+            key = "\(NyoraSourceRunner.sourceKeyPrefix).\(slug)-\(counter)"
+            counter += 1
+        }
+
+        let config = CustomSourceConfig.nyora(
+            key: key,
+            name: name,
+            server: Self.nyoraServer,
+            parserSource: parserSource,
+            lang: lang
+        )
+        let source = config.toSource()
+
+        await CoreDataManager.shared.container.performBackgroundTask { context in
+            let result = CoreDataManager.shared.createSource(source: source, context: context)
+            result.customSource = config.encode() as NSObject
+            try? context.save()
+        }
+
+        UserDefaults.standard.setValue(Self.nyoraServer, forKey: "\(key).server")
+        UserDefaults.standard.setValue(parserSource, forKey: "\(key).parserSource")
+
+        sources.append(source)
+        sortSources()
+        NotificationCenter.default.post(name: .updateSourceList, object: nil)
+        return key
     }
 
     func reloadSources() async {
@@ -295,7 +357,6 @@ extension SourceManager {
     enum CustomSourceKind {
         case komga
         case kavita
-        case nyora
     }
 
     @discardableResult
@@ -306,22 +367,9 @@ extension SourceManager {
         username: String? = nil,
         password: String? = nil,
     ) async -> String {
-        // Nyora fork: exactly one hosted Nyora source may exist. It's
-        // auto-installed on launch (ensureDefaultNyoraSource), but the "Add
-        // source" flow (AddSourceView → NyoraSetupView → Connect) also calls
-        // this — without a guard that path creates duplicate `nyora.nyora-1`,
-        // `nyora.nyora-2`… sources, cluttering the source list. Make it
-        // idempotent: if a Nyora source is already installed, return its key
-        // instead of adding a duplicate.
-        if kind == .nyora,
-           let existing = sources.first(where: { $0.key.hasPrefix("\(NyoraSourceRunner.sourceKeyPrefix).") }) {
-            return existing.key
-        }
-
         let keyPrefix = switch kind {
             case .komga: KomgaSourceRunner.sourceKeyPrefix
             case .kavita: KavitaSourceRunner.sourceKeyPrefix
-            case .nyora: NyoraSourceRunner.sourceKeyPrefix
         }
         let nameEncoded = name.lowercased().replacingOccurrences(of: " ", with: "-")
         var key = "\(keyPrefix).\(nameEncoded)"
@@ -336,7 +384,6 @@ extension SourceManager {
         let config = switch kind {
             case .komga: CustomSourceConfig.komga(key: key, name: name, server: server.absoluteString)
             case .kavita: CustomSourceConfig.kavita(key: key, name: name, server: server.absoluteString)
-            case .nyora: CustomSourceConfig.nyora(key: key, name: name, server: server.absoluteString)
         }
         let source = config.toSource()
 
