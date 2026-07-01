@@ -59,6 +59,7 @@
 		66C7E95B2ED77BBD0026FD6C /* ImageProcessingSettingsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C7E95A2ED77BB50026FD6C /* ImageProcessingSettingsKey.swift */; };
 		68D289DEC2E215066DE7BCBE /* NyoraCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2709857F2ABDF9DD3137E33C /* NyoraCardStyle.swift */; };
 		69B01BE9689B16769EB8FE1F /* NyoraRatingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B622854854C3846D734AED79 /* NyoraRatingStore.swift */; };
+		7160A1C489F86E95ADECBFE2 /* ContinueReadingSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32BF407D6DEFD4DC4A15DBB0 /* ContinueReadingSection.swift */; };
 		723D3AF92E0DC5A5003ED4CF /* DownloadedMangaInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723D3AF82E0DC5A5003ED4CF /* DownloadedMangaInfo.swift */; };
 		723D3AFA2E0DC5A5003ED4CF /* DownloadedMangaInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723D3AF82E0DC5A5003ED4CF /* DownloadedMangaInfo.swift */; };
 		723D3AFD2E0DC5C4003ED4CF /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723D3AFB2E0DC5C4003ED4CF /* DownloadsView.swift */; };
@@ -686,6 +687,7 @@
 		2709857F2ABDF9DD3137E33C /* NyoraCardStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraCardStyle.swift; sourceTree = "<group>"; };
 		2A3A5D830DD2C2ED379A4359 /* NyoraPillButtonStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraPillButtonStyle.swift; sourceTree = "<group>"; };
 		30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverRecovery.swift; sourceTree = "<group>"; };
+		32BF407D6DEFD4DC4A15DBB0 /* ContinueReadingSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContinueReadingSection.swift; path = ContinueReadingSection.swift; sourceTree = "<group>"; };
 		3447DE77858D7745F1E077EE /* KitsuApi.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KitsuApi.swift; sourceTree = "<group>"; };
 		344A1286965DEF3002F0D97B /* OcrProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OcrProvider.swift; sourceTree = "<group>"; };
 		36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraAltTitleStore.swift; sourceTree = "<group>"; };
@@ -1310,6 +1312,7 @@
 				5A987742D16EA3790E69E361 /* DiscoverRailView.swift */,
 				8456EF1C2D8D301837724C8B /* DiscoverRecommendationPager.swift */,
 				99F77275470A8EB965A633EB /* NyoraTitleSearchView.swift */,
+				32BF407D6DEFD4DC4A15DBB0 /* ContinueReadingSection.swift */,
 			);
 			name = Discover;
 			path = Discover;
@@ -3269,6 +3272,7 @@
 				EAC05BBB6A4EEBBE04D94D43 /* ContinueReadingButton.swift in Sources */,
 				803D8488CB10839AF45DEEA2 /* AniListClient.swift in Sources */,
 				F7F356A9D21B86789E1ED76E /* NyoraTitleSearchView.swift in Sources */,
+				7160A1C489F86E95ADECBFE2 /* ContinueReadingSection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

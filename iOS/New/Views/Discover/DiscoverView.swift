@@ -141,6 +141,10 @@ struct DiscoverView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
 
+                // NX-006 — inline "Continue reading" row built from in-progress
+                // reading history. Self-hides when there is nothing to resume.
+                ContinueReadingSection()
+
                 DiscoverHeroCard(source: nil, manga: feed.hero, onSelect: openSearch)
                     .padding(.horizontal, 16)
 
