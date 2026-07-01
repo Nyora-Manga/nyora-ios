@@ -62,8 +62,9 @@ class SourceManager {
     // Real, already-installed catalog ids (verified against /sources/catalog).
     private static let defaultNyoraSources: [(id: String, name: String, lang: String)] = [
         ("parser:MANGADEX", "MangaDex", "multi"),
-        ("parser:TOONILY", "Toonily", "en"),
         ("parser:COMICK_FUN", "ComicK", "multi"),
+        ("parser:ASURASCANS", "AsuraComic", "en"),
+        ("parser:FLAMECOMICS", "FlameComics", "en"),
     ]
 
     /// Nyora fork: pre-install a curated default set once (first launch), only if

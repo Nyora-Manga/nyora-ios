@@ -6,7 +6,8 @@
 //
 //  Nyora fork: the Nyora helper is a SOURCE REPOSITORY. This screen lists every
 //  parser source it offers (GET /sources/catalog) and installs each as its own
-//  Aidoku source — like the Android per-source model.
+//  Aidoku source — like the Android per-source model. Verified-working sources
+//  are surfaced under "Recommended" so users don't land on dead mirrors.
 //
 
 import AidokuRunner
@@ -28,6 +29,7 @@ struct AddSourceView: View {
         allExternalSources = externalSources
     }
 
+    /// All not-installed catalog entries matching the current search, name-sorted.
     private var filtered: [NyoraCatalogEntry] {
         let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
         return catalog
@@ -36,48 +38,53 @@ struct AddSourceView: View {
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
+    /// Verified-working sources (in curated order) that aren't installed yet.
+    private var recommendedEntries: [NyoraCatalogEntry] {
+        let available = Dictionary(
+            catalog.filter { !installedParserSources.contains($0.id) }.map { ($0.id, $0) },
+            uniquingKeysWith: { a, _ in a }
+        )
+        return NyoraCatalog.recommended.compactMap { available[$0] }
+    }
+
     var body: some View {
         PlatformNavigationStack {
             List {
                 if loading {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                        Spacer()
-                    }
-                    .padding()
+                    HStack { Spacer(); ProgressView(); Spacer() }.padding()
                 } else if loadFailed {
                     infoView(
                         title: NSLocalizedString("NO_AVAILABLE_SOURCES"),
                         subtitle: "Couldn't reach the Nyora source server. Pull to retry."
                     )
+                } else if searchText.isEmpty {
+                    let rec = recommendedEntries
+                    if !rec.isEmpty {
+                        Section {
+                            ForEach(rec) { cell($0) }
+                        } header: {
+                            Text("Recommended")
+                        } footer: {
+                            Text("Sources verified to work. The full catalog is below.")
+                        }
+                    }
+                    let others = filtered.filter { !NyoraCatalog.recommended.contains($0.id) }
+                    if !others.isEmpty {
+                        Section {
+                            ForEach(others) { cell($0) }
+                        } header: {
+                            Text(String(format: NSLocalizedString("%i sources", comment: ""), others.count))
+                        }
+                    } else if rec.isEmpty {
+                        infoView(title: NSLocalizedString("ALL_SOURCES_INSTALLED"), subtitle: "")
+                    }
                 } else {
                     let entries = filtered
                     if entries.isEmpty {
-                        infoView(
-                            title: searchText.isEmpty
-                                ? NSLocalizedString("ALL_SOURCES_INSTALLED")
-                                : NSLocalizedString("NO_RESULTS"),
-                            subtitle: searchText.isEmpty ? "You've added every available source." : ""
-                        )
+                        infoView(title: NSLocalizedString("NO_RESULTS"), subtitle: "")
                     } else {
                         Section {
-                            ForEach(entries) { entry in
-                                ExternalSourceTableCell(
-                                    source: .init(
-                                        sourceId: entry.id,
-                                        name: entry.name,
-                                        languages: [entry.lang.isEmpty ? "multi" : entry.lang],
-                                        version: 1,
-                                        contentRating: .safe
-                                    ),
-                                    subtitle: entry.lang.isEmpty ? nil : entry.lang.uppercased(),
-                                    onGet: {
-                                        install(entry)
-                                        return true
-                                    }
-                                )
-                            }
+                            ForEach(entries) { cell($0) }
                         } header: {
                             Text(String(format: NSLocalizedString("%i sources", comment: ""), entries.count))
                         }
@@ -95,6 +102,24 @@ struct AddSourceView: View {
             .navigationBarTitleDisplayMode(.inline)
             .task { if catalog.isEmpty { await load() } }
         }
+    }
+
+    @ViewBuilder
+    private func cell(_ entry: NyoraCatalogEntry) -> some View {
+        ExternalSourceTableCell(
+            source: .init(
+                sourceId: entry.id,
+                name: entry.name,
+                languages: [entry.lang.isEmpty ? "multi" : entry.lang],
+                version: 1,
+                contentRating: .safe
+            ),
+            subtitle: entry.lang.isEmpty ? nil : entry.lang.uppercased(),
+            onGet: {
+                install(entry)
+                return true
+            }
+        )
     }
 
     private func load() async {

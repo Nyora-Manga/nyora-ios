@@ -281,10 +281,13 @@ actor NyoraHelper {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            if let err = try? JSONDecoder().decode(NyoraErrorResponse.self, from: data) {
-                throw SourceError.message(err.error)
+            let raw = (try? JSONDecoder().decode(NyoraErrorResponse.self, from: data))?.error ?? ""
+            // Preserve the "not installed" signal (the runner self-heals on it);
+            // sanitize everything else so users never see raw upstream URLs/status.
+            if raw.lowercased().contains("not installed") {
+                throw SourceError.message(raw)
             }
-            throw SourceError.message("REQUEST_FAILED")
+            throw SourceError.message("This source is currently unavailable. Try another source or tap Retry.")
         }
         return try JSONDecoder().decode(T.self, from: data)
     }
@@ -329,6 +332,25 @@ enum NyoraCatalog {
         guard let url = URL(string: server) else { return [] }
         return (try? await NyoraHelper(server: url).catalog()) ?? []
     }
+
+    /// Curated set of parser sources verified to return content (live-probed).
+    /// Surfaced as "Recommended" in Add Source so users start on working sources
+    /// instead of the many dead/Cloudflare-blocked catalog mirrors. Ordered.
+    static let recommended: [String] = [
+        "parser:MANGADEX",
+        "parser:COMICK_FUN",
+        "parser:ASURASCANS",     // AsuraComic (the working AsuraScans)
+        "parser:FLAMECOMICS",
+        "parser:MANGAPILL",
+        "parser:MANGAGO",
+        "parser:TOONILY",
+        "parser:LIKEMANGA",
+        "parser:MANHUAPLUSORG",
+        "parser:MANHWATOP",
+        "parser:MANGAREAD",
+        "parser:MANGAOWL_IO",
+        "parser:MANHUAPLUS",
+    ]
 }
 
 // MARK: - Wire models
