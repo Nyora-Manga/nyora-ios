@@ -670,7 +670,7 @@
 			containerPortal = FB1B4826277CE18D0056D02C /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = FB1B4834277CE1920056D02C;
-			remoteInfo = "Aidoku (iOS)";
+			remoteInfo = "Nyora (iOS)";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -2594,9 +2594,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		FB1B4834277CE1920056D02C /* Aidoku (iOS) */ = {
+		FB1B4834277CE1920056D02C /* Nyora (iOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = FB1B484A277CE1920056D02C /* Build configuration list for PBXNativeTarget "Aidoku (iOS)" */;
+			buildConfigurationList = FB1B484A277CE1920056D02C /* Build configuration list for PBXNativeTarget "Nyora (iOS)" */;
 			buildPhases = (
 				FB1B4831277CE1920056D02C /* Sources */,
 				FB1B4832277CE1920056D02C /* Frameworks */,
@@ -2607,7 +2607,7 @@
 			);
 			dependencies = (
 			);
-			name = "Aidoku (iOS)";
+			name = "Nyora (iOS)";
 			packageProductDependencies = (
 				FB7B7ED7278CE949001E6EAF /* ZIPFoundation */,
 				FB17114A296770CC00AD523D /* NukeUI */,
@@ -2619,13 +2619,13 @@
 				FBAED40B2E3A762800B81E74 /* SwiftUIIntrospect */,
 				FB2C83982E43F074003CA85F /* SwiftSoup */,
 			);
-			productName = "Aidoku (iOS)";
+			productName = "Nyora (iOS)";
 			productReference = FB1B4835277CE1920056D02C /* Aidoku.app */;
 			productType = "com.apple.product-type.application";
 		};
-		FB1B483A277CE1920056D02C /* Aidoku (macOS) */ = {
+		FB1B483A277CE1920056D02C /* Nyora (macOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = FB1B484D277CE1920056D02C /* Build configuration list for PBXNativeTarget "Aidoku (macOS)" */;
+			buildConfigurationList = FB1B484D277CE1920056D02C /* Build configuration list for PBXNativeTarget "Nyora (macOS)" */;
 			buildPhases = (
 				FB1B4837277CE1920056D02C /* Sources */,
 				FB1B4838277CE1920056D02C /* Frameworks */,
@@ -2635,13 +2635,13 @@
 			);
 			dependencies = (
 			);
-			name = "Aidoku (macOS)";
+			name = "Nyora (macOS)";
 			packageProductDependencies = (
 				FB6340C8279246D50072A2A2 /* ZIPFoundation */,
 				FB14B1342DF4D4E70067E4D4 /* Nuke */,
 				FBFDF5F92DF799340064F603 /* AidokuRunner */,
 			);
-			productName = "Aidoku (macOS)";
+			productName = "Nyora (macOS)";
 			productReference = FB1B483B277CE1920056D02C /* Aidoku.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -2753,8 +2753,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				FB1B4834277CE1920056D02C /* Aidoku (iOS) */,
-				FB1B483A277CE1920056D02C /* Aidoku (macOS) */,
+				FB1B4834277CE1920056D02C /* Nyora (iOS) */,
+				FB1B483A277CE1920056D02C /* Nyora (macOS) */,
 				FBB44E712EC635620032EFBB /* AidokuTests */,
 			);
 		};
@@ -3474,7 +3474,7 @@
 /* Begin PBXTargetDependency section */
 		FBB44E772EC635620032EFBB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = FB1B4834277CE1920056D02C /* Aidoku (iOS) */;
+			target = FB1B4834277CE1920056D02C /* Nyora (iOS) */;
 			targetProxy = FBB44E762EC635620032EFBB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -3695,8 +3695,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.8.3;
-				PRODUCT_NAME = Aidoku;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_NAME = Nyora;
+				PRODUCT_MODULE_NAME = Aidoku;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3738,8 +3739,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.8.3;
-				PRODUCT_NAME = Aidoku;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_NAME = Nyora;
+				PRODUCT_MODULE_NAME = Aidoku;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3775,8 +3777,9 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 0.1;
-				PRODUCT_NAME = Aidoku;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_NAME = Nyora;
+				PRODUCT_MODULE_NAME = Aidoku;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -3810,8 +3813,9 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 0.1;
-				PRODUCT_NAME = Aidoku;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_NAME = Nyora;
+				PRODUCT_MODULE_NAME = Aidoku;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -3831,7 +3835,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nyora.ios.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -3861,7 +3865,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nyora.ios.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -3889,7 +3893,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		FB1B484A277CE1920056D02C /* Build configuration list for PBXNativeTarget "Aidoku (iOS)" */ = {
+		FB1B484A277CE1920056D02C /* Build configuration list for PBXNativeTarget "Nyora (iOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FB1B484B277CE1920056D02C /* Debug */,
@@ -3898,7 +3902,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		FB1B484D277CE1920056D02C /* Build configuration list for PBXNativeTarget "Aidoku (macOS)" */ = {
+		FB1B484D277CE1920056D02C /* Build configuration list for PBXNativeTarget "Nyora (macOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FB1B484E277CE1920056D02C /* Debug */,

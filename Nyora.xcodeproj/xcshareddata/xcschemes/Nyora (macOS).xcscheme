@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FB1B483A277CE1920056D02C"
-               BuildableName = "Aidoku.app"
-               BlueprintName = "Aidoku (macOS)"
+               BuildableName = "Nyora.app"
+               BlueprintName = "Nyora (macOS)"
                ReferencedContainer = "container:Nyora.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FB1B483A277CE1920056D02C"
-            BuildableName = "Aidoku.app"
-            BlueprintName = "Aidoku (macOS)"
+            BuildableName = "Nyora.app"
+            BlueprintName = "Nyora (macOS)"
             ReferencedContainer = "container:Nyora.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -69,8 +69,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FB1B483A277CE1920056D02C"
-            BuildableName = "Aidoku.app"
-            BlueprintName = "Aidoku (macOS)"
+            BuildableName = "Nyora.app"
+            BlueprintName = "Nyora (macOS)"
             ReferencedContainer = "container:Nyora.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
