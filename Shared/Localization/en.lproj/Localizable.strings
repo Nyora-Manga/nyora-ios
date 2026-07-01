@@ -441,6 +441,8 @@
 "APPEARANCE_LIGHT" = "Light";
 "APPEARANCE_DARK" = "Dark";
 "USE_SYSTEM_APPEARANCE" = "Use System Appearance";
+"AMOLED_THEME" = "AMOLED Dark Theme";
+"AMOLED_THEME_TEXT" = "Uses true black backgrounds in dark mode to save power on OLED displays.";
 "LAYOUT" = "Layout";
 "STANDARD" = "Standard";
 "COMPACT" = "Compact";

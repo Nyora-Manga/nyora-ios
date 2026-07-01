@@ -22,6 +22,7 @@
 		30EAB0012FC051B5000BFEDF /* CoverRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */; };
 		37F3E66D2850F62100A944E0 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F3E66C2850F62100A944E0 /* Collection.swift */; };
 		444172AB210678DDF474D1B2 /* NyoraAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D04FA91678DC60A6F95C3F /* NyoraAccountView.swift */; };
+		46EEB80291770D1BAEFF8FAC /* AmoledTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FB7412A66C9729E21F3BA9 /* AmoledTheme.swift */; };
 		48177B8E2B75C40400AD41B4 /* MangaUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48177B8D2B75C40400AD41B4 /* MangaUpdatesView.swift */; };
 		48177B902B75C63700AD41B4 /* CoreDataManager+MangaUpdates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48177B8F2B75C63700AD41B4 /* CoreDataManager+MangaUpdates.swift */; };
 		48177B922B75C67300AD41B4 /* MangaUpdateObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48177B912B75C67300AD41B4 /* MangaUpdateObject.swift */; };
@@ -660,6 +661,7 @@
 		91D7BEFB2DD7E4BB00898539 /* Aidoku.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Aidoku.xcconfig; sourceTree = "<group>"; };
 		91D7BEFF2DD8881300898539 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		938868F450FEB8271A8B23A9 /* ColorFilterConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ColorFilterConfigView.swift; sourceTree = "<group>"; };
+		93FB7412A66C9729E21F3BA9 /* AmoledTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AmoledTheme.swift; sourceTree = "<group>"; };
 		955F2F74E9E812227602DD9B /* AccentColorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccentColorView.swift; sourceTree = "<group>"; };
 		95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceRefiner.swift; sourceTree = "<group>"; };
 		A1E880AAAE669C883263D2A7 /* NyoraSource.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSource.swift; sourceTree = "<group>"; };
@@ -2073,6 +2075,7 @@
 				FB7984132E0C9F1D000761A9 /* UpscaleModelListView.swift */,
 				FB5E5D002E32BFC300843E27 /* TapZonesSelectView.swift */,
 				955F2F74E9E812227602DD9B /* AccentColorView.swift */,
+				93FB7412A66C9729E21F3BA9 /* AmoledTheme.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -3071,6 +3074,7 @@
 				0B3A1A0FED57ED2101904423 /* TapGrid.swift in Sources */,
 				5D6E964A75144C864A98CD90 /* TapGridConfigView.swift in Sources */,
 				0E0354DEEC549E62F24EA80F /* AccentColorView.swift in Sources */,
+				46EEB80291770D1BAEFF8FAC /* AmoledTheme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

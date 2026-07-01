@@ -160,6 +160,9 @@ extension SettingsView {
                     UIApplication.shared.firstKeyWindow?.overrideUserInterfaceStyle = .unspecified
                 }
 
+            case "Appearance.amoled":
+                AmoledTheme.refreshAllWindows()
+
             case "Logs.logServer":
                 Task {
                     let url = UserDefaults.standard.string(forKey: "Logs.logServer").flatMap(URL.init)
