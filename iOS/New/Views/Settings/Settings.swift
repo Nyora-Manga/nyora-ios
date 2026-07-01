@@ -23,6 +23,12 @@ enum Settings {
                 key: "General.incognitoMode",
                 title: NSLocalizedString("INCOGNITO_MODE"),
                 value: .toggle(.init(subtitle: NSLocalizedString("INCOGNITO_MODE_TEXT")))
+            ),
+            .init(
+                key: "Sources.disableNsfw",
+                title: NSLocalizedString("DISABLE_NSFW"),
+                notification: "Sources.disableNsfw",
+                value: .toggle(.init(subtitle: NSLocalizedString("DISABLE_NSFW_TEXT")))
             )
         ]))),
         .init(value: .group(.init(items: [

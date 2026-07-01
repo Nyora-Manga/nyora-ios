@@ -441,6 +441,8 @@
 "ICLOUD_SYNC_TEXT_SIDELOADED" = "iCloud Sync is only available when installed through TestFlight.";
 "INCOGNITO_MODE" = "Incognito Mode";
 "INCOGNITO_MODE_TEXT" = "Pauses reading history when enabled";
+"DISABLE_NSFW" = "Disable NSFW Content";
+"DISABLE_NSFW_TEXT" = "Hides adult-rated titles from browse and search results";
 "APPEARANCE" = "Appearance";
 "ACCENT_COLOR" = "Accent Color";
 "APPEARANCE_LIGHT" = "Light";

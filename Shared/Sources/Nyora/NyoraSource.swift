@@ -103,13 +103,21 @@ actor NyoraSourceRunner: Runner {
         return sourceLangs[parserSource]
     }
 
+    /// When the global "disable NSFW content" toggle is on, drops any manga
+    /// flagged `.nsfw` so it never appears in browse/search results.
+    /// Mirrors android `AppSettings.isNsfwContentDisabled`.
+    private nonisolated func filteringNsfw(_ entries: [AidokuRunner.Manga]) -> [AidokuRunner.Manga] {
+        guard UserDefaults.standard.bool(forKey: "Sources.disableNsfw") else { return entries }
+        return entries.filter { $0.contentRating != .nsfw }
+    }
+
     func getMangaList(listing: AidokuRunner.Listing, page: Int) async throws -> AidokuRunner.MangaPageResult {
         let res: NyoraBrowseResponse = try await helper.get(
             "sources/popular",
             items: [.init(name: "id", value: listing.id), .init(name: "page", value: String(page))]
         )
         return .init(
-            entries: res.entries.map { $0.intoManga(sourceKey: sourceKey, parserSource: listing.id, helper: helper) },
+            entries: filteringNsfw(res.entries.map { $0.intoManga(sourceKey: sourceKey, parserSource: listing.id, helper: helper) }),
             hasNextPage: res.hasNextPage
         )
     }
@@ -133,7 +141,7 @@ actor NyoraSourceRunner: Runner {
         let entries = res.groups.flatMap { group in
             group.entries.map { $0.intoManga(sourceKey: sourceKey, parserSource: group.sourceId, helper: helper) }
         }
-        return .init(entries: entries, hasNextPage: false)
+        return .init(entries: filteringNsfw(entries), hasNextPage: false)
     }
 
     // MARK: Details / pages

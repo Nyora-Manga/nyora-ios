@@ -152,6 +152,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Browse.contentRatings": ["safe", "containsNsfw"],
                 "Browse.updateCount": 0,
 
+                "Sources.disableNsfw": false,
+
                 "History.lockHistoryTab": false,
 
                 "Reader.readingMode": "auto",
