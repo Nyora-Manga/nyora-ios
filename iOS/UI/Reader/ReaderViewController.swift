@@ -24,6 +24,7 @@ class ReaderViewController: BaseObservingViewController {
     var readingMode: ReadingMode = .rtl
     var defaultReadingMode: ReadingMode?
     private var tapZone: TapZone?
+    private var useTapGrid = false
 
     private var chapterList: [AidokuRunner.Chapter]
     private var chaptersToMark: [AidokuRunner.Chapter] = []
@@ -963,6 +964,7 @@ extension ReaderViewController: ReaderHoldingDelegate {
 extension ReaderViewController {
     func updateTapZone() {
         let enabledTapZone = UserDefaults.standard.string(forKey: "Reader.tapZones")
+        useTapGrid = enabledTapZone == "grid"
         let tapZone: TapZone? = switch enabledTapZone {
             case "auto": switch reader {
                 case is ReaderPagedViewController: .leftRight
@@ -981,16 +983,23 @@ extension ReaderViewController {
     }
 
     @objc func handleTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        guard let reader, let tapZone else {
-            toggleBarVisibility()
-            return
-        }
-
         let point = gestureRecognizer.location(in: view)
         let relativePoint = CGPoint(
             x: point.x / view.bounds.width,
             y: point.y / view.bounds.height
         )
+
+        // configurable 3x3 tap grid takes precedence when enabled
+        if useTapGrid {
+            let area = TapGridSettings.area(for: relativePoint)
+            performGridAction(TapGridSettings.action(for: area))
+            return
+        }
+
+        guard let reader, let tapZone else {
+            toggleBarVisibility()
+            return
+        }
 
         let type = tapZone.regions
             .first { $0.bounds.contains(relativePoint) }
@@ -1015,6 +1024,25 @@ extension ReaderViewController {
             }
         } else {
             toggleBarVisibility()
+        }
+    }
+
+    func performGridAction(_ action: TapGridAction) {
+        switch action {
+            case .none:
+                break
+            case .previousPage:
+                previousPage()
+            case .nextPage:
+                nextPage()
+            case .previousChapter:
+                previousChapter()
+            case .nextChapter:
+                nextChapter()
+            case .toggleMenu:
+                toggleBarVisibility()
+            case .openMenu:
+                openChapterList()
         }
     }
 }

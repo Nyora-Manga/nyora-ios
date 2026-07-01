@@ -252,6 +252,12 @@ struct ReaderSettingsView: View {
                         }
                     }
 
+                    if tapZones == .grid {
+                        NavigationLink(destination: TapGridConfigView()) {
+                            Text(NSLocalizedString("CONFIGURE_TAP_GRID"))
+                        }
+                    }
+
                     SettingView(
                         setting: .init(
                             key: "Reader.invertTapZones",

@@ -15,6 +15,7 @@
 		04B48CFC2CD6838C00F719D0 /* ShikimoriApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B48CFA2CD6838600F719D0 /* ShikimoriApi.swift */; };
 		04B48CFE2CD6B3B000F719D0 /* ShikimoriQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B48CFD2CD6B3AD00F719D0 /* ShikimoriQueries.swift */; };
 		04B48CFF2CD6B3B000F719D0 /* ShikimoriQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B48CFD2CD6B3AD00F719D0 /* ShikimoriQueries.swift */; };
+		0B3A1A0FED57ED2101904423 /* TapGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86FCD4C820B864346BDB2A4 /* TapGrid.swift */; };
 		0C807DDD27D47C2D0042EE7B /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C807DDC27D47C2D0042EE7B /* CircularProgressView.swift */; };
 		2954DCCC05A0E7F45A9DC37F /* TranslationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91157E161122819CBE01C634 /* TranslationModels.swift */; };
 		30EAB0012FC051B5000BFEDF /* CoverRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30EAB0002FC051B5000BFEDF /* CoverRecovery.swift */; };
@@ -30,6 +31,7 @@
 		48E20A272B78420E00BFFED8 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E20A262B78420E00BFFED8 /* NavigationController.swift */; };
 		56815D982FBC7078001486C8 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56815D972FBC7078001486C8 /* NotificationManager.swift */; };
 		56815D992FBC7078001486C8 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56815D972FBC7078001486C8 /* NotificationManager.swift */; };
+		5D6E964A75144C864A98CD90 /* TapGridConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */; };
 		627AE6E6211B2B61EB98FA5E /* TranslationOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9724D8E3412C42844B315DC /* TranslationOverlayView.swift */; };
 		66C7E95B2ED77BBD0026FD6C /* ImageProcessingSettingsKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C7E95A2ED77BB50026FD6C /* ImageProcessingSettingsKey.swift */; };
 		723D3AF92E0DC5A5003ED4CF /* DownloadedMangaInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723D3AF82E0DC5A5003ED4CF /* DownloadedMangaInfo.swift */; };
@@ -585,6 +587,7 @@
 		FBF059C92EF8330B00907B0E /* BackupUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF059C72EF8330700907B0E /* BackupUpdate.swift */; };
 		FBF059CB2EF8331200907B0E /* BackupReadingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF059CA2EF8330E00907B0E /* BackupReadingSession.swift */; };
 		FBF059CC2EF8331200907B0E /* BackupReadingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF059CA2EF8330E00907B0E /* BackupReadingSession.swift */; };
+		FBF3CFE9D0E2A599DFAF9752 /* TapGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86FCD4C820B864346BDB2A4 /* TapGrid.swift */; };
 		FBF8C5842DCD01E30066F53D /* BlockingTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF8C5832DCD01E10066F53D /* BlockingTask.swift */; };
 		FBF8C5862DCD02030066F53D /* PageInterceptorProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF8C5852DCD02020066F53D /* PageInterceptorProcessor.swift */; };
 		FBF925972F4DFB6B0049CB43 /* MangaBakaTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBF925952F4DFB6B0049CB43 /* MangaBakaTracker.swift */; };
@@ -658,6 +661,8 @@
 		938868F450FEB8271A8B23A9 /* ColorFilterConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ColorFilterConfigView.swift; sourceTree = "<group>"; };
 		95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceRefiner.swift; sourceTree = "<group>"; };
 		A1E880AAAE669C883263D2A7 /* NyoraSource.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSource.swift; sourceTree = "<group>"; };
+		C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGridConfigView.swift; sourceTree = "<group>"; };
+		E86FCD4C820B864346BDB2A4 /* TapGrid.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGrid.swift; sourceTree = "<group>"; };
 		F9724D8E3412C42844B315DC /* TranslationOverlayView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationOverlayView.swift; sourceTree = "<group>"; };
 		FB0051212FAF053F004B4A6F /* MigrateSelectSeriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrateSelectSeriesView.swift; sourceTree = "<group>"; };
 		FB0051252FAF056E004B4A6F /* MigrateResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrateResultsView.swift; sourceTree = "<group>"; };
@@ -1296,6 +1301,7 @@
 				FB427511295FBEC100131377 /* SourceInfo.swift */,
 				FB94E3142DF9DE9C00784556 /* SourceList.swift */,
 				FB79841B2E0DD181000761A9 /* TapZone.swift */,
+				E86FCD4C820B864346BDB2A4 /* TapGrid.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1684,6 +1690,7 @@
 			children = (
 				FB1B51A728E3405D00D3CE0E /* ReaderSettingsView.swift */,
 				938868F450FEB8271A8B23A9 /* ColorFilterConfigView.swift */,
+				C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */,
 			);
 			path = Reader;
 			sourceTree = "<group>";
@@ -3058,6 +3065,8 @@
 				DC4F70CA47A4AFD3B3C0A0E0 /* ColorFilterProcessor.swift in Sources */,
 				B2260FD21C1E03EC27FE7011 /* ColorFilterConfigView.swift in Sources */,
 				A436FFEBDFA37033CE627BDA /* VolumeButtonHandler.swift in Sources */,
+				0B3A1A0FED57ED2101904423 /* TapGrid.swift in Sources */,
+				5D6E964A75144C864A98CD90 /* TapGridConfigView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3228,6 +3237,7 @@
 				FB80997E2FD7F5850088FE9A /* iOSVersion.swift in Sources */,
 				FB82A5C32DF8622700366BC8 /* LocalModels.swift in Sources */,
 				72D7D349B54F376B6197F22D /* NyoraSource.swift in Sources */,
+				FBF3CFE9D0E2A599DFAF9752 /* TapGrid.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

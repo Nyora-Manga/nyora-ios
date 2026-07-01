@@ -47,6 +47,8 @@ struct TapZonesSelectView: View {
                                                 .overlay(Color.black.opacity(0.05))
                                                 .mask(DiagonalMask(reverse: true))
                                         }
+                                    case .grid:
+                                        gridPreview
                                     default:
                                         EmptyView()
                                 }
@@ -62,6 +64,35 @@ struct TapZonesSelectView: View {
         .onChange(of: selectedTapZones) { _ in
             UserDefaults.standard.setValue(selectedTapZones.value, forKey: "Reader.tapZones")
             NotificationCenter.default.post(name: .readerTapZones, object: nil)
+        }
+    }
+
+    // 3x3 preview coloured by the configured tap-grid actions
+    private var gridPreview: some View {
+        let mapping = TapGridSettings.currentMapping()
+        return GeometryReader { geometry in
+            let cellWidth = geometry.size.width / 3
+            let cellHeight = geometry.size.height / 3
+            ZStack {
+                ForEach(0..<3, id: \.self) { row in
+                    ForEach(0..<3, id: \.self) { col in
+                        let area = TapGridArea(row: row, col: col)
+                        let action = mapping[area] ?? .none
+                        let hex = action.colorHex
+                        Rectangle()
+                            .fill(Color(
+                                red: Double((hex >> 16) & 0xFF) / 255,
+                                green: Double((hex >> 8) & 0xFF) / 255,
+                                blue: Double(hex & 0xFF) / 255
+                            ).opacity(0.3))
+                            .frame(width: cellWidth - 1, height: cellHeight - 1)
+                            .position(
+                                x: CGFloat(col) * cellWidth + cellWidth / 2,
+                                y: CGFloat(row) * cellHeight + cellHeight / 2
+                            )
+                    }
+                }
+            }
         }
     }
 

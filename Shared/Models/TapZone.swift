@@ -60,6 +60,7 @@ enum DefaultTapZones: String, CaseIterable {
     case lShaped = "l-shaped"
     case kindle = "kindle"
     case edge = "edge"
+    case grid = "grid"
     case disabled = "disabled"
 
     var value: String {
@@ -73,6 +74,7 @@ enum DefaultTapZones: String, CaseIterable {
             case .lShaped: .lShaped
             case .kindle: .kindle
             case .edge: .edge
+            case .grid: nil
             case .disabled: nil
         }
     }
@@ -84,6 +86,7 @@ enum DefaultTapZones: String, CaseIterable {
             case .lShaped: NSLocalizedString("ZONE_L_SHAPED")
             case .kindle: NSLocalizedString("ZONE_KINDLE")
             case .edge: NSLocalizedString("ZONE_EDGE")
+            case .grid: NSLocalizedString("TAP_GRID")
             case .disabled: NSLocalizedString("DISABLED")
         }
     }
