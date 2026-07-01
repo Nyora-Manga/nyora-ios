@@ -26,8 +26,8 @@ struct DiscoverView: View {
 
     struct AniListFeed {
         let hero: AidokuRunner.Manga
-        let trending: [AidokuRunner.Manga]
-        let popular: [AidokuRunner.Manga]
+        let trending: [AidokuRunner.Manga]      // trending minus hero → the pager
+        let rails: [AniListClient.Section]      // Popular, Top Rated, genres…
     }
 
     /// Identifiable wrapper so an AniList entry can drive a `.sheet(item:)`.
@@ -150,13 +150,16 @@ struct DiscoverView: View {
                     )
                 }
 
-                if !feed.popular.isEmpty {
-                    DiscoverRailView(
-                        source: nil,
-                        title: NSLocalizedString("POPULAR", comment: ""),
-                        manga: feed.popular,
-                        onSelect: openSearch
-                    )
+                // Popular, Top Rated, and the genre rails.
+                ForEach(feed.rails) { rail in
+                    if !rail.manga.isEmpty {
+                        DiscoverRailView(
+                            source: nil,
+                            title: rail.title,
+                            manga: rail.manga,
+                            onSelect: openSearch
+                        )
+                    }
                 }
             }
             .padding(.bottom, 24)
@@ -212,21 +215,18 @@ struct DiscoverView: View {
     private func load() async {
         state = .loading
         do {
-            async let trendingTask = AniListClient.shared.trending()
-            async let popularTask = AniListClient.shared.popular()
-            let trending = try await trendingTask
-            let popular = try await popularTask
+            let sections = try await AniListClient.shared.feed()
 
-            guard let hero = trending.first else {
+            // First section ("trending") drives the hero + pager; the rest are rails.
+            let trendingSection = sections.first { $0.id == "trending" } ?? sections.first
+            guard let hero = trendingSection?.manga.first else {
                 state = .empty
                 return
             }
-            // Hero is the top trending entry; keep it out of the pager below it.
-            state = .loaded(AniListFeed(
-                hero: hero,
-                trending: Array(trending.dropFirst().prefix(12)),
-                popular: popular
-            ))
+            let trending = Array((trendingSection?.manga ?? []).dropFirst().prefix(12))
+            let rails = sections.filter { $0.id != "trending" }
+
+            state = .loaded(AniListFeed(hero: hero, trending: trending, rails: rails))
         } catch {
             state = .failed(error)
         }
