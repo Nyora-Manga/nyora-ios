@@ -131,6 +131,10 @@ class ReaderPageView: UIView {
                 } else if UserDefaults.standard.bool(forKey: "Reader.upscaleImages") {
                     image = UpscaleProcessor().process(image) ?? image
                 }
+                let cfSettings = ReaderColorFilterSettings.current
+                if !cfSettings.isNeutral {
+                    image = ColorFilterEngine.apply(image, settings: cfSettings)
+                }
             }
             imageView.image = image
             fixImageSize()
@@ -207,6 +211,10 @@ class ReaderPageView: UIView {
                 processors.append(DownsampleProcessor(width: UIScreen.main.bounds.width))
             } else if UserDefaults.standard.bool(forKey: "Reader.upscaleImages") {
                 processors.append(UpscaleProcessor())
+            }
+            let cfSettings = ReaderColorFilterSettings.current
+            if !cfSettings.isNeutral {
+                processors.append(ColorFilterProcessor(settings: cfSettings))
             }
 
             request = ImageRequest(
@@ -336,6 +344,10 @@ class ReaderPageView: UIView {
                     image = processedImage
                 }
             }
+            let cfSettings = ReaderColorFilterSettings.current
+            if !cfSettings.isNeutral {
+                image = ColorFilterEngine.apply(image, settings: cfSettings)
+            }
 
             return image
         }.value
@@ -427,6 +439,10 @@ class ReaderPageView: UIView {
                 if let processedImage = processor.process(image) {
                     image = processedImage
                 }
+            }
+            let cfSettings = ReaderColorFilterSettings.current
+            if !cfSettings.isNeutral {
+                image = ColorFilterEngine.apply(image, settings: cfSettings)
             }
 
             return image

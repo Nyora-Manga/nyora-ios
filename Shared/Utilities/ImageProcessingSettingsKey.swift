@@ -13,6 +13,16 @@ enum ImageProcessingSettingsKey {
         let downsample = UserDefaults.standard.bool(forKey: "Reader.downsampleImages")
         let upscale = UserDefaults.standard.bool(forKey: "Reader.upscaleImages")
         let maxHeight = UserDefaults.standard.integer(forKey: "Reader.upscaleMaxHeight")
-        return "\(crop)-\(downsample)-\(upscale)-\(maxHeight)"
+        // Reader colour-filter settings (NP-002) — read inline so this stays
+        // available to targets that don't include the iOS-only engine type.
+        let defaults = UserDefaults.standard
+        let cfBrightness = defaults.double(forKey: "Reader.cfBrightness")
+        let cfContrast = defaults.double(forKey: "Reader.cfContrast")
+        let cfInvert = defaults.bool(forKey: "Reader.cfInvert")
+        let cfGrayscale = defaults.bool(forKey: "Reader.cfGrayscale")
+        let cfBook = defaults.bool(forKey: "Reader.cfBookBackground")
+        let cfMultitone = defaults.integer(forKey: "Reader.cfMultitone")
+        let colorFilter = "\(cfBrightness)-\(cfContrast)-\(cfInvert)-\(cfGrayscale)-\(cfBook)-\(cfMultitone)"
+        return "\(crop)-\(downsample)-\(upscale)-\(maxHeight)-\(colorFilter)"
     }
 }
