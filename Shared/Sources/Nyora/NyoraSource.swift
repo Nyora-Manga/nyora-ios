@@ -67,10 +67,28 @@ actor NyoraSourceRunner: Runner {
 
     let features = SourceFeatures(
         providesListings: true,
+        providesHome: true,
         dynamicListings: true,
         providesImageRequests: true,
         providesBaseUrl: true
     )
+
+    /// A small, hand-picked set of well-behaved parser sources surfaced on the
+    /// Home screen and as browse listing tabs. The helper aggregates ~960 parser
+    /// sources, but exposing every one as a listing tab produces an unusable
+    /// wall of ~960 chips. Discovery across *all* sources still happens through
+    /// global search (`getSearchMangaList`); these featured sources just give
+    /// Browse a clean, curated landing that's usable out of the box.
+    static let featuredSources: [(id: String, name: String)] = [
+        ("parser:MANGADEX", "MangaDex"),
+        ("parser:TOONILY", "Toonily"),
+        ("parser:MANHWAZ", "ManhwaZ"),
+        ("parser:ANISASCANS", "AnisaScans"),
+        ("parser:UTOON", "UToon"),
+        ("parser:MANGAGG", "MangaGg"),
+        ("parser:HMANGABAT", "MangaBat"),
+        ("parser:ISEKAISCAN", "IsekaiScan")
+    ]
 
     init(sourceKey: String, name: String, server: String) {
         self.sourceKey = sourceKey
@@ -81,11 +99,47 @@ actor NyoraSourceRunner: Runner {
     // MARK: Browse
 
     func getListings() async throws -> [AidokuRunner.Listing] {
-        let catalog: NyoraCatalogResponse = try await helper.get("sources/catalog")
-        cacheSourceLangs(catalog.entries)
-        return catalog.entries.map {
-            .init(id: $0.id, name: $0.lang.isEmpty ? $0.name : "\($0.name) (\($0.lang))", kind: .default)
+        // Only the curated featured sources become listing tabs — surfacing all
+        // ~960 helper catalog entries here made Browse an unusable tab wall.
+        // Global search still spans every source. The catalog (for the details
+        // header's translation language) is fetched lazily in `languageCode`.
+        Self.featuredSources.map { .init(id: $0.id, name: $0.name, kind: .default) }
+    }
+
+    /// Home screen: one horizontal "popular" scroller per curated featured
+    /// source. Sources are fetched concurrently and any that error or return
+    /// nothing are silently dropped, so a single flaky parser never blanks the
+    /// whole Home. Tapping "more" on a scroller opens that source's listing.
+    func getHome() async throws -> AidokuRunner.Home {
+        let sources = Self.featuredSources
+        var components: [AidokuRunner.HomeComponent?] = Array(repeating: nil, count: sources.count)
+
+        await withTaskGroup(of: (Int, AidokuRunner.HomeComponent?).self) { group in
+            for (index, source) in sources.enumerated() {
+                group.addTask { [helper, sourceKey] in
+                    let res: NyoraBrowseResponse? = try? await helper.get(
+                        "sources/popular",
+                        items: [.init(name: "id", value: source.id), .init(name: "page", value: "1")]
+                    )
+                    guard let res else { return (index, nil) }
+                    let manga = self.filteringNsfw(
+                        res.entries.map { $0.intoManga(sourceKey: sourceKey, parserSource: source.id, helper: helper) }
+                    )
+                    guard !manga.isEmpty else { return (index, nil) }
+                    let listing = AidokuRunner.Listing(id: source.id, name: source.name, kind: .default)
+                    let component = AidokuRunner.HomeComponent(
+                        title: source.name,
+                        value: .scroller(entries: manga.map { $0.intoLink() }, listing: listing)
+                    )
+                    return (index, component)
+                }
+            }
+            for await (index, component) in group {
+                components[index] = component
+            }
         }
+
+        return .init(components: components.compactMap { $0 })
     }
 
     private func cacheSourceLangs(_ entries: [NyoraCatalogEntry]) {
