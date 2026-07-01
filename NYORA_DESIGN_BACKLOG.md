@@ -1,0 +1,37 @@
+# Nyora iOS Design Backlog (Phases 2-7)
+
+Porting nyora-android's UI design natively into Aidoku (iOS). Phase 1 (Poppins + indigo accent + NyoraTheme tokens) is DONE. Each item is atomic and independently buildable. Reuse `iOS/New/NyoraTheme.swift` tokens; never break navigation or data flow.
+
+Build check: `cd /Users/hasanraza/Desktop/kotatsu/Nyora/Aidoku && xcodebuild -project Aidoku.xcodeproj -scheme "Aidoku (iOS)" -sdk iphonesimulator -configuration Debug -destination 'generic/platform=iOS Simulator' -clonedSourcePackagesDirPath /tmp/aidoku-spm -skipPackagePluginValidation build`
+
+## Phase 2 — Reusable style primitives (foundational, low-risk)
+- [ ] ND-001 | Nyora pill ButtonStyle (fully-rounded, indigo fill / white variant) | area:library | android:res/values/styles.xml Widget.Nyora.Button.Pill | target:iOS/New/Utilities/ButtonStyles/NyoraPillButtonStyle.swift | new SwiftUI ButtonStyle renders a cornerPill capsule with Poppins SemiBold label; compiles and previews
+- [ ] ND-002 | Tinted-card ViewModifier (flat, surface tint + 1px outline, cornerCard) | area:library | android:res/values/styles.xml Widget.Nyora.Card.Tinted | target:iOS/New/Utilities/NyoraCardStyle.swift | `.nyoraTintedCard()` modifier applies slateOnSurface fill, 1px indigo-tint border, 20pt corners, 0 shadow
+
+## Phase 3 — Library grid restyle
+- [ ] ND-003 | Library grid card restyle to tinted card + 12pt cover | area:library | android:item_manga_grid.xml | target:iOS/New/Views/Common/MangaGridItem.swift | grid item uses nyoraTintedCard, cover clipped 13:18 at cornerCover, Poppins SemiBold title; grid still scrolls/taps
+- [ ] ND-004 | Library cover unread badge + reading-progress overlay | area:library | android:item_manga_grid.xml badge/progress | target:iOS/UI/Common/Manga/MangaGridCell.swift | unread count badge (indigo pill) top-right and bottom progress bar overlay render on cover without clipping
+
+## Phase 4 — Manga details restyle
+- [ ] ND-005 | Details cover + title block restyle (left cover ~32%, 16pt, Poppins headline) | area:details | android:activity_details.xml header | target:iOS/New/Views/Manga/MangaDetailsHeaderView.swift | left-aligned cover at cornerCover 13:18, title uses Poppins bold headline; existing blurred backdrop preserved
+- [ ] ND-006 | Details filled info-table card (Source/Author/Rating/State/Chapters/Progress rows) | area:details | android:activity_details.xml info card | target:iOS/New/Views/Manga/MangaDetailsHeaderView.swift | tinted card (20pt, 1px outline) with label/value rows and inline progress bar renders below title
+- [ ] ND-007 | Details description More + genre chips restyle | area:details | android:activity_details.xml chips | target:iOS/New/Views/Manga/ExpandableTextView.swift | description shows Poppins body with More toggle; genres render as cornerPill tinted chips
+- [ ] ND-008 | Chapter rows as outlined cards (16pt corners, 1px outline) | area:details | android:item_chapter.xml | target:iOS/New/Views/Manga/ChapterTableCell.swift | each chapter cell draws an outlined card at cornerCover with Poppins title/subtitle; selection + read state still work
+
+## Phase 5 — Explore restyle
+- [ ] ND-009 | Explore search-hero pill card | area:explore | android:item_explore_search_hero.xml | target:iOS/UI/Browse/BrowseViewController.swift | large pill search card (cornerPill, tinted) at top of Browse launches search; tapping opens existing search flow
+- [ ] ND-010 | Explore quick-actions 2x2 tonal card (Local/Bookmarks/Random/Downloads) | area:explore | android:item_explore_buttons.xml | target:iOS/New/Views/Browse/QuickActionsCard.swift | new SwiftUI 2x2 grid of tall tonal buttons in a tinted card wired to existing Local/Bookmarks/Random/Downloads actions
+- [ ] ND-011 | Source rows as rounded tinted cards (favicon + title + subtitle) | area:explore | android:item_explore_source_list.xml | target:iOS/New/Views/Browse/SourceTableCell.swift | each source row is a tinted rounded card showing favicon, Poppins title, subtitle; navigation to source unchanged
+
+## Phase 6 — Discover home (signature screen)
+- [ ] ND-012 | Discover screen scaffold (new SwiftUI screen fed by source getHome) | area:discover | android:fragment_discover.xml | target:iOS/New/Views/Discover/DiscoverView.swift | new vertical-feed DiscoverView compiles, loads home data via existing NyoraRunner/source home, shows loading + empty states
+- [ ] ND-013 | Discover HERO card (full-bleed cover, L→R gradient, title+genres+white Read pill) | area:discover | android:item_discover_hero.xml | target:iOS/New/Views/Discover/DiscoverHeroCard.swift | ~240pt hero at cornerHero with dark left gradient, bottom-left Poppins bold title + genres + white Read pill (ND-001) opening details
+- [ ] ND-014 | Discover horizontal RAIL (section title + 140pt bordered cards) | area:discover | android:item_discover_rail.xml,item_discover_rail_card.xml | target:iOS/New/Views/Discover/DiscoverRailView.swift | section header + horizontal scroller of 140pt cornerCover bordered cards (cover + 2-line title); taps open details
+- [ ] ND-015 | Discover recommendation pager with dots indicator | area:discover | android:item_recommendation.xml,item_recommendation_manga.xml | target:iOS/New/Views/Discover/DiscoverRecommendationPager.swift | swipeable TabView pager of recommendation cards with indigo dots indicator; compiles and pages
+- [ ] ND-016 | Register Discover as a tab destination | area:nav | android:activity_main.xml nav | target:iOS/UI/Common/TabBarController.swift | Discover appears as a tab hosting DiscoverView without breaking existing Library/Browse/History/Search tabs
+
+## Phase 7 — Nav + Reader chrome
+- [ ] ND-017 | Rename tab destinations to Discover / Favourites / Explore / History | area:nav | android:res/values/strings.xml nav labels | target:iOS/UI/Common/TabBarController.swift | tab titles/labels read Discover, Favourites, Explore, History; underlying view controllers unchanged
+- [ ] ND-018 | Floating rounded pill tab bar appearance | area:nav | android:navigation_rail_fab.xml | target:iOS/UI/Common/TabBarController.swift | tab bar uses a floating rounded pill appearance (indigo selected tint, Poppins) without clipping items or breaking taps
+- [ ] ND-019 | Detached circular "Continue reading" button | area:nav | android:navigation_rail_fab.xml FAB | target:iOS/New/Views/Common/ContinueReadingButton.swift | new circular indigo button overlays the tab area, hidden when no in-progress manga, opens the last-read chapter
+- [ ] ND-020 | Reader centered title+subtitle bar + floating rounded bottom action bar | area:reader | android:activity_reader.xml | target:iOS/UI/Reader/ReaderToolbarView.swift,iOS/UI/Reader/ReaderSliderView.swift | top bar shows centered Poppins title+subtitle; bottom action bar is a floating rounded pill with prev/next flanking the page slider; controls still function
