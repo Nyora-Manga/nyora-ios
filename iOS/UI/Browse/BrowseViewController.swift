@@ -16,9 +16,8 @@ class BrowseViewController: BaseTableViewController {
 
     private lazy var refreshControl = UIRefreshControl()
     private lazy var emptyStackView = EmptyPageStackView()
-    private lazy var searchHeroView = NyoraSearchHeroView()
 
-    // Nyora Explore header: search-hero pill stacked over a 2×2 quick-actions card.
+    // Nyora Explore header: a 2×2 quick-actions card (search uses the native search bar).
     private let headerContainer = UIView()
     private static let quickActionsHeight: CGFloat = 178
     private lazy var quickActionsHost: UIHostingController<QuickActionsCard> = {
@@ -50,11 +49,6 @@ class BrowseViewController: BaseTableViewController {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController
-
-        // Nyora search-hero pill: a large tinted pill card that opens the search field.
-        searchHeroView.onTap = { [weak self] in
-            self?.navigationItem.searchController?.searchBar.becomeFirstResponder()
-        }
 
         // toolbar buttons
         let deleteButton = UIBarButtonItem(
@@ -96,9 +90,8 @@ class BrowseViewController: BaseTableViewController {
         refreshControl.addTarget(self, action: #selector(refreshSourceLists(_:)), for: .valueChanged)
         tableView.refreshControl = refreshControl
 
-        // install the combined header (search-hero + quick-actions), sized in viewDidLayoutSubviews
+        // install the quick-actions header, sized in viewDidLayoutSubviews
         addChild(quickActionsHost)
-        headerContainer.addSubview(searchHeroView)
         headerContainer.addSubview(quickActionsHost.view)
         quickActionsHost.didMove(toParent: self)
         tableView.tableHeaderView = headerContainer
@@ -182,16 +175,13 @@ class BrowseViewController: BaseTableViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        // Size the combined header (search-hero pill + 2×2 quick-actions card) to the table width.
+        // Size the 2×2 quick-actions header to the table width.
         guard tableView.tableHeaderView === headerContainer else { return }
         let width = tableView.bounds.width
-        let searchHeight = NyoraSearchHeroView.preferredHeight
-        let totalHeight = searchHeight + Self.quickActionsHeight
-        let targetSize = CGSize(width: width, height: totalHeight)
+        let targetSize = CGSize(width: width, height: Self.quickActionsHeight)
         if headerContainer.frame.size != targetSize {
             headerContainer.frame = CGRect(origin: .zero, size: targetSize)
-            searchHeroView.frame = CGRect(x: 0, y: 0, width: width, height: searchHeight)
-            quickActionsHost.view.frame = CGRect(x: 0, y: searchHeight, width: width, height: Self.quickActionsHeight)
+            quickActionsHost.view.frame = CGRect(x: 0, y: 0, width: width, height: Self.quickActionsHeight)
             tableView.tableHeaderView = headerContainer
         }
     }
