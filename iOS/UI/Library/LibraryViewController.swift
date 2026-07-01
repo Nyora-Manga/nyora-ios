@@ -63,12 +63,17 @@ class LibraryViewController: OldMangaCollectionViewController {
     override var undoManager: UndoManager { libraryUndoManager }
     override var canBecomeFirstResponder: Bool { true }
 
+    var displayMode: LibraryDisplayMode {
+        get { LibraryDisplayMode.current }
+        set { LibraryDisplayMode.current = newValue }
+    }
+
     override var usesListLayout: Bool {
         get {
-            UserDefaults.standard.bool(forKey: "Library.listView")
+            displayMode != .grid
         }
         set {
-            UserDefaults.standard.setValue(newValue, forKey: "Library.listView")
+            displayMode = newValue ? .detailed : .grid
         }
     }
 
@@ -445,13 +450,27 @@ class LibraryViewController: OldMangaCollectionViewController {
         }
     }
 
-    // collection view layout with header
+    // collection view layout with header + three display modes (grid / list / detailed)
     override func makeCollectionViewLayout() -> UICollectionViewLayout {
-        let layout = super.makeCollectionViewLayout()
-        guard let layout = layout as? UICollectionViewCompositionalLayout else { return layout }
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionIndex, environment in
+            guard let self else { return nil }
+            switch Section(rawValue: sectionIndex) {
+                case .pinned, .regular:
+                    switch self.displayMode {
+                        case .grid:
+                            return Self.makeGridLayoutSection(environment: environment)
+                        case .list:
+                            return Self.makeCompactListLayoutSection(environment: environment)
+                        case .detailed:
+                            return Self.makeListLayoutSection(environment: environment)
+                    }
+                case nil:
+                    return nil
+            }
+        }
 
         let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = layout.configuration.interSectionSpacing
+        config.interSectionSpacing = Self.itemSpacing + Self.sectionSpacing
         if !viewModel.categories.isEmpty || !viewModel.filterGroups.isEmpty {
             let globalHeader = NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: NSCollectionLayoutSize(
@@ -468,6 +487,32 @@ class LibraryViewController: OldMangaCollectionViewController {
         return layout
     }
 
+    // compact single-line list rows
+    static func makeCompactListLayoutSection(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+        let itemHeight: CGFloat = 60
+        let spacing: CGFloat = 8
+
+        let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .absolute(itemHeight)
+        ))
+
+        let group = NSCollectionLayoutGroup.vertical(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1),
+                heightDimension: .absolute(itemHeight)
+            ),
+            subitems: [item]
+        )
+        group.interItemSpacing = .fixed(spacing)
+
+        let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+        section.interGroupSpacing = spacing
+
+        return section
+    }
+
     // cells with badges
     override func configure(cell: MangaGridCell, info: MangaInfo, indexPath: IndexPath) {
         super.configure(cell: cell, info: info, indexPath: indexPath)
@@ -479,6 +524,7 @@ class LibraryViewController: OldMangaCollectionViewController {
     }
 
     override func configure(cell: MangaListCell, info: MangaInfo, indexPath: IndexPath) {
+        cell.isCompact = displayMode == .list
         super.configure(cell: cell, info: info, indexPath: indexPath)
 
         cell.badgeNumber = viewModel.badgeType.contains(.unread) ? info.unread : 0
@@ -1085,30 +1131,19 @@ extension LibraryViewController {
             self.setEditing(true, animated: true)
         }
 
-        let layoutActions = [
+        let layoutActions = LibraryDisplayMode.allCases.map { mode in
             UIAction(
-                title: NSLocalizedString("LAYOUT_GRID"),
-                image: UIImage(systemName: "square.grid.2x2"),
-                state: usesListLayout ? .off : .on
+                title: mode.title,
+                image: mode.image,
+                state: displayMode == mode ? .on : .off
             ) { [weak self] _ in
-                guard let self, self.usesListLayout else { return }
-                self.usesListLayout = false
-                self.collectionView.setCollectionViewLayout(self.makeCollectionViewLayout(), animated: true)
-                self.collectionView.reloadData()
-                self.updateMoreMenu()
-            },
-            UIAction(
-                title: NSLocalizedString("LAYOUT_LIST"),
-                image: UIImage(systemName: "list.bullet"),
-                state: usesListLayout ? .on : .off
-            ) { [weak self] _ in
-                guard let self, !self.usesListLayout else { return }
-                self.usesListLayout = true
+                guard let self, self.displayMode != mode else { return }
+                self.displayMode = mode
                 self.collectionView.setCollectionViewLayout(self.makeCollectionViewLayout(), animated: true)
                 self.collectionView.reloadData()
                 self.updateMoreMenu()
             }
-        ]
+        }
 
         let sortMenu = UIMenu(
             title: NSLocalizedString("SORT_BY"),

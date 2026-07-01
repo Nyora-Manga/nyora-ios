@@ -97,6 +97,7 @@
 "COVER" = "Cover";
 "LAYOUT_GRID" = "Grid";
 "LAYOUT_LIST" = "List";
+"LAYOUT_DETAILED_LIST" = "Detailed List";
 "REMOVING_(ONE)_ITEM_FROM_LIBRARY" = "Removing Item from Library";
 "REMOVING_%i_ITEMS_FROM_LIBRARY" = "Removing %i Items from Library";
 "REMOVING_(ONE)_ITEM_FROM_CATEGORY_%@" = "Removing Item from Category %@";

@@ -17,6 +17,14 @@ class MangaListCell: UICollectionViewCell {
 
     private var isEditing = false
 
+    /// Compact single-line list style (smaller cover, no subtitle/tags).
+    var isCompact = false {
+        didSet {
+            guard oldValue != isCompact else { return }
+            applyCompactStyle()
+        }
+    }
+
     var badgeNumber: Int {
         get { badgeView.badgeNumber }
         set {
@@ -93,6 +101,11 @@ class MangaListCell: UICollectionViewCell {
     private var coverLeadingConstraint: NSLayoutConstraint?
     private var textTrailingConstraint: NSLayoutConstraint?
     private var badgeWidthConstraint: NSLayoutConstraint?
+    private var coverWidthConstraint: NSLayoutConstraint?
+    private var coverHeightConstraint: NSLayoutConstraint?
+
+    private static let detailedCoverHeight: CGFloat = 100
+    private static let compactCoverHeight: CGFloat = 44
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -129,6 +142,8 @@ class MangaListCell: UICollectionViewCell {
         coverLeadingConstraint = coverImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
         textTrailingConstraint = titleStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         badgeWidthConstraint = badgeView.widthAnchor.constraint(equalToConstant: badgeView.intrinsicContentSize.width)
+        coverHeightConstraint = coverImageView.heightAnchor.constraint(equalToConstant: Self.detailedCoverHeight)
+        coverWidthConstraint = coverImageView.widthAnchor.constraint(equalToConstant: Self.detailedCoverHeight * 2/3)
 
         NSLayoutConstraint.activate([
             selectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -138,8 +153,8 @@ class MangaListCell: UICollectionViewCell {
 
             coverLeadingConstraint!,
             coverImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            coverImageView.widthAnchor.constraint(equalToConstant: 100 * 2/3),
-            coverImageView.heightAnchor.constraint(equalToConstant: 100),
+            coverWidthConstraint!,
+            coverHeightConstraint!,
 
             bookmarkImageView.trailingAnchor.constraint(equalTo: coverImageView.trailingAnchor, constant: -8),
             bookmarkImageView.topAnchor.constraint(equalTo: coverImageView.topAnchor),
@@ -155,6 +170,18 @@ class MangaListCell: UICollectionViewCell {
             badgeView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             badgeView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
+    }
+
+    private func applyCompactStyle() {
+        let height = isCompact ? Self.compactCoverHeight : Self.detailedCoverHeight
+        coverHeightConstraint?.constant = height
+        coverWidthConstraint?.constant = height * 2/3
+        titleLabel.numberOfLines = isCompact ? 1 : 2
+        bookmarkImageView.isHidden = isCompact
+        if isCompact {
+            subtitleLabel.isHidden = true
+            tagScrollView.isHidden = true
+        }
     }
 
     override func prepareForReuse() {
@@ -238,10 +265,10 @@ extension MangaListCell {
         identifier = MangaIdentifier(sourceKey: manga.sourceKey, mangaKey: manga.key)
         titleLabel.text = manga.title
         subtitleLabel.text = manga.authors?.joined(separator: ", ")
-        subtitleLabel.isHidden = subtitleLabel.text?.isEmpty ?? true
+        subtitleLabel.isHidden = isCompact || (subtitleLabel.text?.isEmpty ?? true)
         bookmarkImageView.image = isBookmarked ? UIImage(systemName: "bookmark.fill") : nil
 
-        if let tags = manga.tags, !tags.isEmpty {
+        if !isCompact, let tags = manga.tags, !tags.isEmpty {
             tagScrollView.tags = tags
             tagScrollView.isHidden = false
         } else {
@@ -257,7 +284,8 @@ extension MangaListCell {
         identifier = MangaIdentifier(sourceKey: info.sourceId, mangaKey: info.mangaId)
         titleLabel.text = info.title
         subtitleLabel.text = info.author
-        subtitleLabel.isHidden = subtitleLabel.text?.isEmpty ?? true
+        subtitleLabel.isHidden = isCompact || (subtitleLabel.text?.isEmpty ?? true)
+        tagScrollView.isHidden = true
 
         Task {
             await loadImage(url: info.coverUrl)

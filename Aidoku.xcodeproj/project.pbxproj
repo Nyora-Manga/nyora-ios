@@ -49,6 +49,7 @@
 		7CF79D3E2F31E81300BF0800 /* TextPaginator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CF79D3A2F31E81300BF0800 /* TextPaginator.swift */; };
 		892F2733E12D908A19A4197B /* MangaTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC957E858BF86E567DE49FA4 /* MangaTranslator.swift */; };
 		A436FFEBDFA37033CE627BDA /* VolumeButtonHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501E78B384245931983B9C1C /* VolumeButtonHandler.swift */; };
+		ABDA9BE702D7EBD9ED57D88F /* LibraryDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */; };
 		B2260FD21C1E03EC27FE7011 /* ColorFilterConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 938868F450FEB8271A8B23A9 /* ColorFilterConfigView.swift */; };
 		C410B501630CDA838A6409E8 /* NyoraSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E880AAAE669C883263D2A7 /* NyoraSource.swift */; };
 		D25477168BD5C13D55CFD9D6 /* TranslationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E41E90BB517AF2ABC308D9B /* TranslationController.swift */; };
@@ -654,6 +655,7 @@
 		7CF79D392F31E81300BF0800 /* ReaderPagedTextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderPagedTextViewController.swift; sourceTree = "<group>"; };
 		7CF79D3A2F31E81300BF0800 /* TextPaginator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPaginator.swift; sourceTree = "<group>"; };
 		88D04FA91678DC60A6F95C3F /* NyoraAccountView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraAccountView.swift; sourceTree = "<group>"; };
+		8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryDisplayMode.swift; sourceTree = "<group>"; };
 		8E41E90BB517AF2ABC308D9B /* TranslationController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationController.swift; sourceTree = "<group>"; };
 		91157E161122819CBE01C634 /* TranslationModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TranslationModels.swift; sourceTree = "<group>"; };
 		91D7BEF72DD7E46800898539 /* Aidoku-IOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Aidoku-IOS.xcconfig"; sourceTree = "<group>"; };
@@ -1280,6 +1282,7 @@
 				FB02E1EA288CC1DA00B9E2DE /* LibraryViewController.swift */,
 				FBE40E2E288EDDB700CCA4DC /* LibraryViewModel.swift */,
 				FB17114229653B3E00AD523D /* AddToCategoryViewController.swift */,
+				8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -3075,6 +3078,7 @@
 				5D6E964A75144C864A98CD90 /* TapGridConfigView.swift in Sources */,
 				0E0354DEEC549E62F24EA80F /* AccentColorView.swift in Sources */,
 				46EEB80291770D1BAEFF8FAC /* AmoledTheme.swift in Sources */,
+				ABDA9BE702D7EBD9ED57D88F /* LibraryDisplayMode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
