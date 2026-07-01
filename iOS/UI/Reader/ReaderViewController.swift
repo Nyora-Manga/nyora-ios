@@ -275,6 +275,9 @@ class ReaderViewController: BaseObservingViewController {
         addObserver(forName: "Reader.cropBorders", using: reloadBlock)
         addObserver(forName: "Reader.liveText", using: reloadBlock)
         addObserver(forName: "Reader.tapZones", using: reloadBlock)
+        addObserver(forName: "Reader.keepScreenOn") { [weak self] _ in
+            self?.updateIdleTimer()
+        }
         // Switch text reader style (paged <-> scroll) without restart
         addObserver(forName: "Reader.textReaderStyle") { [weak self] _ in
             guard let self else { return }
@@ -334,10 +337,20 @@ class ReaderViewController: BaseObservingViewController {
         navigationController?.toolbar.alpha = 1
 
         disableSwipeGestures()
+
+        updateIdleTimer()
+    }
+
+    /// Prevents the device from auto-locking while the reader is on screen, if enabled.
+    private func updateIdleTimer() {
+        UIApplication.shared.isIdleTimerDisabled = UserDefaults.standard.bool(forKey: "Reader.keepScreenOn")
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+
+        // restore normal auto-lock behaviour when leaving the reader
+        UIApplication.shared.isIdleTimerDisabled = false
 
         if !chaptersToRemoveDownload.isEmpty {
             Task {

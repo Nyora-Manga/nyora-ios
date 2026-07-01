@@ -160,6 +160,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Reader.disableDoubleTap": false,
                 "Reader.liveText": false,
                 "Reader.hideBarsOnSwipe": false,
+                "Reader.keepScreenOn": true,
                 "Reader.tapZones": "disabled",
                 "Reader.invertTapZones": false,
                 "Reader.animatePageTransitions": true,

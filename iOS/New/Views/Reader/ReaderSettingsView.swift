@@ -132,6 +132,14 @@ struct ReaderSettingsView: View {
                     )
                     SettingView(
                         setting: .init(
+                            key: "Reader.keepScreenOn",
+                            title: NSLocalizedString("KEEP_SCREEN_ON"),
+                            notification: .init("Reader.keepScreenOn"),
+                            value: .toggle(.init())
+                        )
+                    )
+                    SettingView(
+                        setting: .init(
                             key: "Reader.backgroundColor",
                             title: NSLocalizedString("READER_BG_COLOR"),
                             value: .select(.init(
