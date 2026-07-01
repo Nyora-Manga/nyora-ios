@@ -186,6 +186,23 @@ struct ReaderSettingsView: View {
                     )
                     SettingView(
                         setting: .init(
+                            key: "Reader.infoBar",
+                            title: NSLocalizedString("READER_INFO_BAR"),
+                            notification: .init("Reader.infoBar"),
+                            value: .toggle(.init(subtitle: NSLocalizedString("READER_INFO_BAR_SUBTITLE")))
+                        )
+                    )
+                    SettingView(
+                        setting: .init(
+                            key: "Reader.infoBarTransparent",
+                            title: NSLocalizedString("READER_INFO_BAR_TRANSPARENT"),
+                            notification: .init("Reader.infoBarTransparent"),
+                            requires: "Reader.infoBar",
+                            value: .toggle(.init())
+                        )
+                    )
+                    SettingView(
+                        setting: .init(
                             key: "Reader.backgroundColor",
                             title: NSLocalizedString("READER_BG_COLOR"),
                             value: .select(.init(

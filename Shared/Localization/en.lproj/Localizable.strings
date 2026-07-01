@@ -565,6 +565,11 @@
 "KEEP_SCREEN_ON" = "Keep Screen On";
 "VOLUME_BUTTON_PAGING" = "Volume Button Paging";
 "READER_FULLSCREEN" = "Fullscreen";
+"READER_INFO_BAR" = "Information Bar";
+"READER_INFO_BAR_SUBTITLE" = "Show the current time and reading progress while the reader controls are hidden";
+"READER_INFO_BAR_TRANSPARENT" = "Transparent Information Bar";
+"READER_INFO_PATTERN" = "Ch. %1$d/%2$d  Pg. %3$d/%4$d";
+"READER_INFO_PAGE_PATTERN" = "Pg. %1$d/%2$d";
 "READER_BG_COLOR" = "Background Color";
 "READER_BG_COLOR_SYSTEM" = "System";
 "READER_BG_COLOR_AUTO" = "Automatic";

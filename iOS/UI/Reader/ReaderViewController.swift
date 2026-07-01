@@ -51,6 +51,9 @@ class ReaderViewController: BaseObservingViewController {
 
     private lazy var activityIndicator = UIActivityIndicatorView(style: .medium)
     private lazy var toolbarView = ReaderToolbarView()
+
+    // persistent reader info bar overlay (NP-018)
+    private lazy var infoBarView = ReaderInfoBarView()
     private var toolbarViewWidthConstraint: NSLayoutConstraint?
 
     private lazy var volumeButtonHandler: VolumeButtonHandler = {
@@ -252,6 +255,11 @@ class ReaderViewController: BaseObservingViewController {
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(activityIndicator)
 
+        // persistent reader info bar overlay (NP-018)
+        infoBarView.isTransparent = UserDefaults.standard.bool(forKey: "Reader.infoBarTransparent")
+        infoBarView.isHidden = true
+        view.addSubview(infoBarView)
+
         // bar toggle tap gesture
         fakeZoomTapGesture.isEnabled = !UserDefaults.standard.bool(forKey: "Reader.disableDoubleTap")
         view.addGestureRecognizer(fakeZoomTapGesture)
@@ -289,6 +297,10 @@ class ReaderViewController: BaseObservingViewController {
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
 
+            infoBarView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            infoBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            infoBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
             descriptionButtonController.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             pageDescriptionButtonBottomConstraint
         ])
@@ -323,6 +335,16 @@ class ReaderViewController: BaseObservingViewController {
         }
         addObserver(forName: "Reader.volumeButtons") { [weak self] _ in
             self?.updateVolumeButtons()
+        }
+        // persistent reader info bar overlay (NP-018)
+        addObserver(forName: "Reader.infoBar") { [weak self] _ in
+            guard let self else { return }
+            // refresh visibility: shown only while the reader bars are hidden
+            self.setInfoBar(visible: self.statusBarHidden)
+        }
+        addObserver(forName: "Reader.infoBarTransparent") { [weak self] _ in
+            guard let self else { return }
+            self.infoBarView.isTransparent = UserDefaults.standard.bool(forKey: "Reader.infoBarTransparent")
         }
         // fullscreen / display-cutout toggle (NP-017): refresh status bar & home indicator visibility live
         addObserver(forName: "Reader.fullscreen") { [weak self] _ in
@@ -942,6 +964,7 @@ extension ReaderViewController: ReaderHoldingDelegate {
         currentPosition = position
         toolbarView.currentPage = page
         toolbarView.updateSliderPosition()
+        updateInfoBar()
         // Mark as completed when reaching the last page
         // Exception: Don't mark for the pre-pagination placeholder (single text page before
         // ReaderPagedTextViewController has paginated it). Once paginated, even single-page
@@ -1038,6 +1061,56 @@ extension ReaderViewController: ReaderHoldingDelegate {
         if UserDefaults.standard.bool(forKey: "Library.deleteDownloadAfterReading") {
             chaptersToRemoveDownload.append(chapter)
         }
+    }
+}
+
+// MARK: - Info Bar (NP-018)
+extension ReaderViewController {
+    private var infoBarEnabled: Bool {
+        UserDefaults.standard.bool(forKey: "Reader.infoBar")
+    }
+
+    /// Update the info bar's progress text from the current chapter/page state.
+    func updateInfoBar() {
+        guard infoBarEnabled else { return }
+        let chaptersTotal = chapterList.count
+        // 1-based position of the current chapter within the list (list is newest-first,
+        // so invert the index to read as "chapter N of total")
+        let chapterNumber: Int
+        if let index = chapterList.firstIndex(where: { areSameChapter($0, chapter) }) {
+            chapterNumber = chaptersTotal - index
+        } else {
+            chapterNumber = 0
+        }
+        infoBarView.update(
+            chapterNumber: chapterNumber,
+            chaptersTotal: chaptersTotal,
+            currentPage: max(currentPage, 0),
+            totalPages: toolbarView.totalPages ?? 0
+        )
+    }
+
+    /// Show the info bar only when enabled and the reader bars are hidden.
+    /// Called from hideBars(visible: true) / showBars(visible: false).
+    func setInfoBar(visible: Bool) {
+        let shouldShow = visible && infoBarEnabled
+        if shouldShow {
+            updateInfoBar()
+            infoBarView.isHidden = false
+        }
+        UIView.animate(withDuration: CATransaction.animationDuration()) {
+            self.infoBarView.alpha = shouldShow ? 1 : 0
+        } completion: { _ in
+            if !shouldShow {
+                self.infoBarView.isHidden = true
+            }
+        }
+    }
+
+    private func areSameChapter(_ a: AidokuRunner.Chapter, _ b: AidokuRunner.Chapter) -> Bool {
+        a.chapterNumber == b.chapterNumber
+            && a.volumeNumber == b.volumeNumber
+            && (!(a.chapterNumber == nil && a.volumeNumber == nil) || a.title == b.title)
     }
 }
 
@@ -1227,6 +1300,8 @@ extension ReaderViewController {
     func showBars() {
         guard let navigationController else { return }
 
+        setInfoBar(visible: false)
+
         UIView.animate(withDuration: CATransaction.animationDuration()) {
             self.statusBarHidden = false
             self.setNeedsStatusBarAppearanceUpdate()
@@ -1279,6 +1354,7 @@ extension ReaderViewController {
         } completion: { _ in
             NotificationCenter.default.post(name: .readerHidingBars, object: nil)
 
+            self.setInfoBar(visible: true)
             self.pageDescriptionButtonBottomConstraint.constant = 30
 
             UIView.animate(withDuration: CATransaction.animationDuration()) {

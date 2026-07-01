@@ -54,6 +54,7 @@
 		ABDA9BE702D7EBD9ED57D88F /* LibraryDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BCFE33298C01CFA6FA72C51 /* LibraryDisplayMode.swift */; };
 		B2260FD21C1E03EC27FE7011 /* ColorFilterConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 938868F450FEB8271A8B23A9 /* ColorFilterConfigView.swift */; };
 		C410B501630CDA838A6409E8 /* NyoraSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E880AAAE669C883263D2A7 /* NyoraSource.swift */; };
+		C618055CD8D1AFF0D6BCC967 /* ReaderInfoBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */; };
 		D25477168BD5C13D55CFD9D6 /* TranslationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E41E90BB517AF2ABC308D9B /* TranslationController.swift */; };
 		DC4F70CA47A4AFD3B3C0A0E0 /* ColorFilterProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0724DE86CCBF1987A523779A /* ColorFilterProcessor.swift */; };
 		DFA62BB8ADFA6C7D4AD53D2F /* GoogleTranslate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */; };
@@ -672,6 +673,7 @@
 		955F2F74E9E812227602DD9B /* AccentColorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccentColorView.swift; sourceTree = "<group>"; };
 		95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceRefiner.swift; sourceTree = "<group>"; };
 		A1E880AAAE669C883263D2A7 /* NyoraSource.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSource.swift; sourceTree = "<group>"; };
+		B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReaderInfoBarView.swift; sourceTree = "<group>"; };
 		C6CDF0FE43F1549D93660593 /* TapGridConfigView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGridConfigView.swift; sourceTree = "<group>"; };
 		CBAC496ECD1A591AFA82EFC6 /* ProgressIndicatorMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressIndicatorMode.swift; sourceTree = "<group>"; };
 		E86FCD4C820B864346BDB2A4 /* TapGrid.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TapGrid.swift; sourceTree = "<group>"; };
@@ -1389,6 +1391,7 @@
 				501E78B384245931983B9C1C /* VolumeButtonHandler.swift */,
 				763ADD6FC150FB34E07A909D /* ReaderZoomMode.swift */,
 				8E1118EED6E55A56A960F20A /* ReaderAnimationMode.swift */,
+				B5EAACBA44D3D8840DDE8276 /* ReaderInfoBarView.swift */,
 			);
 			path = Reader;
 			sourceTree = "<group>";
@@ -3091,6 +3094,7 @@
 				66B9F8A49F92C21E35DCB4F0 /* ProgressIndicatorMode.swift in Sources */,
 				E02BB0548DF87A744D0F26C4 /* ReaderZoomMode.swift in Sources */,
 				1EB95D165E6EB8B6D2BA7452 /* ReaderAnimationMode.swift in Sources */,
+				C618055CD8D1AFF0D6BCC967 /* ReaderInfoBarView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
