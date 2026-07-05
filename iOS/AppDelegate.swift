@@ -154,6 +154,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 "Browse.updateCount": 0,
 
                 "Sources.disableNsfw": false,
+                "Library.noNsfwHistory": false,
 
                 "History.lockHistoryTab": false,
 
