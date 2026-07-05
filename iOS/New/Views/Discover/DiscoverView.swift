@@ -5,10 +5,10 @@
 //  ND-012 / NX-002 — Discover screen.
 //
 //  The Nyora "Discover" signature surface (ported from nyora-android's
-//  fragment_discover.xml). NX-002 rewires the feed to source from AniList
-//  (auth-free GraphQL) rather than the first installed reader source: a hero
-//  (top trending), a "Trending" recommendation pager, and a "Popular" rail.
-//  AniList entries aren't tied to a readable source, so tapping one presents a
+//  fragment_discover.xml). NX-002 rewires the feed to source from the MangaBaka
+//  database (auth-free search) rather than the first installed reader source: a
+//  hero (top trending), a "Trending" recommendation pager, and further rails.
+//  MangaBaka entries aren't tied to a readable source, so tapping one presents a
 //  universal search (``NyoraTitleSearchView``) that finds a readable copy across
 //  the installed sources.
 //
@@ -19,18 +19,18 @@ import SwiftUI
 struct DiscoverView: View {
     enum LoadState {
         case loading
-        case loaded(AniListFeed)
+        case loaded(DiscoverFeed)
         case empty
         case failed(Error)
     }
 
-    struct AniListFeed {
+    struct DiscoverFeed {
         let hero: AidokuRunner.Manga
-        let trending: [AidokuRunner.Manga]      // trending minus hero → the pager
-        let rails: [AniListClient.Section]      // Popular, Top Rated, genres…
+        let trending: [AidokuRunner.Manga]              // trending minus hero → the pager
+        let rails: [MangaBakaDiscoverClient.Section]    // Top Rated, Manhwa, genres…
     }
 
-    /// Identifiable wrapper so an AniList entry can drive a `.sheet(item:)`.
+    /// Identifiable wrapper so a MangaBaka entry can drive a `.sheet(item:)`.
     struct SearchTarget: Identifiable {
         let manga: AidokuRunner.Manga
         var id: String { manga.key }
@@ -129,8 +129,8 @@ struct DiscoverView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // AniList-backed feed: hero (top trending) + "Trending" pager + "Popular" rail.
-    private func loadedView(feed: AniListFeed) -> some View {
+    // MangaBaka-backed feed: hero (top trending) + "Trending" pager + rails.
+    private func loadedView(feed: DiscoverFeed) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // NX-006 — inline "Continue reading" row built from in-progress
@@ -207,7 +207,7 @@ struct DiscoverView: View {
 
     // MARK: - Loading
 
-    /// Present the universal "find this title to read" sheet for an AniList entry.
+    /// Present the universal "find this title to read" sheet for a MangaBaka entry.
     private func openSearch(_ manga: AidokuRunner.Manga) {
         searchTarget = SearchTarget(manga: manga)
     }
@@ -215,7 +215,7 @@ struct DiscoverView: View {
     private func load() async {
         state = .loading
         do {
-            let sections = try await AniListClient.shared.feed()
+            let sections = try await MangaBakaDiscoverClient.shared.feed()
 
             // First section ("trending") drives the hero + pager; the rest are rails.
             let trendingSection = sections.first { $0.id == "trending" } ?? sections.first
@@ -224,9 +224,9 @@ struct DiscoverView: View {
                 return
             }
             let trending = Array((trendingSection?.manga ?? []).dropFirst().prefix(12))
-            let rails = sections.filter { $0.id != "trending" }
+            let rails = sections.filter { $0.id != trendingSection?.id }
 
-            state = .loaded(AniListFeed(hero: hero, trending: trending, rails: rails))
+            state = .loaded(DiscoverFeed(hero: hero, trending: trending, rails: rails))
         } catch {
             state = .failed(error)
         }
