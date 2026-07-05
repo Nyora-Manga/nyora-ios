@@ -29,6 +29,11 @@ enum Settings {
                 title: NSLocalizedString("DISABLE_NSFW"),
                 notification: "Sources.disableNsfw",
                 value: .toggle(.init(subtitle: NSLocalizedString("DISABLE_NSFW_TEXT")))
+            ),
+            .init(
+                key: "Library.noNsfwHistory",
+                title: NSLocalizedString("Keep 18+ out of history"),
+                value: .toggle(.init(subtitle: NSLocalizedString("Adult-tagged manga are never saved to your reading history.")))
             )
         ]))),
         .init(value: .group(.init(items: [

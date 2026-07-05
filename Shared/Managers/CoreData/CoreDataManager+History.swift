@@ -270,6 +270,14 @@ extension CoreDataManager {
     }
 
     /// Set page progress for a chapter and creates a history object if it doesn't already exist.
+    /// "Keep 18+ out of history" — when the setting is on and the manga is adult
+    /// (contentRating == .nsfw), reading history is not recorded for it.
+    func nsfwHistoryBlocked(sourceId: String, mangaId: String, context: NSManagedObjectContext?) -> Bool {
+        guard UserDefaults.standard.bool(forKey: "Library.noNsfwHistory") else { return false }
+        guard let manga = self.getManga(sourceId: sourceId, mangaId: mangaId, context: context) else { return false }
+        return Int(manga.nsfw) == MangaContentRating.nsfw.rawValue
+    }
+
     func setProgress(
         _ progress: Int,
         sourceId: String,
@@ -281,6 +289,7 @@ extension CoreDataManager {
         completed: Bool? = nil,
         context: NSManagedObjectContext? = nil
     ) {
+        if self.nsfwHistoryBlocked(sourceId: sourceId, mangaId: mangaId, context: context) { return }
         let historyObject = self.getOrCreateHistory(
             sourceId: sourceId,
             mangaId: mangaId,
@@ -307,6 +316,7 @@ extension CoreDataManager {
         context: NSManagedObjectContext? = nil
     ) {
         for chapter in chapters {
+            if self.nsfwHistoryBlocked(sourceId: chapter.sourceId, mangaId: chapter.mangaId, context: context) { continue }
             let historyObject = self.getOrCreateHistory(
                 sourceId: chapter.sourceId,
                 mangaId: chapter.mangaId,
@@ -328,6 +338,7 @@ extension CoreDataManager {
         context: NSManagedObjectContext? = nil
     ) -> Bool {
         var success = false
+        if self.nsfwHistoryBlocked(sourceId: sourceId, mangaId: mangaId, context: context) { return false }
         for chapterId in chapterIds {
             let historyObject = self.getOrCreateHistory(
                 sourceId: sourceId,
