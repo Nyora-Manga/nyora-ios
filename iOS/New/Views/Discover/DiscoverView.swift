@@ -64,8 +64,12 @@ struct DiscoverView: View {
             .navigationTitle(NSLocalizedString("DISCOVER", comment: ""))
             .navigationBarTitleDisplayMode(.automatic)
             .task {
-                guard !hasLoaded else { return }
-                hasLoaded = true
+                // Only skip once a load has *succeeded*. A cancelled/failed first
+                // attempt (the view is briefly torn down during the onboarding→main
+                // transition, cancelling the fetch) leaves `hasLoaded == false` so
+                // the reappearing `.task` retries cleanly instead of sticking on an
+                // "Unknown Error".
+                if hasLoaded { return }
                 await load()
             }
             .sheet(item: $searchTarget) { target in
@@ -102,15 +106,27 @@ struct DiscoverView: View {
 
     // MARK: - States
 
+    // Skeleton placeholder that mirrors the real feed layout (a hero-sized block +
+    // a few cover-shaped rails) with a subtle shimmer, so the first paint reads as
+    // "content is arriving" rather than a lone spinner. Uses the same
+    // `ShimmerSkeleton` the covers fade in from.
     private var loadingView: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .progressViewStyle(.circular)
-            Text(NSLocalizedString("LOADING_ELLIPSIS", comment: ""))
-                .font(.poppins(14, weight: .medium))
-                .foregroundStyle(.secondary)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Hero block
+                DiscoverSkeletonBlock(cornerRadius: NyoraTheme.cornerHero)
+                    .frame(height: DiscoverHeroCard.height)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 4)
+
+                // A few cover rails
+                ForEach(0..<3, id: \.self) { _ in
+                    DiscoverSkeletonRail()
+                }
+            }
+            .padding(.bottom, 24)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .disabled(true)
     }
 
     private var emptyView: some View {
@@ -221,14 +237,66 @@ struct DiscoverView: View {
             let trendingSection = sections.first { $0.id == "trending" } ?? sections.first
             guard let hero = trendingSection?.manga.first else {
                 state = .empty
+                hasLoaded = true
                 return
             }
             let trending = Array((trendingSection?.manga ?? []).dropFirst().prefix(12))
             let rails = sections.filter { $0.id != trendingSection?.id }
 
             state = .loaded(DiscoverFeed(hero: hero, trending: trending, rails: rails))
+            hasLoaded = true
+        } catch is CancellationError {
+            // The fetch was cancelled by a transient view teardown. Leave the state
+            // as-is (still `.loading`) and don't mark loaded, so the `.task` that
+            // fires when the view reappears retries the fetch cleanly.
+            return
         } catch {
             state = .failed(error)
+        }
+    }
+}
+
+// MARK: - Loading skeleton
+
+/// A single shimmering rounded block used to build the Discover loading skeleton.
+private struct DiscoverSkeletonBlock: View {
+    var cornerRadius: CGFloat = 12
+
+    var body: some View {
+        ShimmerSkeleton()
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+    }
+}
+
+/// One shimmer rail: a short section-title placeholder above a row of
+/// cover-shaped shimmer cards, matching `DiscoverRailView`'s real layout.
+private struct DiscoverSkeletonRail: View {
+    private static let cardWidth: CGFloat = 140
+    private static let corner: CGFloat = 16
+
+    private var coverHeight: CGFloat {
+        (Self.cardWidth / NyoraTheme.coverAspectRatio).rounded()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            // Section-title placeholder
+            DiscoverSkeletonBlock(cornerRadius: 6)
+                .frame(width: 140, height: 18)
+                .padding(.horizontal, 16)
+
+            // Row of cover-shaped cards (no scrolling — decorative)
+            HStack(alignment: .top, spacing: 12) {
+                ForEach(0..<4, id: \.self) { _ in
+                    VStack(alignment: .leading, spacing: 8) {
+                        DiscoverSkeletonBlock(cornerRadius: Self.corner)
+                            .frame(width: Self.cardWidth, height: coverHeight)
+                        DiscoverSkeletonBlock(cornerRadius: 4)
+                            .frame(width: Self.cardWidth * 0.8, height: 12)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
         }
     }
 }

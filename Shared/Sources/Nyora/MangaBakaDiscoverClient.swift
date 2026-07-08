@@ -113,6 +113,13 @@ actor MangaBakaDiscoverClient {
             return map
         }
 
+        // The per-rail tasks swallow cancellation to `[]` (via `try?`), which would
+        // otherwise masquerade as an "empty" feed and surface a bogus error. If the
+        // surrounding task was cancelled (e.g. the Discover view is briefly torn down
+        // during the onboarding→main transition), throw `CancellationError` so the
+        // caller can distinguish "cancelled, retry" from "genuinely empty".
+        try Task.checkCancellation()
+
         return Self.spec.compactMap { spec in
             guard let manga = results[spec.id], !manga.isEmpty else { return nil }
             return Section(id: spec.id, title: spec.title, manga: manga)
