@@ -83,7 +83,12 @@ class SourceManager {
     /// Install one Nyora parser source (a repository entry) as its own Aidoku
     /// source. No-op if already installed. Returns the Aidoku source key.
     @discardableResult
-    func addNyoraSource(id parserSource: String, name: String, lang: String) async -> String {
+    func addNyoraSource(
+        id parserSource: String,
+        name: String,
+        lang: String,
+        installOnServer: Bool = true
+    ) async -> String {
         // already installed? (match by the bound parser source id)
         if let existing = sources.first(where: {
             UserDefaults.standard.string(forKey: "\($0.key).parserSource") == parserSource
@@ -121,8 +126,10 @@ class SourceManager {
 
         // Tell the helper to load this source now (many catalog sources are
         // isInstalled=false and reject browse until installed). Best-effort;
-        // the runner also self-heals on a "not installed" error.
-        if let server = URL(string: Self.nyoraServer) {
+        // the runner also self-heals on a "not installed" error. Skipped during
+        // batch seeding (onboarding) so we don't fire hundreds of network calls —
+        // the runner installs on first browse anyway.
+        if installOnServer, let server = URL(string: Self.nyoraServer) {
             await NyoraHelper(server: server).install(parserSource)
         }
 
@@ -130,6 +137,48 @@ class SourceManager {
         sortSources()
         NotificationCenter.default.post(name: .updateSourceList, object: nil)
         return key
+    }
+
+    /// The parser-source ids currently installed as Nyora sources.
+    func installedNyoraParserSources() -> Set<String> {
+        Set(
+            sources
+                .filter { $0.key.hasPrefix("\(NyoraSourceRunner.sourceKeyPrefix).") }
+                .compactMap { UserDefaults.standard.string(forKey: "\($0.key).parserSource") }
+        )
+    }
+
+    /// Replace the installed Nyora source set with exactly `entries` (used by the
+    /// onboarding Preferences step to seed the sources matching the user's picks).
+    /// Removes Nyora sources not in the set and installs the missing ones. The
+    /// per-source server install is skipped — the runner self-heals on first
+    /// browse — so seeding a large set stays fast and offline.
+    func replaceNyoraSources(with entries: [NyoraCatalogEntry]) async {
+        let desired = Set(entries.map { $0.id })
+
+        // Remove installed Nyora sources that aren't in the desired set.
+        let installedNyora = sources.filter { $0.key.hasPrefix("\(NyoraSourceRunner.sourceKeyPrefix).") }
+        for source in installedNyora {
+            let parser = UserDefaults.standard.string(forKey: "\(source.key).parserSource")
+            if let parser, !desired.contains(parser) {
+                remove(source: source)
+            }
+        }
+
+        // Install desired entries that aren't already present.
+        let alreadyInstalled = installedNyoraParserSources()
+        for entry in entries where !alreadyInstalled.contains(entry.id) {
+            await addNyoraSource(
+                id: entry.id,
+                name: entry.name,
+                lang: entry.lang,
+                installOnServer: false
+            )
+        }
+
+        // Mark defaults handled so ensureDefaultNyoraSource never re-adds the
+        // curated 3 on top of the user's seeded selection.
+        UserDefaults.standard.set(true, forKey: "Nyora.defaultsInstalled")
     }
 
     func reloadSources() async {

@@ -1,35 +1,112 @@
-# Aidoku
-A free and open source manga reading application for iOS and iPadOS.
+<div align="center">
+
+<img src="https://nyora.pages.dev/icon.png" width="120" alt="Nyora" />
+
+# Nyora — iOS
+
+### Read like the world can wait.
+
+A fast, free, ad-free, open-source manga / manhwa / manhua reader for **iPhone & iPad** — part of the cross-platform [Nyora](https://nyora.pages.dev) series. Hundreds of sources, an in-reader translation overlay, and your library synced across every device you read on.
+
+<p>
+  <img alt="Swift" src="https://img.shields.io/badge/Swift-F05138?style=for-the-badge&logo=swift&logoColor=white" />
+  <img alt="SwiftUI" src="https://img.shields.io/badge/SwiftUI-0055FF?style=for-the-badge&logo=swift&logoColor=white" />
+  <img alt="iOS 15+" src="https://img.shields.io/badge/iOS-15%2B-000000?style=for-the-badge&logo=apple&logoColor=white" />
+</p>
+
+<p>
+  <a href="./LICENSE"><img alt="License: GPLv3" src="https://img.shields.io/badge/license-GPLv3-blue.svg" /></a>
+  <a href="https://github.com/Hasan72341/nyora-ios/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/Hasan72341/nyora-ios?style=social" /></a>
+</p>
+
+<p>
+  <a href="https://nyora.pages.dev"><img alt="Website" src="https://img.shields.io/badge/Website-nyora.pages.dev-FF4655?style=for-the-badge&logo=githubpages&logoColor=white" /></a>
+  <a href="https://github.com/Hasan72341/nyora-ios/releases/latest"><img alt="Download IPA" src="https://img.shields.io/badge/Download-.ipa-5A0FC8?style=for-the-badge&logo=apple&logoColor=white" /></a>
+</p>
+
+**No App Store, no ads, no sign-up wall.** Sideload the `.ipa` and start reading.
+
+</div>
+
+---
+
+## About
+
+**Nyora for iOS** is the iPhone / iPad edition of Nyora, built on the excellent open-source [**Aidoku**](https://github.com/Aidoku/Aidoku) reader (GPLv3) and rebuilt around the Nyora ecosystem. The device does **zero parsing** — it talks to the hosted **Nyora helper**, so every source in the catalogue is available without bundling fragile parsers into the app. Sign in with a Nyora account and your library, history and reading progress follow you to every other Nyora platform; or just continue as a guest and read.
+
+It shares the Nyora design language with the Android app — an indigo → magenta accent, Poppins type, a Discover home with trending rails, and a modern reader — so it feels like one product across every device.
 
 ## Features
-- [x] No ads
-- [x] Robust WASM source system
-- [x] Online reading through external sources
-- [x] Downloads
-- [x] Tracker integration (AniList, MyAnimeList)
 
-## Installation
+- 📚 **~960 sources** — install any source from the catalogue; browse Popular / Latest, search, and read
+- 🈳 **In-reader translation overlay** — a toggle, not baked-in: **Google**, on-device **Apple Intelligence** (iOS 26), or **bring-your-own-key** (any OpenAI-compatible endpoint) — with per-page OCR + bubble detection
+- 🔑 **Account + cross-device sync** — self-hosted backend (email + password); library / favourites sync with Android, Web, macOS, Windows & Linux — or **continue as guest**
+- 🎨 **Nyora design** — Discover home (trending hero + rails), indigo/Poppins theme, AMOLED, custom reader chrome
+- 🧭 **Powerful reader** — paged & webtoon modes, color filters, brightness/dim, tap-zones, volume-key paging, auto-scroll, save page to Photos
+- 📈 **Trackers** — AniList, MyAnimeList, Kitsu
+- 🚫 **No ads, no tracking** · 🧩 **Fully open-source**
 
-For detailed installation instructions, check out [the website](https://aidoku.app).
+## Install (sideload)
 
-### TestFlight
+Nyora for iOS is distributed as an **unsigned `.ipa`** for sideloading — the App Store path is intentionally not used.
 
-To join the TestFlight, you will need to join the [Aidoku Discord](https://discord.gg/kh2PYT8V8d).
+### AltStore / SideStore (recommended)
+1. Install [AltStore](https://altstore.io) or [SideStore](https://sidestore.io) on your device.
+2. Download the latest `Nyora-*.ipa` from the [**Releases**](https://github.com/Hasan72341/nyora-ios/releases/latest) page.
+3. Open it in AltStore/SideStore → **Install**. (Apps signed with a free Apple ID must be refreshed every 7 days.)
 
-### AltStore
+### Manual (TrollStore / signing tools)
+The latest `.ipa` is always on the [releases page](https://github.com/Hasan72341/nyora-ios/releases/latest) — install it with your preferred sideloading tool.
 
-We have an AltStore repo that contains the latest releases ipa. You can copy the [direct source URL](https://raw.githubusercontent.com/Aidoku/Aidoku/altstore/apps.json) and paste it into AltStore. Note that AltStore PAL is not supported.
+> Requires **iOS/iPadOS 15 or later**.
 
-### Manual Installation
+## Sources
 
-The latest ipa file will always be available from the [releases page](https://github.com/Aidoku/Aidoku/releases).
+Nyora sources are served by the hosted helper — no per-source app updates needed. There is also a companion **[Aidoku source list](https://github.com/Hasan72341/nyora-aidoku)** if you prefer to use the sources in stock Aidoku:
 
-## Contributing
-Aidoku is still in a beta phase, and there are a lot of planned features and fixes. If you're interested in contributing, I'd first recommend checking with me on [Discord](https://discord.gg/kh2PYT8V8d) in the app development channel.
+```
+https://raw.githubusercontent.com/Hasan72341/nyora-aidoku/main/index.min.json
+```
 
-This repo (excluding translations) is licensed under [GPLv3](https://github.com/Aidoku/Aidoku/blob/main/LICENSE), but contributors must also sign the project [CLA](https://gist.github.com/Skittyblock/893952ff23f0df0e5cd02abbaddc2be9). Essentially, this just gives me (Skittyblock) the ability to distribute Aidoku via TestFlight/the App Store, but others must obtain an exception from me in order to do the same. Otherwise, GPLv3 applies and this code can be used freely as long as the modified source code is made available.
+## Building from source
 
-### Translations
-Interested in translating Aidoku? We use [Weblate](https://hosted.weblate.org/engage/aidoku/) to crowdsource translations, so anyone can create an account and contribute!
+Requires **Xcode 26+** on macOS.
 
-Translations are licensed separately from the app code, under [Apache 2.0](https://spdx.org/licenses/Apache-2.0.html).
+```sh
+git clone https://github.com/Hasan72341/nyora-ios.git
+cd nyora-ios
+
+# Build & run in the Simulator
+xcodebuild -project Nyora.xcodeproj -scheme "Nyora (iOS)" \
+  -sdk iphonesimulator -configuration Debug \
+  -destination 'generic/platform=iOS Simulator' \
+  -skipPackagePluginValidation build
+
+# Build an unsigned .ipa for sideloading
+xcodebuild -project Nyora.xcodeproj -scheme "Nyora (iOS)" \
+  -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+  -derivedDataPath build CODE_SIGNING_ALLOWED=NO -skipPackagePluginValidation build
+mkdir -p Payload && cp -R "build/Build/Products/Release-iphoneos/Nyora.app" Payload/
+zip -qry Nyora.ipa Payload && rm -rf Payload
+```
+
+Bundle id `com.nyora.ios` · the Xcode module name stays `Aidoku` internally (Core Data / tests), which is invisible to users.
+
+## The Nyora series
+
+Nyora is one manga reader across every platform, sharing a library and a look:
+
+| Platform | Repo |
+|---|---|
+| iOS / iPadOS | **you are here** — [`nyora-ios`](https://github.com/Hasan72341/nyora-ios) |
+| Android | [`nyora-android`](https://github.com/Hasan72341) |
+| Web (PWA) | [`nyora-web`](https://github.com/Hasan72341/nyora-web) — [open app](https://nyoraweb.pages.dev) |
+| Windows | [`nyora-windows`](https://github.com/Hasan72341/nyora-windows) |
+| macOS / Linux | see [nyora.pages.dev](https://nyora.pages.dev) |
+| Aidoku source list | [`nyora-aidoku`](https://github.com/Hasan72341/nyora-aidoku) |
+
+## Credits & license
+
+Built on [**Aidoku**](https://github.com/Aidoku/Aidoku) by Skittyblock and contributors. Nyora for iOS is a derivative work distributed under [**GPLv3**](./LICENSE) — the same license as Aidoku. Translation strings inherited from Aidoku remain under Apache-2.0.
+
+Reader, sources and sync are part of the [Nyora](https://nyora.pages.dev) project.

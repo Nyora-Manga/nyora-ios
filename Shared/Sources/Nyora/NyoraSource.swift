@@ -400,6 +400,32 @@ struct NyoraCatalogEntry: Decodable, Sendable, Identifiable, Hashable {
     let id: String       // "parser:MANGADEX"
     let name: String
     let lang: String
+    /// Whether this source is adult-only. Missing in older catalog payloads → false.
+    let isNsfw: Bool
+    /// Raw content-type label, e.g. "Hentai". Optional / advisory.
+    let contentType: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, lang, isNsfw, contentType
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        lang = (try? c.decode(String.self, forKey: .lang)) ?? ""
+        isNsfw = (try? c.decode(Bool.self, forKey: .isNsfw)) ?? false
+        contentType = try? c.decode(String.self, forKey: .contentType)
+    }
+
+    /// Memberwise init retained for constructing entries in code (e.g. seeding).
+    init(id: String, name: String, lang: String, isNsfw: Bool = false, contentType: String? = nil) {
+        self.id = id
+        self.name = name
+        self.lang = lang
+        self.isNsfw = isNsfw
+        self.contentType = contentType
+    }
 }
 
 private struct NyoraCatalogResponse: Decodable, Sendable {
