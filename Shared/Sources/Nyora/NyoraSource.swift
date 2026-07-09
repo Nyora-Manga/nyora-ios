@@ -30,7 +30,11 @@ extension AidokuRunner.Source {
         parserSource: String,
         server: String
     ) -> AidokuRunner.Source {
-        .init(
+        // Source icon: the helper has no icon URL, so use the parser-id-keyed
+        // icons hosted in the nyora-aidoku repo (icons-by-parser/<BARE_ID>.png).
+        let bareId = parserSource.hasPrefix("parser:") ? String(parserSource.dropFirst("parser:".count)) : parserSource
+        let iconUrl = URL(string: "https://raw.githubusercontent.com/Hasan72341/nyora-aidoku/main/icons-by-parser/\(bareId).png")
+        return .init(
             // `url` must be nil (SourceObject.load treats it as a file path; a bare
             // host URL has 0 path components and crashes there). Server → `urls`.
             url: nil,
@@ -40,6 +44,7 @@ extension AidokuRunner.Source {
             languages: [(lang.isEmpty || lang == "all") ? "multi" : lang],
             urls: URL(string: server).map { [$0] } ?? [],
             contentRating: .safe,
+            imageUrl: iconUrl,
             config: .init(
                 languageSelectType: .single,
                 supportsTagSearch: false
