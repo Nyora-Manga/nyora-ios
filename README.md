@@ -12,6 +12,7 @@ A fast, free, ad-free, open-source manga / manhwa / manhua reader for **iPhone &
   <img alt="Swift" src="https://img.shields.io/badge/Swift-F05138?style=for-the-badge&logo=swift&logoColor=white" />
   <img alt="SwiftUI" src="https://img.shields.io/badge/SwiftUI-0055FF?style=for-the-badge&logo=swift&logoColor=white" />
   <img alt="iOS 15+" src="https://img.shields.io/badge/iOS-15%2B-000000?style=for-the-badge&logo=apple&logoColor=white" />
+  <img alt="Version 2.1.0" src="https://img.shields.io/badge/version-2.1.0-FF4655?style=for-the-badge" />
 </p>
 
 <p>
@@ -32,15 +33,15 @@ A fast, free, ad-free, open-source manga / manhwa / manhua reader for **iPhone &
 
 ## About
 
-**Nyora for iOS** is the iPhone / iPad edition of Nyora, built on the excellent open-source [**Aidoku**](https://github.com/Aidoku/Aidoku) reader (GPLv3) and rebuilt around the Nyora ecosystem. The device does **zero parsing** — it talks to the hosted **Nyora helper**, so every source in the catalogue is available without bundling fragile parsers into the app. Sign in with a Nyora account and your library, history and reading progress follow you to every other Nyora platform; or just continue as a guest and read.
+**Nyora for iOS** is the iPhone / iPad edition of Nyora, built on the excellent open-source [**Aidoku**](https://github.com/Aidoku/Aidoku) reader (GPLv3) and rebuilt around the Nyora ecosystem. The device does **zero parsing** — it talks to the hosted **Nyora helper** (`api.hasanraza.tech`, powered by the [Kotatsu](https://github.com/KotatsuApp/kotatsu) parser engine), so every source in the catalogue is available without bundling fragile parsers into the app. Sign in with a **Nyora Cloud** account (email + password) and your library, history and reading progress follow you to every other Nyora platform; or just continue as a guest and read — no account required.
 
 It shares the Nyora design language with the Android app — an indigo → magenta accent, Poppins type, a Discover home with trending rails, and a modern reader — so it feels like one product across every device.
 
 ## Features
 
-- 📚 **~960 sources** — install any source from the catalogue; browse Popular / Latest, search, and read
+- 📚 **960+ sources** (363 health-checked working) — install any source from the catalogue; browse Popular / Latest, search, and read
 - 🈳 **In-reader translation overlay** — a toggle, not baked-in: **Google**, on-device **Apple Intelligence** (iOS 26), or **bring-your-own-key** (any OpenAI-compatible endpoint) — with per-page OCR + bubble detection
-- 🔑 **Account + cross-device sync** — self-hosted backend (email + password); library / favourites sync with Android, Web, macOS, Windows & Linux — or **continue as guest**
+- ☁️ **Nyora Cloud sync** — one library across Android, iOS/iPadOS, macOS, Windows, Linux & Web. Sign in with **email + password** against the self-hosted **Nyora Cloud** backend (`stream.hasanraza.tech`, OAuth2 + JWT) — no Google account, no third-party service — or **continue as guest**
 - 🎨 **Nyora design** — Discover home (trending hero + rails), indigo/Poppins theme, AMOLED, custom reader chrome
 - 🧭 **Powerful reader** — paged & webtoon modes, color filters, brightness/dim, tap-zones, volume-key paging, auto-scroll, save page to Photos
 - 📈 **Trackers** — AniList, MyAnimeList, Kitsu
