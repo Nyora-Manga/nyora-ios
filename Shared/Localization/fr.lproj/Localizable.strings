@@ -335,7 +335,7 @@
 "DELETE_DOWNLOAD_AFTER_READING" = "Supprimer le téléchargement après lecture";
 "OPEN_WEBSITE" = "Ouvrir le site";
 "ENABLE_PERMISSION" = "Activer l'autorisation";
-"PHOTOS_ACCESS_DENIED_TEXT" = "L'accès a été précédemment refusé. Merci d'autoriser Aidoku à accéder à vos photos pour sauvegarder les images dans votre pellicules. Vous pouvez activer l'accès dans les paramètres de confidentialité.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "L'accès a été précédemment refusé. Merci d'autoriser Nyora à accéder à vos photos pour sauvegarder les images dans votre pellicules. Vous pouvez activer l'accès dans les paramètres de confidentialité.";
 "CLEAR_EXCLUDING_LIBRARY_TEXT" = "Cette action est irrémédiable. Tout l'historique de lecture hors librairie sera retiré.";
 "CLEAR_EXCLUDING_LIBRARY" = "Effacer l'historique de lecture (sauf la bibliothèque)";
 "READER_ORIENTATION" = "Orientation";
@@ -397,7 +397,7 @@
 "ALL_SOURCES_INSTALLED_INFO" = "Il ne reste plus de sources externes à installer.";
 "LOCAL_FILES" = "Fichiers locaux";
 "LOCAL_FILES_TAGLINE" = "Lire depuis les fichiers locaux";
-"LOCAL_FILES_INFO" = "La source de fichiers locaux vous permet d’importer et de gérer votre propre bibliothèque de lecture directement dans Aidoku.";
+"LOCAL_FILES_INFO" = "La source de fichiers locaux vous permet d’importer et de gérer votre propre bibliothèque de lecture directement dans Nyora.";
 "LOCAL_FILES_SETUP" = "Configuration des fichiers locaux";
 "IMPORT" = "Importer";
 "IMPORT_FILE" = "Importer un fichier";
@@ -674,7 +674,7 @@
 "MISSING_SOURCE_LIST_INFO" = "Cette source externe n'est pas disponible sur les listes de sources configurées. Cela signifie qu'elle ne recevra pas de mises à jour et peut être supprimée dans l'avenir.";
 "LEGACY_SOURCE_LIST" = "Liste des sources héritées";
 "LEGACY_SOURCE_LIST_WARNING" = "Attention : liste des sources héritées";
-"LEGACY_SOURCE_LIST_WARNING_INFO" = "Vous avez actuellement une liste de sources héritées configurée. Ce format est dépassé et cessera de fonctionner dans une version future d'Aidoku. Bien qu'elle fonctionne encore pour l'instant, il est recommandé de trouver un remplacement et de la configurer dans Paramètres > Liste de sources.";
+"LEGACY_SOURCE_LIST_WARNING_INFO" = "Vous avez actuellement une liste de sources héritées configurée. Ce format est dépassé et cessera de fonctionner dans une version future d'Nyora. Bien qu'elle fonctionne encore pour l'instant, il est recommandé de trouver un remplacement et de la configurer dans Paramètres > Liste de sources.";
 "HIDE_BARS_ON_SWIPE" = "Cacher les barres lors du balayage";
 "SAVE" = "Enregistrer";
 "SAVED_SEARCHES" = "Recherches enregistrées";

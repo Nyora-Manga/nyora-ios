@@ -28,7 +28,7 @@ extension UIImage {
 
         let albumName =
             name ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
-            ?? "Aidoku"
+            ?? "Nyora"
         guard let album = fetchAlbum(albumName) else {
             UIImageWriteToSavedPhotosAlbum(self, nil, nil, nil)
             return

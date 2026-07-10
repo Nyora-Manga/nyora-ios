@@ -354,7 +354,7 @@
 "REFRESHING_LIBRARY" = "Kütüphane yenileniyor…";
 "FILTERS" = "Filtreler";
 "ENABLE_PERMISSION" = "İzin ver";
-"PHOTOS_ACCESS_DENIED_TEXT" = "Daha önce erişim engellenmiş. Lütfen Aidoku'nun fotoğraflarınızı galeriye kaydedebilmesi için fotoğraflarınıza erişmesine izin verin. Erişimi gizlilik ayarlarından etkinleştirebilirsiniz.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "Daha önce erişim engellenmiş. Lütfen Nyora'nun fotoğraflarınızı galeriye kaydedebilmesi için fotoğraflarınıza erişmesine izin verin. Erişimi gizlilik ayarlarından etkinleştirebilirsiniz.";
 "DOWNLOADING" = "İndiriliyor";
 "PROCESSING_QUEUE" = "Sıra işleniyor…";
 "DOWNLOADING_PAUSED" = "İndirme durduruldu";
@@ -438,7 +438,7 @@
 "REMOVE_LOCAL_SOURCE_TEXT" = "Bu içeri aktarılmış bütün yerel dosyaları kaldıracaktır.";
 "RANGE_FROM" = "Nereden";
 "RANGE_TO" = "Nereye";
-"LOCAL_FILES_INFO" = "Yerel dosya kaynağı, kendi okuma kütüphanenizi doğrudan Aidoku içinde yüklemenize ve yönetmenize olanak tanır.";
+"LOCAL_FILES_INFO" = "Yerel dosya kaynağı, kendi okuma kütüphanenizi doğrudan Nyora içinde yüklemenize ve yönetmenize olanak tanır.";
 "LOCAL_FILES_SETUP" = "Yerel dosya kurulumu";
 "CHAPTER_TITLE" = "Bölüm başlığı";
 "SERIES_TITLE" = "Seri başlığı";

@@ -1,8 +1,6 @@
 //
 //  SettingsAboutView.swift
-//  Aidoku
-//
-//  Created by Skitty on 9/19/25.
+//  Nyora
 //
 
 import SwiftUI
@@ -39,6 +37,15 @@ struct SettingsAboutView: View {
                     title: NSLocalizedString("GITHUB_REPO"),
                     value: .link(.init(url: "https://github.com/Hasan72341/nyora-ios"))
                 ))
+            }
+
+            Section {
+                SettingView(setting: .init(
+                    title: "Reader UI based on Aidoku",
+                    value: .link(.init(url: "https://github.com/Aidoku/Aidoku", external: true))
+                ))
+            } footer: {
+                Text("Nyora's reader interface is a fork of the open-source Aidoku app (GPLv3). Nyora provides the source catalog, parser backend, and cross-device cloud sync.")
             }
         }
         .navigationTitle(NSLocalizedString("ABOUT"))

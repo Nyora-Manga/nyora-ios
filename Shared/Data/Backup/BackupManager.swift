@@ -57,7 +57,7 @@ actor BackupManager {
             if let url = url {
                 try? plist.write(to: url)
             } else {
-                let path = Self.directory.appendingPathComponent("aidoku_\(dateFormatter.string(from: backup.date)).aib")
+                let path = Self.directory.appendingPathComponent("nyora_\(dateFormatter.string(from: backup.date)).aib")
                 try? plist.write(to: path)
             }
             NotificationCenter.default.post(name: Notification.Name("updateBackupList"), object: nil)

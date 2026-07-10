@@ -276,7 +276,7 @@ extension BrowseViewController {
 
     @objc func openGuidePage() {
         let safariViewController = SFSafariViewController(
-            url: URL(string: "https://aidoku.app/help/guides/getting-started/#installing-a-source")!
+            url: URL(string: "https://nyora.pages.dev")!
         )
         present(safariViewController, animated: true)
     }

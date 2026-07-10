@@ -205,7 +205,7 @@
 "DONE" = "Kész";
 "INVALID" = "Érvénytelen";
 "ENABLE_PERMISSION" = "Engedély bekapcsolása";
-"PHOTOS_ACCESS_DENIED_TEXT" = "A hozzáférés korábbról meg van tagadva. Engedélyezze az Aidoku számára a fotóihoz való hozzáférést, hogy képeket menthessen el a fotóihoz. A hozzáférést az adatvédelmi beállításokban tudja szerkeszteni.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "A hozzáférés korábbról meg van tagadva. Engedélyezze az Nyora számára a fotóihoz való hozzáférést, hogy képeket menthessen el a fotóihoz. A hozzáférést az adatvédelmi beállításokban tudja szerkeszteni.";
 "CONTENT" = "Tartalom";
 "%@_EXPERIMENTAL" = "%@ (Kísérleti)";
 "REMOVE_ALL_DOWNLOADS_CONFIRM" = "Biztos vagy benne, hogy törölni szeretnéd az összes letöltött fájlt?";
@@ -250,5 +250,5 @@
 "NO_AVAILABLE_SOURCES_INFO" = "Módosítsa a szűrőket a külső források megtekintéséhez.";
 "ALL_SOURCES_INSTALLED" = "Minden Forrás Telepítve";
 "ALL_SOURCES_INSTALLED_INFO" = "Nincs több telepíteni való külső forrás.";
-"LOCAL_FILES_INFO" = "A helyi forrás lehetővé teszi saját olvasási könyvtár feltöltését és kezelését közvetlenül az Aidoku-ban.";
+"LOCAL_FILES_INFO" = "A helyi forrás lehetővé teszi saját olvasási könyvtár feltöltését és kezelését közvetlenül az Nyora-ban.";
 "LOCAL_FILES_SETUP" = "Helyi Forrás Beállítása";

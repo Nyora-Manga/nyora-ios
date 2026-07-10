@@ -341,7 +341,7 @@
 "DONE" = "Hecho";
 "INVALID" = "Invalido";
 "ENABLE_PERMISSION" = "Activar permiso";
-"PHOTOS_ACCESS_DENIED_TEXT" = "El acceso previo fue denegado. Por favor, permite a Aidoku acceder a tus Fotos para guardar imágenes en la Galería. Puedes autorizar el acceso en los ajustes de privacidad.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "El acceso previo fue denegado. Por favor, permite a Nyora acceder a tus Fotos para guardar imágenes en la Galería. Puedes autorizar el acceso en los ajustes de privacidad.";
 "CONTENT" = "Contenido";
 "%@_EXPERIMENTAL" = "%@ (experimental)";
 "DOWNLOADING" = "Descargando";
@@ -505,7 +505,7 @@
 "KAVITA_TAGLINE" = "Biblioteca digital autoalojada";
 "REMOVING_(ONE)_ITEM_FROM_LIBRARY" = "Eliminando un artículo de la Biblioteca";
 "BACKGROUND_REFRESH_TEXT" = "Al iniciar una actualización de biblioteca manualmente, permitir que la actualización se complete incluso si la aplicación está en segundo plano.";
-"LOCAL_FILES_INFO" = "La fuente de archivos locales te permite cargar y administrar tu propia biblioteca de lectura directamente dentro de Aidoku.";
+"LOCAL_FILES_INFO" = "La fuente de archivos locales te permite cargar y administrar tu propia biblioteca de lectura directamente dentro de Nyora.";
 "SOURCE_BREAKING_CHANGE_TEXT" = "Esta fuente tuvo un cambio importante y requiere migración para conservar tu Biblioteca e Historial.";
 "CLEAR_EXCLUDING_LIBRARY_TEXT" = "Esta acción es irreversible. Se eliminará todo el historial de lectura, excepto la biblioteca.";
 "LIBRARY_ADJUST_FILTERS" = "Ajusta tus filtros para ver más contenido.";
@@ -677,7 +677,7 @@
 "REFRESH_LOGIN" = "Inicio de sesión refrescado";
 "LEGACY_SOURCE_LIST" = "Listado origen heredado";
 "LEGACY_SOURCE_LIST_WARNING" = "Aviso: Listado de origen heredado";
-"LEGACY_SOURCE_LIST_WARNING_INFO" = "Actualmente tiene configurado un listado origen heredado. Este formato está obsoleto y detendrá su trabajo en una versión futura de Aidoku. Mientras aún funcione por ahora, es recomendable que encuentra un sustituto y lo configure en Ajustes > Listados de origen.";
+"LEGACY_SOURCE_LIST_WARNING_INFO" = "Actualmente tiene configurado un listado origen heredado. Este formato está obsoleto y detendrá su trabajo en una versión futura de Nyora. Mientras aún funcione por ahora, es recomendable que encuentra un sustituto y lo configure en Ajustes > Listados de origen.";
 "HIDE_BARS_ON_SWIPE" = "Ocultar barras al golpear";
 "TEXT_READER" = "Lector de texto";
 "TEXT_READER_STYLE" = "Estilo del lector";

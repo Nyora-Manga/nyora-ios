@@ -265,7 +265,7 @@
 "WARNING" = "Peringatan";
 "INVALID" = "Tidak valid";
 "ENABLE_PERMISSION" = "Aktifkan Izin";
-"PHOTOS_ACCESS_DENIED_TEXT" = "Akses sebelumnya ditolak. Silakan izinkan Aidoku mengakses Foto Anda untuk menyimpan gambar ke Camera Roll Anda. Anda dapat mengaktifkan akses di pengaturan privasi.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "Akses sebelumnya ditolak. Silakan izinkan Nyora mengakses Foto Anda untuk menyimpan gambar ke Camera Roll Anda. Anda dapat mengaktifkan akses di pengaturan privasi.";
 "CONTENT" = "Konten";
 "%@_EXPERIMENTAL" = "%@ (Eksperimental)";
 "NO_WIFI_ALERT_TITLE" = "Tidak ada Wi-Fi";
@@ -320,7 +320,7 @@
 "NO_AVAILABLE_SOURCES_INFO" = "Sesuaikan filter Anda untuk melihat lebih banyak sumber eksternal.";
 "ALL_SOURCES_INSTALLED" = "Semua Sumber Telah Diinstal";
 "ALL_SOURCES_INSTALLED_INFO" = "Tidak ada sumber eksternal yang tersisa untuk diinstal.";
-"LOCAL_FILES_INFO" = "Sumber lokal memungkinkan Anda untuk mengunggah dan mengelola perpustakaan bacaan Anda sendiri langsung di dalam Aidoku.";
+"LOCAL_FILES_INFO" = "Sumber lokal memungkinkan Anda untuk mengunggah dan mengelola perpustakaan bacaan Anda sendiri langsung di dalam Nyora.";
 "LOCAL_FILES_SETUP" = "Pengaturan Sumber Lokal";
 "LOCAL_FILES" = "Berkas Lokal";
 "LOCAL_FILES_TAGLINE" = "Membaca dari berkas lokal";
@@ -673,7 +673,7 @@
 "REFRESH_LOGIN" = "Perbarui Login";
 "LEGACY_SOURCE_LIST" = "Daftar Sumber Lawas";
 "LEGACY_SOURCE_LIST_WARNING" = "Peringatan: Daftar Sumber Lawas";
-"LEGACY_SOURCE_LIST_WARNING_INFO" = "Anda saat ini memiliki daftar sumber lawas yang dikonfigurasi. Format ini sudah usang dan akan berhenti berfungsi pada versi Aidoku mendatang. Meskipun masih berfungsi untuk saat ini, disarankan agar Anda mencari penggantinya dan mengonfigurasinya di Pengaturan > Daftar Sumber.";
+"LEGACY_SOURCE_LIST_WARNING_INFO" = "Anda saat ini memiliki daftar sumber lawas yang dikonfigurasi. Format ini sudah usang dan akan berhenti berfungsi pada versi Nyora mendatang. Meskipun masih berfungsi untuk saat ini, disarankan agar Anda mencari penggantinya dan mengonfigurasinya di Pengaturan > Daftar Sumber.";
 "HIDE_BARS_ON_SWIPE" = "Sembunyikan Bilah saat Geser";
 "IMPORT_BACKUP" = "Impor Cadangan";
 "SYNC_WITH_TRACKER" = "Sinkronkan dengan Pelacak";

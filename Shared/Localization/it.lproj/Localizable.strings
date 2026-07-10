@@ -350,7 +350,7 @@
 "BROWSE_NO_SOURCES_TEXT_NEW" = "Aggiungi una fonte con il pulsante più.";
 "1_PAGE" = "1 pagina";
 "ENABLE_PERMISSION" = "Abilita Permesso";
-"PHOTOS_ACCESS_DENIED_TEXT" = "L'accesso è stato precedentemente negato. Permetti ad Aidoku di accedere a Foto per salvare le immagini nel tuo Rullino. Puoi abilitare l'accesso nelle impostazioni di privacy.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "L'accesso è stato precedentemente negato. Permetti ad Nyora di accedere a Foto per salvare le immagini nel tuo Rullino. Puoi abilitare l'accesso nelle impostazioni di privacy.";
 "%@_EXPERIMENTAL" = "%@ (Sperimentale)";
 "DOWNLOADING" = "In scaricamento";
 "PROCESSING_QUEUE" = "Elaborando la coda…";
@@ -442,7 +442,7 @@
 "ALL_SOURCES_INSTALLED_INFO" = "Non rimangono fonti esterne da installare.";
 "LOCAL_FILES" = "File Locali";
 "LOCAL_FILES_TAGLINE" = "Leggi da file locali";
-"LOCAL_FILES_INFO" = "Le fonti da file locali ti permettono di caricare e gestire il tuo catalogo direttamente dentro Aidoku.";
+"LOCAL_FILES_INFO" = "Le fonti da file locali ti permettono di caricare e gestire il tuo catalogo direttamente dentro Nyora.";
 "LOCAL_FILE_IMPORT_TEXT" = "Importa un file CBZ o ZIP contenente immagini per leggerli.";
 "CHAPTER_TITLE" = "Titolo Capitolo";
 "SERIES_TITLE" = "Titolo Serie";

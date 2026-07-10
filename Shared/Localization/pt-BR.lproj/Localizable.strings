@@ -404,7 +404,7 @@
 "DISPLAY_DEFAULT" = "Padrão";
 "DISPLAY_CHAPTER" = "Capítulo";
 "DISPLAY_VOLUME" = "Volume";
-"PHOTOS_ACCESS_DENIED_TEXT" = "Permissão negada anteriormente. Por favor permita que o Aidoku acesse Fotos para salvar imagens na sua galeria. Você pode permitir o acesso nas configurações de privacidade.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "Permissão negada anteriormente. Por favor permita que o Nyora acesse Fotos para salvar imagens na sua galeria. Você pode permitir o acesso nas configurações de privacidade.";
 "COMPRESS_DOWNLOADS" = "Comprimir Downloads";
 "METADATA_DETECTED_TEXT" = "Metadado antigos em JSON vão ser migrados para o arquivo ComicInfo.xml.";
 "PROCESSING_QUEUE" = "Processando a fila…";
@@ -499,7 +499,7 @@
 "SAVE_SEARCH_FAIL" = "Salvar falhou";
 "SAVE_SEARCH_FAIL_INFO" = "Já existe uma busca salva com esse nome. Por favor escolha um nome único.";
 "LOCAL_FILES_TAGLINE" = "Ler dos arquivos locais";
-"LOCAL_FILES_INFO" = "A Fonte de arquivos locais permite que você faça upload e controle sua própria biblioteca diretamente dentro do Aidoku.";
+"LOCAL_FILES_INFO" = "A Fonte de arquivos locais permite que você faça upload e controle sua própria biblioteca diretamente dentro do Nyora.";
 "LOCAL_FILES_SETUP" = "Configuração de arquivos locais";
 "LOCAL_FILE_IMPORT" = "Importar arquivo local";
 "LOCAL_FILE_IMPORT_TEXT" = "Importe um CBZ ou ZIP contendo imagens para ler.";

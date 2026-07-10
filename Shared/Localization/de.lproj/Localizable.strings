@@ -377,7 +377,7 @@
 "NO_RESULTS" = "Keine Ergebnisse";
 "LOCAL_FILES" = "Lokale Dateien";
 "ENABLE_PERMISSION" = "Berechtigung Aktivieren";
-"PHOTOS_ACCESS_DENIED_TEXT" = "Der Zugriff wurde zu einem früheren Zeitpunkt verweigert. Gib Aidoku Zugriff auf deine Fotos um Bilder in deiner Gallerie zu speichern. Du kannst den Zugang in den Privatsphäreeinstellungen erteilen.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "Der Zugriff wurde zu einem früheren Zeitpunkt verweigert. Gib Nyora Zugriff auf deine Fotos um Bilder in deiner Gallerie zu speichern. Du kannst den Zugang in den Privatsphäreeinstellungen erteilen.";
 "CONTENT" = "Inhalt";
 "DOWNLOADING" = "Lädt herunter";
 "PROCESSING_QUEUE" = "Warteschlange wird verarbeitet…";

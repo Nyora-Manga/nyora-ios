@@ -347,7 +347,7 @@
 "DONE" = "Gotovo";
 "INVALID" = "Nevažeće";
 "ENABLE_PERMISSION" = "Aktiviraj dozvolu";
-"PHOTOS_ACCESS_DENIED_TEXT" = "Pristup je prethodno bio odbijen. Dozvoli da Aidoku pristupi tvojim fotografijama za spremanje slika u tvoje fotografije. Pristup može aktivirati u postavkama privatnosti.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "Pristup je prethodno bio odbijen. Dozvoli da Nyora pristupi tvojim fotografijama za spremanje slika u tvoje fotografije. Pristup može aktivirati u postavkama privatnosti.";
 "CONTENT" = "Sadržaj";
 "%@_EXPERIMENTAL" = "%@ (eksperimentalno)";
 "NO_DOWNLOADS" = "Nema preuzimanja";
@@ -465,7 +465,7 @@
 "RESET_SETTINGS_CONFIRM_%@" = "Stvarno želiš resetirati sve postavke za %@?";
 "CANCEL_CONFIRM" = "Stvarno želiš prekinuti?";
 "NO_EXTERNAL_SOURCES_INFO" = "Konfiguriraj popise izvora u kartici postavki za instaliranje eksternih izvora.";
-"LOCAL_FILES_INFO" = "Lokalni izvor omogućuje prijenos i upravljanje vlastitom bibliotekom za čitanje izravno unutar Aidokua.";
+"LOCAL_FILES_INFO" = "Lokalni izvor omogućuje prijenos i upravljanje vlastitom bibliotekom za čitanje izravno unutar Nyoraa.";
 "OPEN_WEBSITE" = "Otvori web stranicu";
 "SET_COVER_IMAGE" = "Postavi sliku omota";
 "UPLOAD_CUSTOM_COVER" = "Prenesi prilagođeni omot";
@@ -701,7 +701,7 @@
 "PORTRAIT_ROWS" = "Uspravno − redci";
 "LANDSCAPE_ROWS" = "Položeno − redci";
 "RESUME_LAST_OPENED_CHAPTER" = "Nastavi pri zadnjem otvorenom poglavlju";
-"LEGACY_SOURCE_LIST_WARNING_INFO" = "Trenutačno imaš konfiguriranu stari popis izvora. Ovaj format je zastario i prestat će raditi u budućoj Aidoku verziji. Iako će zasad i dalje raditi, preporučuje se da pronađeš zamjenu i konfiguriraj ga u Postavkama > Popisi izvora.";
+"LEGACY_SOURCE_LIST_WARNING_INFO" = "Trenutačno imaš konfiguriranu stari popis izvora. Ovaj format je zastario i prestat će raditi u budućoj Nyora verziji. Iako će zasad i dalje raditi, preporučuje se da pronađeš zamjenu i konfiguriraj ga u Postavkama > Popisi izvora.";
 "DISABLE_DOUBLE_TAP_ZOOM" = "Deaktiviraj zumiranje dvostrukim dodirom";
 "HIDE_BARS_ON_SWIPE" = "Sakrij trake prilikom prevlačenja prstom";
 "TEXT_READER_SCROLL" = "Pomicanje";

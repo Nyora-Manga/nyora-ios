@@ -321,7 +321,7 @@
 "DONE" = "Klar";
 "INVALID" = "Ogiltig";
 "ENABLE_PERMISSION" = "Tillåt";
-"PHOTOS_ACCESS_DENIED_TEXT" = "Åtkomst har tidigare nekats. Ge Aidoku tillgång till dina Bilder för att kunna spara till Bildbiblioteket. Du kan ge åtkomst i integritetsinställningarna.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "Åtkomst har tidigare nekats. Ge Nyora tillgång till dina Bilder för att kunna spara till Bildbiblioteket. Du kan ge åtkomst i integritetsinställningarna.";
 "CONTENT" = "Innehåll";
 "NO_WIFI_ALERT_MESSAGE" = "Du måste vara ansluten till Wi-Fi för att ladda ned detta innehåll. Anslut till Wi-Fi och försök igen.";
 "DOWNLOAD_ANYWAY_MESSAGE" = "Du är för nuvarande inte ansluten till Wi-Fi. Ladda ned ändå?";
@@ -360,7 +360,7 @@
 "NO_AVAILABLE_SOURCES_INFO" = "Justera dina filter för att kunna se fler externa källor.";
 "ALL_SOURCES_INSTALLED" = "Alla installerade källor";
 "ALL_SOURCES_INSTALLED_INFO" = "Det finns inga fler externa källor att installera.";
-"LOCAL_FILES_INFO" = "Den lokala källan låter dig ladda upp och hantera ditt egna bibliotek inom Aidoku.";
+"LOCAL_FILES_INFO" = "Den lokala källan låter dig ladda upp och hantera ditt egna bibliotek inom Nyora.";
 "LOCAL_FILES_SETUP" = "Konfigurera lokal källa";
 "LOCAL_FILES" = "Lokala filer";
 "LOCAL_FILES_TAGLINE" = "Läs från lokala filer";
@@ -675,7 +675,7 @@
 "REFRESH_LOGIN" = "Ladda om inloggning";
 "LEGACY_SOURCE_LIST" = "Föråldrad källista";
 "LEGACY_SOURCE_LIST_WARNING" = "Varning: föråldrad källista";
-"LEGACY_SOURCE_LIST_WARNING_INFO" = "Du har för nuvarande en föråldrad källista konfigurerad. Detta format är förlegat och kommer sluta att fungera med framtida versioner av Aidoku. Det rekommenderas att hitta en ersättare trots att det kanske fungerar i nuläget. Detta görs under Inställningar > Källistor.";
+"LEGACY_SOURCE_LIST_WARNING_INFO" = "Du har för nuvarande en föråldrad källista konfigurerad. Detta format är förlegat och kommer sluta att fungera med framtida versioner av Nyora. Det rekommenderas att hitta en ersättare trots att det kanske fungerar i nuläget. Detta görs under Inställningar > Källistor.";
 "TEXT_READER" = "Textläsare";
 "TEXT_READER_STYLE" = "Läsarstil";
 "TEXT_READER_SCROLL" = "Skrolla";

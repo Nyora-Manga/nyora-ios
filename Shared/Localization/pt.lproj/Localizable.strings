@@ -433,7 +433,7 @@
 "READER_ORIENTATION" = "Orientação";
 "CLOSE_READER" = "Fechar leitor";
 "EDIT" = "Editar";
-"PHOTOS_ACCESS_DENIED_TEXT" = "Permissão negada anteriormente. Por favor permita que o Aidoku aceda Fotos para gravar imagens na sua galeria. Pode permitir o acesso nas configurações de privacidade.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "Permissão negada anteriormente. Por favor permita que o Nyora aceda Fotos para gravar imagens na sua galeria. Pode permitir o acesso nas configurações de privacidade.";
 "DOWNLOADING" = "A descarregar";
 "PROCESSING_QUEUE" = "A processar a fila…";
 "DOWNLOADING_PAUSED" = "Descarga pausada";
@@ -507,7 +507,7 @@
 "SAVED_SEARCH_NAME" = "Nome";
 "SAVE_SEARCH_FAIL" = "Gravar falhou";
 "SAVE_SEARCH_FAIL_INFO" = "Já existe uma pesquisa gravada com este nome. Por favor escolha um nome único.";
-"LOCAL_FILES_INFO" = "A fonte de ficheiros locais permite que envie e controle a sua própria biblioteca diretamente noo Aidoku.";
+"LOCAL_FILES_INFO" = "A fonte de ficheiros locais permite que envie e controle a sua própria biblioteca diretamente noo Nyora.";
 "LOCAL_FILES_SETUP" = "Configuração de ficheiros locais";
 "LOCAL_FILE_IMPORT_TEXT" = "Importe um CBZ ou ZIP contendo imagens para ler.";
 "SERIES_TITLE" = "Título da Série";

@@ -351,7 +351,7 @@
 "CLEAR_EXCLUDING_LIBRARY" = "清除不在書庫的閱讀記錄";
 "CLEAR_EXCLUDING_LIBRARY_TEXT" = "不可逆的操作，將清除除了書庫外的所有閱讀記錄。";
 "ENABLE_PERMISSION" = "啟用權限";
-"PHOTOS_ACCESS_DENIED_TEXT" = "先前已拒絕存取。請允許Aidoku存取您的相片，以便將圖片儲存到您的相機膠卷。您可以在隱私設定中啟用存取權限。";
+"PHOTOS_ACCESS_DENIED_TEXT" = "先前已拒絕存取。請允許Nyora存取您的相片，以便將圖片儲存到您的相機膠卷。您可以在隱私設定中啟用存取權限。";
 "OPEN_WEBSITE" = "打開網站";
 "READER_ORIENTATION" = "螢幕顯示方向";
 "FOLLOW_DEVICE" = "跟隨裝置";
@@ -407,7 +407,7 @@
 "NO_AVAILABLE_SOURCES_INFO" = "調整過濾條件以查看更多外部來源。";
 "ALL_SOURCES_INSTALLED" = "已安裝全部來源";
 "ALL_SOURCES_INSTALLED_INFO" = "已無外部來源可供安裝。";
-"LOCAL_FILES_INFO" = "本機檔案來源可在Aidoku用來上傳和管理你的個人書庫。";
+"LOCAL_FILES_INFO" = "本機檔案來源可在Nyora用來上傳和管理你的個人書庫。";
 "LOCAL_FILES_SETUP" = "本機檔案設定";
 "LOCAL_FILES" = "本機檔案";
 "LOCAL_FILES_TAGLINE" = "閱讀本機檔案";
@@ -664,7 +664,7 @@
 "MISSING_SOURCE_LIST_INFO" = "此外部源未新增至任何已配置的來源清單中。這意味著它將不會接收更新，並且將來可能會出現故障。";
 "LEGACY_SOURCE_LIST" = "舊版來源列表";
 "LEGACY_SOURCE_LIST_WARNING" = "警告：舊版來源列表";
-"LEGACY_SOURCE_LIST_WARNING_INFO" = "你目前配置的是舊版來源列表。此格式已過時，將在未來的 Aidoku 版本中停止運作。雖然目前仍可正常使用，但我們建議你尋找替代來源列表，並在「設定」>「來源列表」中進行設定。";
+"LEGACY_SOURCE_LIST_WARNING_INFO" = "你目前配置的是舊版來源列表。此格式已過時，將在未來的 Nyora 版本中停止運作。雖然目前仍可正常使用，但我們建議你尋找替代來源列表，並在「設定」>「來源列表」中進行設定。";
 "HIDE_BARS_ON_SWIPE" = "滑動時隱藏工具列";
 "EDIT" = "編輯";
 "UNCATEGORIZED" = "未分類";

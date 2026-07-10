@@ -1,6 +1,6 @@
 /*
   Localizable.strings
-  Aidoku
+  Nyora
 
   Created by Skitty on 4/23/22.
 
@@ -42,7 +42,7 @@
 "COPY" = "Copy";
 "WARNING" = "Warning";
 "ENABLE_PERMISSION" = "Enable Permission";
-"PHOTOS_ACCESS_DENIED_TEXT" = "Access was previously denied. Please allow Aidoku access to your Photos to save images to your Camera Roll. You can enable access in privacy settings.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "Access was previously denied. Please allow Nyora access to your Photos to save images to your Camera Roll. You can enable access in privacy settings.";
 "CONTENT" = "Content";
 "%@_EXPERIMENTAL" = "%@ (Experimental)";
 
@@ -230,7 +230,7 @@
 // Local Source
 "LOCAL_FILES" = "Local Files";
 "LOCAL_FILES_TAGLINE" = "Read from local files";
-"LOCAL_FILES_INFO" = "The local files source allows you to upload and manage your own reading library directly within Aidoku.";
+"LOCAL_FILES_INFO" = "The local files source allows you to upload and manage your own reading library directly within Nyora.";
 "LOCAL_FILES_SETUP" = "Local Files Setup";
 "IMPORT" = "Import";
 "IMPORT_FILE" = "Import File";
@@ -561,7 +561,7 @@
 "COPY_URL" = "Copy URL";
 "LEGACY_SOURCE_LIST" = "Legacy Source List";
 "LEGACY_SOURCE_LIST_WARNING" = "Warning: Legacy Source List";
-"LEGACY_SOURCE_LIST_WARNING_INFO" = "You currently have a legacy source list configured. This format is outdated and will stop working in a future version of Aidoku. While it will still work for now, it is recommended that you find a replacement and configure it in Settings > Source Lists.";
+"LEGACY_SOURCE_LIST_WARNING_INFO" = "You currently have a legacy source list configured. This format is outdated and will stop working in a future version of Nyora. While it will still work for now, it is recommended that you find a replacement and configure it in Settings > Source Lists.";
 
 // Upscaling
 "UPSCALING" = "Upscaling";
