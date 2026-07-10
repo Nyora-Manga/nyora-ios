@@ -100,7 +100,7 @@ Nyora is one manga reader across every platform, sharing a library and a look:
 | Platform | Repo |
 |---|---|
 | iOS / iPadOS | **you are here** — [`nyora-ios`](https://github.com/Hasan72341/nyora-ios) |
-| Android | [`nyora-android`](https://github.com/Hasan72341) |
+| Android | [`nyora-android`](https://github.com/Hasan72341/nyora-android) |
 | Web (PWA) | [`nyora-web`](https://github.com/Hasan72341/nyora-web) — [open app](https://nyoraweb.pages.dev) |
 | Windows | [`nyora-windows`](https://github.com/Hasan72341/nyora-windows) |
 | macOS / Linux | see [nyora.pages.dev](https://nyora.pages.dev) |
