@@ -2,7 +2,7 @@
 //  NyoraSource.swift
 //  Aidoku
 //
-//  Per-source REST runner. The Nyora helper (https://api.hasanraza.tech) is a
+//  Per-source REST runner. The Nyora helper (https://api.nyora.xyz) is a
 //  SOURCE REPOSITORY: each parser source it aggregates (parser:MANGADEX, …)
 //  becomes its OWN installable Aidoku source (like the Android per-source model),
 //  each with its own Popular/Latest listings + search backed by the helper's
@@ -87,7 +87,7 @@ actor NyoraSourceRunner: Runner {
         self.name = name
         self.lang = lang
         self.parserSource = parserSource
-        self.helper = NyoraHelper(server: URL(string: server) ?? URL(string: "https://api.hasanraza.tech")!)
+        self.helper = NyoraHelper(server: URL(string: server) ?? URL(string: "https://api.nyora.xyz")!)
     }
 
     /// GET a helper endpoint for this source; if it fails because the source
@@ -336,7 +336,7 @@ actor NyoraHelper {
 
 enum NyoraCatalog {
     /// Fetch every parser source the helper offers, for the "add source" repo list.
-    static func fetchAll(server: String = "https://api.hasanraza.tech") async -> [NyoraCatalogEntry] {
+    static func fetchAll(server: String = "https://api.nyora.xyz") async -> [NyoraCatalogEntry] {
         guard let url = URL(string: server) else { return [] }
         return (try? await NyoraHelper(server: url).catalog()) ?? []
     }

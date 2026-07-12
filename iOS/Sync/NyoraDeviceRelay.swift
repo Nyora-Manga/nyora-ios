@@ -23,7 +23,7 @@ import WebKit
 final class NyoraDeviceRelay: NSObject {
     static let shared = NyoraDeviceRelay()
 
-    private let base = URL(string: "https://api.hasanraza.tech")!
+    private let base = URL(string: "https://api.nyora.xyz")!
     private var running = false
     private var loopTask: Task<Void, Never>?
 

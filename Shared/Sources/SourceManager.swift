@@ -54,7 +54,7 @@ class SourceManager {
     }
 
     /// The Nyora helper server (source repository) all Nyora sources point at.
-    static let nyoraServer = "https://api.hasanraza.tech"
+    static let nyoraServer = "https://api.nyora.xyz"
 
     /// A few popular parser sources pre-installed on first launch so the app is
     /// usable out of the box. The user adds/removes more from Browse → Add source

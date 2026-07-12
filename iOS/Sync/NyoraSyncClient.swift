@@ -3,7 +3,7 @@
 //  Aidoku (iOS) — Nyora fork
 //
 //  Account + library sync against the self-hosted Nyora sync server
-//  (https://stream.hasanraza.tech): OAuth2 password flow + JWT, then a generic
+//  (https://sync.nyora.xyz): OAuth2 password flow + JWT, then a generic
 //  last-write-wins upsert/select over the per-user library tables. Pushes the
 //  local library to nyora_manga + nyora_favourite and pulls them back.
 //
@@ -15,7 +15,7 @@ import Foundation
 final class NyoraSyncClient: ObservableObject {
     static let shared = NyoraSyncClient()
 
-    private let base = URL(string: "https://stream.hasanraza.tech")!
+    private let base = URL(string: "https://sync.nyora.xyz")!
 
     private enum Keys {
         static let access = "nyora.sync.access"
