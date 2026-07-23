@@ -14,11 +14,16 @@ import UIKit
 actor AniListApi {
     private let encoder = JSONEncoder()
 
-    // Registered under Skitty's AniList account
+    // Nyora AniList OAuth client. AniList's registered app (46413) is
+    // confidential — it issues a secret and rejects the implicit grant with
+    // "unsupported_grant_type" — so this uses the authorization-code grant with
+    // the client secret (challengeMethod .none: AniList doesn't use PKCE).
     nonisolated let oauth = OAuthClient(
         id: "anilist",
-        clientId: "8912",
-        baseUrl: "https://anilist.co/api/v2/oauth"
+        clientId: "46413",
+        clientSecret: "1g354gn5JLiP0b0CyIJLk4SHCfq5d9Zip2ufxGHj",
+        baseUrl: "https://anilist.co/api/v2/oauth",
+        challengeMethod: .none
     )
 
     var scoreType: String?

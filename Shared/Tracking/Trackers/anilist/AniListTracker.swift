@@ -193,25 +193,22 @@ final class AniListTracker: OAuthTracker {
     }
 
     func getAuthenticationUrl() async -> URL? {
-        await api.oauth.getAuthenticationUrl(responseType: "token")
+        await api.oauth.getAuthenticationUrl(
+            responseType: "code",
+            redirectUri: "nyora://\(callbackHost)"
+        )
     }
 
     func handleAuthenticationCallback(url: URL) async {
-        var components = URLComponents()
-        components.query = url.fragment
-        guard let queryItems = components.queryItems else { return }
-        let params = queryItems.reduce(into: [String: String]()) { result, item in
-            result[item.name] = item.value
+        // AniList uses the authorization-code grant: the redirect carries a
+        // `?code=` which we exchange (with the client secret) for the token.
+        guard let authCode = url.queryParameters?["code"] else { return }
+        guard let oauth = await api.oauth.getAccessToken(
+            authCode: authCode,
+            redirectUri: "nyora://\(callbackHost)"
+        ) else {
+            return
         }
-
-        guard let accessToken = params["access_token"] else { return }
-        let oauth = OAuthResponse(
-            tokenType: params["token_type"],
-            refreshToken: nil,
-            accessToken: accessToken,
-            expiresIn: Int(params["expires_in"] ?? "0")
-        )
-
         token = oauth.accessToken
         UserDefaults.standard.set(try? JSONEncoder().encode(oauth), forKey: "Tracker.\(id).oauth")
     }

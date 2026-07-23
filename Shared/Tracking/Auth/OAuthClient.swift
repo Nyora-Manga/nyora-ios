@@ -82,6 +82,11 @@ extension OAuthClient {
             "client_id": clientId,
             "code": authCode
         ]
+        // Confidential clients (e.g. AniList) authenticate the token exchange
+        // with their secret; public PKCE clients (MAL, MangaBaka) leave it nil.
+        if let clientSecret {
+            body["client_secret"] = clientSecret
+        }
         if challengeMethod != .none {
             body["code_verifier"] = codeVerifier
         }
