@@ -2,11 +2,10 @@
 //  NyoraSource.swift
 //  Aidoku
 //
-//  Per-source REST runner. The Nyora helper (https://api.nyora.xyz) is a
-//  SOURCE REPOSITORY: each parser source it aggregates (parser:MANGADEX, …)
-//  becomes its OWN installable Aidoku source (like the Android per-source model),
-//  each with its own Popular/Latest listings + search backed by the helper's
-//  `/sources/*` endpoints for that one source id. Modeled on KomgaSourceRunner.
+//  Per-source runner backed by the ON-DEVICE parser engine (NyoraLocalEngine, GraalVM).
+//  There is no cloud parser server — each parser source (parser:MANGADEX, …) becomes its
+//  own Aidoku source whose Popular/Latest/search/details/pages run locally in-process via
+//  the same `sources/*` + `manga/*` JSON protocol. Modeled on KomgaSourceRunner.
 //
 
 import AidokuRunner
@@ -28,21 +27,21 @@ extension AidokuRunner.Source {
         name: String,
         lang: String,
         parserSource: String,
-        server: String
+        domain: String = ""
     ) -> AidokuRunner.Source {
-        // Source icon: the helper has no icon URL, so use the parser-id-keyed
-        // icons hosted in the nyora-aidoku repo (icons-by-parser/<BARE_ID>.png).
-        let bareId = parserSource.hasPrefix("parser:") ? String(parserSource.dropFirst("parser:".count)) : parserSource
-        let iconUrl = URL(string: "https://raw.githubusercontent.com/Hasan72341/nyora-aidoku/main/icons-by-parser/\(bareId).png")
+        // Source icon: the source's own favicon, from its site domain (provided by the engine's
+        // `sources/headers`). Nothing custom is hosted per-source, so the favicon is the icon.
+        let d = domain.trimmingCharacters(in: .whitespaces)
+        let iconUrl: URL? = d.isEmpty
+            ? nil
+            : URL(string: "https://www.google.com/s2/favicons?sz=64&domain=\(d)")
         return .init(
-            // `url` must be nil (SourceObject.load treats it as a file path; a bare
-            // host URL has 0 path components and crashes there). Server → `urls`.
             url: nil,
             key: key,
             name: name,
             version: 1,
             languages: [(lang.isEmpty || lang == "all") ? "multi" : lang],
-            urls: URL(string: server).map { [$0] } ?? [],
+            urls: [],   // parsing is fully on-device; no cloud/base host
             contentRating: .safe,
             imageUrl: iconUrl,
             config: .init(
@@ -55,8 +54,7 @@ extension AidokuRunner.Source {
                 sourceKey: key,
                 name: name,
                 lang: lang,
-                parserSource: parserSource,
-                server: server
+                parserSource: parserSource
             )
         )
     }
@@ -82,12 +80,12 @@ actor NyoraSourceRunner: Runner {
         providesBaseUrl: true
     )
 
-    init(sourceKey: String, name: String, lang: String, parserSource: String, server: String) {
+    init(sourceKey: String, name: String, lang: String, parserSource: String) {
         self.sourceKey = sourceKey
         self.name = name
         self.lang = lang
         self.parserSource = parserSource
-        self.helper = NyoraHelper(server: URL(string: server) ?? URL(string: "https://api.nyora.xyz")!)
+        self.helper = NyoraHelper()
     }
 
     /// GET a helper endpoint for this source; if it fails because the source
@@ -249,96 +247,99 @@ actor NyoraSourceRunner: Runner {
 
     // MARK: Images
 
+    /// The source's image request headers (mainly `Referer` = the site domain), cached once.
+    /// Hotlink-protected sources (MangaPill, most Madara sites) return 403 for covers/pages
+    /// without the right Referer. We deliberately DROP User-Agent — a browser UA breaks some
+    /// CDNs (e.g. MangaDex's uploads.* returns 400), while URLSession's default UA works with
+    /// the Referer everywhere.
+    private var cachedImageHeaders: [String: String]?
+
+    private func imageHeaders() async -> [String: String] {
+        if let h = cachedImageHeaders { return h }
+        var h: [String: String] = [:]
+        if let res: NyoraHeadersResponse = try? await getEnsuringInstalled(
+            "sources/headers", items: [.init(name: "id", value: parserSource)]
+        ) {
+            h = res.headers.filter { $0.key.lowercased() != "user-agent" }
+        }
+        cachedImageHeaders = h
+        return h
+    }
+
     func getImageRequest(url: String, context _: PageContext?) async throws -> URLRequest {
-        guard let url = URL(string: helper.rewriteImageHost(url)) else {
+        guard let imgUrl = URL(string: helper.rewriteImageHost(url)) else {
             throw SourceError.message("INVALID_URL")
         }
-        return URLRequest(url: url)
+        var request = URLRequest(url: imgUrl)
+        for (key, value) in await imageHeaders() {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        // If this image host has a Cloudflare clearance, send the UA it was issued for so the
+        // cf_clearance cookie is honored (otherwise we leave URLSession's default UA, since a
+        // browser UA breaks some open CDNs like MangaDex).
+        #if canImport(UIKit)
+        if let host = imgUrl.host, NyoraCloudflareSolver.hasClearance(for: host) {
+            request.setValue(NyoraCloudflareSolver.userAgent, forHTTPHeaderField: "User-Agent")
+        }
+        #endif
+        return request
     }
 
     func getBaseUrl() async throws -> URL? {
-        helper.server
+        nil   // parsing is on-device; there is no cloud base URL
     }
 }
 
 // MARK: - HTTP helper
 
+/// In-process access to the on-device parser engine. There is NO cloud parser server
+/// (api.nyora.xyz was removed) — every call runs the native GraalVM engine locally. The
+/// only network Nyora does off-device is sync (sync.nyora.xyz) and the sources' own sites.
 actor NyoraHelper {
-    let server: URL
-    private let session: URLSession
-
-    init(server: URL) {
-        self.server = server
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 20
-        config.timeoutIntervalForResource = 30
-        self.session = URLSession(configuration: config)
-    }
 
     func get<T: Decodable & Sendable>(_ path: String, items: [URLQueryItem] = []) async throws -> T {
-        guard
-            var comps = URLComponents(url: server.appendingPathComponent(path), resolvingAgainstBaseURL: false)
-        else { throw SourceError.message("INVALID_URL") }
-        comps.queryItems = items.isEmpty ? nil : items
-        guard let url = comps.url else { throw SourceError.message("INVALID_URL") }
-
-        var request = URLRequest(url: url)
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            let raw = (try? JSONDecoder().decode(NyoraErrorResponse.self, from: data))?.error ?? ""
-            // Preserve the "not installed" signal (the runner self-heals on it);
-            // sanitize everything else so users never see raw upstream URLs/status.
-            if raw.lowercased().contains("not installed") {
-                throw SourceError.message(raw)
-            }
-            throw SourceError.message("This source is currently unavailable. Try another source or tap Retry.")
+        #if canImport(NyoraNativeBridge) || NYORA_LOCAL_ENGINE
+        let data = try await NyoraLocalEngine.shared.request(path: path, items: items)
+        if let err = try? JSONDecoder().decode(NyoraErrorResponse.self, from: data), !err.error.isEmpty {
+            throw SourceError.message(err.error)
         }
         return try JSONDecoder().decode(T.self, from: data)
+        #else
+        throw SourceError.message("The Nyora local engine is not available in this build.")
+        #endif
     }
 
-    /// Fetch the helper's full source catalog (the "repository" listing).
-    /// Sources found dead / Cloudflare-blocked by a live health-check
-    /// (`NyoraBlockedSources`) are filtered out so the Add-Source list only
-    /// ever shows working sources.
+    /// The engine's full source catalog — returned AS-IS, no iOS-side filtering. The engine already
+    /// mirrors nyora-android's catalog (all installable sources minus android's DEAD_SOURCES), so the
+    /// app shows exactly what android shows. (Previously an extra iOS `NyoraBlockedSources` health-list
+    /// hid ~570 of them, which is why sources like ManhuaUS were missing.)
     func catalog() async throws -> [NyoraCatalogEntry] {
         let res: NyoraCatalogResponse = try await get("sources/catalog")
-        return res.entries.filter { !NyoraBlockedSources.ids.contains($0.id) }
+        return res.entries
     }
 
-    /// Tell the helper to install (load) a parser source. Many catalog sources
-    /// are `isInstalled=false` and reject browse/search with "… is not installed"
-    /// until this is called. Best-effort.
-    func install(_ parserSource: String) async {
-        guard
-            var comps = URLComponents(url: server.appendingPathComponent("sources/install"), resolvingAgainstBaseURL: false)
-        else { return }
-        comps.queryItems = [.init(name: "id", value: parserSource)]
-        guard let url = comps.url else { return }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        _ = try? await session.data(for: request)
+    /// Parsers are always resident in the local engine — nothing to install.
+    func install(_ parserSource: String) async {}
+
+    /// The source's site domain (used for its favicon), taken from the engine's Referer header.
+    func domain(for parserSource: String) async -> String {
+        guard let res: NyoraHeadersResponse = try? await get(
+            "sources/headers", items: [.init(name: "id", value: parserSource)]
+        ) else { return "" }
+        let referer = res.headers.first { $0.key.lowercased() == "referer" }?.value ?? ""
+        return URL(string: referer)?.host ?? ""
     }
 
-    /// The helper rewrites cover/page URLs to its own loopback proxy
-    /// (`http://127.0.0.1:<port>/image?u=…`). Swap that local base for the
-    /// configured server, preserving the `/image?u=…&h=…` path+query.
-    nonisolated func rewriteImageHost(_ raw: String) -> String {
-        guard let range = raw.range(of: "/image?u=") else { return raw }
-        let base = server.absoluteString.hasSuffix("/")
-            ? String(server.absoluteString.dropLast())
-            : server.absoluteString
-        return base + raw[range.lowerBound...]
-    }
+    /// The local engine returns direct image URLs (no loopback proxy), so this is identity.
+    nonisolated func rewriteImageHost(_ raw: String) -> String { raw }
 }
 
 // MARK: - Catalog fetch (repository listing)
 
 enum NyoraCatalog {
-    /// Fetch every parser source the helper offers, for the "add source" repo list.
-    static func fetchAll(server: String = "https://api.nyora.xyz") async -> [NyoraCatalogEntry] {
-        guard let url = URL(string: server) else { return [] }
-        return (try? await NyoraHelper(server: url).catalog()) ?? []
+    /// Fetch every parser source the on-device engine offers, for the "add source" list.
+    static func fetchAll() async -> [NyoraCatalogEntry] {
+        (try? await NyoraHelper().catalog()) ?? []
     }
 
     /// Curated set of parser sources verified to return content (live-probed).
@@ -347,7 +348,9 @@ enum NyoraCatalog {
     static let recommended: [String] = [
         "parser:MANGADEX",
         // ComicK dropped: cover CDN is Cloudflare-blocked (covers won't load)
-        "parser:ASURASCANS",     // AsuraComic (the working AsuraScans)
+        "parser:ASURASCANS",     // AsuraComic on asurascans.com (domain override)
+        "parser:MANGAFIRE_EN",   // native JSON-API backend (custom engine service)
+        "parser:TOONILY_ME",     // "ToonDex" — native JSON-API backend (custom engine service)
         "parser:FLAMECOMICS",
         "parser:MANGAPILL",
         "parser:MANGAGO",
@@ -358,7 +361,15 @@ enum NyoraCatalog {
         "parser:MANGAREAD",
         "parser:MANGAOWL_IO",
         "parser:MANHUAPLUS",
+        "parser:MANHUAUS",       // manhuaus.com (live, behind Cloudflare — solved on-device)
     ]
+}
+
+/// The Google favicon URL for a site domain — the same icon installed Nyora sources use.
+func nyoraFaviconURL(for domain: String?) -> URL? {
+    let d = (domain ?? "").trimmingCharacters(in: .whitespaces)
+    guard !d.isEmpty else { return nil }
+    return URL(string: "https://www.google.com/s2/favicons?sz=64&domain=\(d)")
 }
 
 // MARK: - Wire models
@@ -412,9 +423,11 @@ struct NyoraCatalogEntry: Decodable, Sendable, Identifiable, Hashable {
     let isNsfw: Bool
     /// Raw content-type label, e.g. "Hentai". Optional / advisory.
     let contentType: String?
+    /// The source's live site domain (override applied) — drives its favicon in the Add-Source list.
+    let domain: String?
 
     enum CodingKeys: String, CodingKey {
-        case id, name, lang, isNsfw, contentType
+        case id, name, lang, isNsfw, contentType, domain
     }
 
     init(from decoder: Decoder) throws {
@@ -424,15 +437,17 @@ struct NyoraCatalogEntry: Decodable, Sendable, Identifiable, Hashable {
         lang = (try? c.decode(String.self, forKey: .lang)) ?? ""
         isNsfw = (try? c.decode(Bool.self, forKey: .isNsfw)) ?? false
         contentType = try? c.decode(String.self, forKey: .contentType)
+        domain = try? c.decode(String.self, forKey: .domain)
     }
 
     /// Memberwise init retained for constructing entries in code (e.g. seeding).
-    init(id: String, name: String, lang: String, isNsfw: Bool = false, contentType: String? = nil) {
+    init(id: String, name: String, lang: String, isNsfw: Bool = false, contentType: String? = nil, domain: String? = nil) {
         self.id = id
         self.name = name
         self.lang = lang
         self.isNsfw = isNsfw
         self.contentType = contentType
+        self.domain = domain
     }
 }
 
@@ -452,6 +467,10 @@ private struct NyoraDetailsResponse: Decodable, Sendable {
 
 private struct NyoraPagesResponse: Decodable, Sendable {
     let pages: [NyoraPage]
+}
+
+private struct NyoraHeadersResponse: Decodable, Sendable {
+    let headers: [String: String]
 }
 
 // MARK: - Mappers
@@ -504,610 +523,87 @@ private extension NyoraChapter {
     }
 }
 
-// MARK: - Blocked sources (live health-check 2026-07-09)
+// MARK: - Hidden sources (android parity)
 
-/// Sources that consistently returned NO browsable content (dead upstreams,
-/// broken parsers, cert/handshake failures, or a browser-only Cloudflare
-/// challenge) on both /sources/popular and /sources/latest. Hidden from the
-/// Add-Source catalog. Regenerate by re-running the health-check.
-/// 597 disabled of 960 (363 working remain).
+/// Sources hidden from the Add-Source catalog. Ported 1:1 from nyora-android's
+/// `SourcePatches.DEAD_SOURCES` (this app is android's port) so iOS shows the SAME set of sources
+/// android does — dead domains with no working same-CMS successor — MINUS `TOONILY_ME`, which iOS
+/// surfaces via its own working ToonDex custom engine service. Cloudflare-protected sources are
+/// intentionally KEPT: the on-device interactive WebView solver (NyoraCloudflareSolver) clears them.
 enum NyoraBlockedSources {
     static let ids: Set<String> = [
-        "parser:ADONISFANSUB",
-        "parser:ADULT_WEBTOON",
-        "parser:ADUMANGA",
-        "parser:AINZSCANS",
-        "parser:ALLHENTAI",
-        "parser:ALLPORN_COMIC",
-        "parser:ALONESCANLATOR",
-        "parser:ALTERKAISCANS",
-        "parser:ALUCARDSCANS",
-        "parser:ANIMESAMA",
-        "parser:ANIMEXNOVEL",
-        "parser:APENASMAISUMYAOI",
-        "parser:APKOMIK",
-        "parser:ARABSHENTAI",
-        "parser:ARAREASCANS",
-        "parser:ARAZNOVEL",
-        "parser:ARCTICSCAN",
-        "parser:ARCURAFANSUB",
-        "parser:AREASCANS",
-        "parser:ARMONISCANS",
-        "parser:ARTHUR_SCAN",
-        "parser:ARVENSCANS",
-        "parser:ARYASCANS",
-        "parser:ASEMIFANSUB",
-        "parser:ASQORG",
-        "parser:ASTRASCANS",
-        "parser:ASURASCANSGG",
         "parser:ASURASCANS_US",
+        "parser:ASURASCANSGG",
         "parser:ATEMPORAL",
-        "parser:ATHENAMANGA",
-        "parser:ATIKROST",
         "parser:AYATOON",
-        "parser:AZORAMOON",
-        "parser:BABELWUXIA",
         "parser:BANANA_MANGA",
-        "parser:BARMANGA",
-        "parser:BATCAVE",
-        "parser:BEEHENTAI",
-        "parser:BEETOON",
-        "parser:BEGATRANSLATION",
-        "parser:BERSERKSCAN",
-        "parser:BIRDTOON",
-        "parser:BLUELOCKSCAN",
-        "parser:BOKUGENTS",
-        "parser:BOOKMANGA",
-        "parser:BRMANGASTOP",
-        "parser:CAFECOMYAOI",
-        "parser:CHAINSAWMANSCAN",
-        "parser:CMANGA",
-        "parser:COFFEE_MANGA",
-        "parser:COMICSVALLEY",
-        "parser:COMIX",
-        "parser:COMIZ",
-        "parser:COMX",
-        "parser:COSMIC_SCANS",
-        "parser:CRYSTALSCAN",
-        "parser:CVNSCAN",
-        "parser:CYPHERSCANS",
-        "parser:DAMCONUONG",
-        "parser:DARK_SCANS",
-        "parser:DAYCOMICS",
-        "parser:DEMONSECT",
-        "parser:DEMONSLAYERSCAN",
-        "parser:DESUME",
-        "parser:DEXHENTAI",
-        "parser:DIANXIATRADS",
-        "parser:DOCTRUYEN3Q",
-        "parser:DOUJINDESU",
-        "parser:DOUJINDESURIP",
-        "parser:DOUJINDESUUK",
-        "parser:DOUJINKU",
-        "parser:DOUJINSHELL",
-        "parser:DOUJIN_HENTAI_NET",
-        "parser:DRAGONMANGA",
-        "parser:DRAGONTEA",
-        "parser:DRAGONTRANSLATIONORG",
         "parser:DREAMSCAN",
-        "parser:DRSTONE",
-        "parser:DTUPSCAN",
-        "parser:DUALEOTRUYEN",
-        "parser:EDOUJIN",
         "parser:EDSCANLATION",
-        "parser:ELDERMANGA",
         "parser:ELEVENSCANLATOR",
-        "parser:EMPERORSCAN",
-        "parser:ENRYUMANGA",
-        "parser:ERO18X",
-        "parser:EROSSCANS",
-        "parser:EVILMANGA",
         "parser:FACTMANGA",
-        "parser:FAYSCANS",
-        "parser:FIREFORCE",
-        "parser:FIRESCANS",
-        "parser:FIRSTKISSMANHUA",
-        "parser:FLARES",
-        "parser:FLOWERMANGA",
-        "parser:FMTEAM",
         "parser:FREEMANGA",
         "parser:FREEMANGATOP",
-        "parser:FURYMANGA",
-        "parser:FUTARI",
-        "parser:GAFELAND",
-        "parser:GAIATOON",
-        "parser:GEASSCOMICS",
-        "parser:GISTAMISHOUSEFANSUB",
         "parser:GMANGA",
-        "parser:GOCTRUYENTRANH",
-        "parser:GOCTRUYENTRANHVUI",
-        "parser:GOLGEBAHCESI",
         "parser:GOURMETSCANS",
-        "parser:GREEDSCANS",
-        "parser:GTOTHEGREATSITE",
         "parser:GUNCEL_MANGA",
-        "parser:HADESNOFANSUB",
-        "parser:HAIKYUU",
-        "parser:HANGTRUYEN",
-        "parser:HARIMANGA",
-        "parser:HASTATEAM",
-        "parser:HASTATEAM_READER",
-        "parser:HAYALISTIC",
-        "parser:HELLSPARADISESCAN",
-        "parser:HENCHAN",
-        "parser:HENTAI18VN",
-        "parser:HENTAI3ZCC",
-        "parser:HENTAICUBE",
-        "parser:HENTAIMANGA",
-        "parser:HENTAIORIGINES",
-        "parser:HENTAIREAD",
-        "parser:HENTAISCANTRADVF",
-        "parser:HENTAISEASON",
-        "parser:HENTAITECA",
-        "parser:HENTAIVNBUZZ",
-        "parser:HENTAIVNSU",
-        "parser:HENTAIWEBTOON",
-        "parser:HENTAIZONE",
-        "parser:HENTAMAN",
-        "parser:HERENSCAN",
-        "parser:HHENTAIFR",
-        "parser:HIJALACOM",
         "parser:HIKARISCAN",
-        "parser:HIPERCOOL",
-        "parser:HIPERDEX",
-        "parser:HITOMILA",
-        "parser:HNISCANTRAD",
         "parser:HOIFANSUB",
-        "parser:HOTCOMICS",
-        "parser:HUNTERXHUNTERSCAN",
-        "parser:HWAGO",
-        "parser:ICHIROMANGA",
-        "parser:ILLUSIONSCAN",
-        "parser:IMPERIODABRITANNIA",
-        "parser:INOVASCANMANGA",
-        "parser:IRISSCANLATOR",
-        "parser:ISEKAISCAN_EU",
-        "parser:ITSYOURIGHTMANHUA",
-        "parser:JIANGZAITOON",
-        "parser:JIMANGA",
         "parser:KABUSMANGA",
-        "parser:KAGANE",
-        "parser:KAISCANS",
-        "parser:KAKUSEIPROJECT",
         "parser:KALANGO",
-        "parser:KATAKOMIK",
-        "parser:KINGDOMSCAN",
-        "parser:KINGS_MANGA",
-        "parser:KISSMANGA",
-        "parser:KLMANHUA",
-        "parser:KNIGHTNOSCANLATION",
-        "parser:KOHARU",
-        "parser:KOMIKCAST",
-        "parser:KOMIKDEWASA",
-        "parser:KOMIKGO",
-        "parser:KOMIKMAMA",
-        "parser:KOMIKREALM",
-        "parser:KOMIKSIN_CO",
-        "parser:KOMIKSTATION",
-        "parser:KOMIKU",
-        "parser:KOMIKZOID",
         "parser:KORELISCANS",
-        "parser:KUMAPAGE",
         "parser:KUMASCANS",
-        "parser:KUNMANGA",
-        "parser:KURONEKO",
-        "parser:LAMIMANGA",
-        "parser:LANGGEEK",
-        "parser:LAVINIAFANSUB",
-        "parser:LECTORMANGA",
         "parser:LEGENDSCANLATIONS",
-        "parser:LEITORDEMANGA",
-        "parser:LEKMANGACOM",
-        "parser:LEKMANGAORG",
-        "parser:LEPOYTL",
-        "parser:LERHENTAI",
-        "parser:LERMANGAS",
-        "parser:LERYAOI",
-        "parser:LICHMANGAS",
         "parser:LILYUMFANSUB",
-        "parser:LIMBOSCAN",
-        "parser:LIMITEDTIMEPOJECT",
-        "parser:LUACOMIC_COM",
-        "parser:LUMOSKOMIK",
-        "parser:LUNAR_SCAN",
-        "parser:LUPITEAM",
-        "parser:LXMANGA",
         "parser:MAFIAMANGA",
-        "parser:MAGERIN",
-        "parser:MAIDSECRET",
-        "parser:MANGA168",
-        "parser:MANGA18X",
-        "parser:MANGA1ST",
-        "parser:MANGAATREND",
-        "parser:MANGAAY",
-        "parser:MANGABALL_IS",
-        "parser:MANGABALL_KN",
-        "parser:MANGABALL_ML",
-        "parser:MANGABUDDY",
-        "parser:MANGABUFF",
-        "parser:MANGACIX",
-        "parser:MANGACLASH",
-        "parser:MANGACLOUD",
-        "parser:MANGACRAZY",
-        "parser:MANGACUTE",
-        "parser:MANGADEEMAK",
-        "parser:MANGADOP",
-        "parser:MANGADOTNET",
-        "parser:MANGAEFENDISI",
-        "parser:MANGAFASTNET",
-        "parser:MANGAFIRE_EN",
-        "parser:MANGAFIRE_ES",
-        "parser:MANGAFIRE_ESLA",
-        "parser:MANGAFIRE_FR",
-        "parser:MANGAFIRE_JA",
-        "parser:MANGAFIRE_PT",
-        "parser:MANGAFIRE_PTBR",
-        "parser:MANGAFLAME",
-        "parser:MANGAFOREST",
-        "parser:MANGAFORFREE",
-        "parser:MANGAFOXFULL",
-        "parser:MANGAFR",
-        "parser:MANGAGEKO",
-        "parser:MANGAGEZGINI",
         "parser:MANGAGOJO",
-        "parser:MANGAHAUS",
-        "parser:MANGAHENTAI",
-        "parser:MANGAHONA",
-        "parser:MANGAHUB_LINK",
-        "parser:MANGAITALIA",
-        "parser:MANGAJP",
-        "parser:MANGAKAKALOT",
-        "parser:MANGAKAKALOTTV",
-        "parser:MANGAKAWAII",
-        "parser:MANGAKAWAII_EN",
+        "parser:MANGAJINX",
         "parser:MANGAKINGS",
         "parser:MANGAKISS",
-        "parser:MANGAKITA",
-        "parser:MANGAKOINU",
-        "parser:MANGAKOLEJI",
-        "parser:MANGAKOMA01",
-        "parser:MANGAKYO",
-        "parser:MANGALAND",
-        "parser:MANGALC",
-        "parser:MANGALEK",
-        "parser:MANGALEKO",
-        "parser:MANGALEVELING",
-        "parser:MANGALINKNET",
-        "parser:MANGALIONZ",
-        "parser:MANGALIVRE",
-        "parser:MANGAMAMMY",
-        "parser:MANGAMANA",
         "parser:MANGAMATE",
-        "parser:MANGAMUNDODRAMA",
         "parser:MANGANINJA",
         "parser:MANGAOKUTR",
         "parser:MANGAONELOVE",
-        "parser:MANGAONI",
-        "parser:MANGAONLINE",
         "parser:MANGAONLINETEAM",
-        "parser:MANGAONLINE_BLOG",
-        "parser:MANGAPUMA",
-        "parser:MANGARAW",
         "parser:MANGAREADCO",
-        "parser:MANGAREADERTO",
-        "parser:MANGAROCK",
-        "parser:MANGAROCKTEAM",
-        "parser:MANGAROLLS",
         "parser:MANGAROSE",
         "parser:MANGASECT",
-        "parser:MANGASEHRI",
-        "parser:MANGASEHRINET",
-        "parser:MANGASHIINA",
-        "parser:MANGASNOSEKAI",
-        "parser:MANGASORIGINES",
-        "parser:MANGASOUL",
         "parser:MANGASSCANS",
-        "parser:MANGASTARZ",
-        "parser:MANGASWAT",
-        "parser:MANGATERRA",
-        "parser:MANGATILKISI",
-        "parser:MANGATR",
-        "parser:MANGATXUNOFFICIAL",
         "parser:MANGATX_GG",
-        "parser:MANGATYRANT",
-        "parser:MANGAWEEBS",
-        "parser:MANGAWT",
-        "parser:MANGAWT_NET",
-        "parser:MANGAXICO",
-        "parser:MANGAXYZ",
-        "parser:MANGAYARO",
-        "parser:MANGAZAVR",
-        "parser:MANGA_CRAB",
-        "parser:MANGA_DENIZI",
-        "parser:MANGA_DISTRICT",
-        "parser:MANGA_KOMI",
         "parser:MANGA_MANHUA",
-        "parser:MANGA_SCANTRAD",
-        "parser:MANGA_WTF",
-        "parser:MANHASTRO",
-        "parser:MANHUABUG",
         "parser:MANHUAES",
-        "parser:MANHUAFAST",
         "parser:MANHUAGA",
         "parser:MANHUAGOLD",
-        "parser:MANHUAMANHWA",
-        "parser:MANHUAUS",
-        "parser:MANHUAUSS",
-        "parser:MANHUAZONE",
-        "parser:MANHUAZONGHE",
-        "parser:MANHWA18ORG",
-        "parser:MANHWA68",
-        "parser:MANHWACLAN",
-        "parser:MANHWADESU",
-        "parser:MANHWAFREAKE",
-        "parser:MANHWAFULL",
-        "parser:MANHWAHENTAI",
-        "parser:MANHWAHENTAITO",
-        "parser:MANHWAINDO",
+        "parser:MANHUASCAN",
         "parser:MANHWAKU",
-        "parser:MANHWALAND",
-        "parser:MANHWALAND_INK",
-        "parser:MANHWALATINO",
-        "parser:MANHWALIST",
-        "parser:MANHWAMANHUA",
-        "parser:MANHWAONLINE",
-        "parser:MANHWARAW",
-        "parser:MANHWARAW_COM",
         "parser:MANHWASCO",
-        "parser:MANHWASMEN",
-        "parser:MANHWAS_ES",
-        "parser:MANHWAX",
-        "parser:MANHWA_ES",
         "parser:MANJANOON",
-        "parser:MANTRAZSCAN",
-        "parser:MANYTOON",
-        "parser:MANYTOONME",
-        "parser:MANYTOON_CLUB",
-        "parser:MARMOTA",
-        "parser:MASHLESCAN",
-        "parser:MASTERKOMIK",
-        "parser:MEDIOCRETOONS",
-        "parser:MEDUSASCANS",
-        "parser:MEHENTAIVN",
-        "parser:MERLINSCANS",
-        "parser:MGKOMIK",
-        "parser:MHSCANS",
-        "parser:MI2MANGAES",
-        "parser:MIAUSCAN",
-        "parser:MIKOROKU",
-        "parser:MILFTOON",
-        "parser:MIMIHENTAI",
-        "parser:MINDAFANSUB",
-        "parser:MINITWOSCAN",
-        "parser:MINTMANGA",
-        "parser:MONZEEKOMIK",
-        "parser:MOONDAISY_SCANS",
-        "parser:MOONLOVERSSCAN",
         "parser:MOONWITCHINLOVESCAN",
-        "parser:MRBENNE",
-        "parser:MUGIMANGA",
-        "parser:MUGIWARASOFICIAL",
         "parser:MURIMSCAN",
-        "parser:MYHEROACADEMIASCAN",
-        "parser:MYREADINGMANGA",
-        "parser:MYSHOJO",
-        "parser:NEATMANGA",
-        "parser:NECROSCANS",
-        "parser:NETTRUYEN",
-        "parser:NETTRUYEN1975",
-        "parser:NETTRUYENFE",
-        "parser:NETTRUYENHE",
-        "parser:NETTRUYENLL",
-        "parser:NETTRUYENSSR",
-        "parser:NETTRUYENUU",
-        "parser:NETTRUYENVIE",
-        "parser:NEUMANGA",
         "parser:NEWTRUYEN",
-        "parser:NGOMIK",
-        "parser:NHATTRUYENVN",
-        "parser:NHENTAI",
-        "parser:NHENTAI_TO",
-        "parser:NIGHTSCANS",
-        "parser:NIMEMOB",
-        "parser:NINEMANGA_BR",
-        "parser:NINEMANGA_DE",
-        "parser:NINEMANGA_EN",
-        "parser:NINEMANGA_ES",
-        "parser:NINEMANGA_FR",
-        "parser:NINEMANGA_IT",
-        "parser:NINEMANGA_RU",
         "parser:NIRVANASCAN",
-        "parser:NITROMANGA",
-        "parser:NIVERAFANSUB",
-        "parser:NOCSUMMER",
-        "parser:NOINDEXSCAN",
         "parser:NORTEROSE",
-        "parser:NOVELCROW",
         "parser:NOVELMIC",
-        "parser:NUDEMOON",
-        "parser:OLAOE",
-        "parser:OLIMPOSCANS",
-        "parser:ONEPIECESCAN",
-        "parser:ONEPUNCHMANSCAN",
-        "parser:OPIATOON",
-        "parser:OSHINOKO",
-        "parser:PANTHEONSCAN",
-        "parser:PASSAMAOSCAN",
-        "parser:PATIMANGA",
-        "parser:PERF_SCAN",
-        "parser:PHILIASCANS",
-        "parser:PHOENIXSCANS",
-        "parser:PIEDPIPERFANSUB",
-        "parser:PIEDPIPERFANSUBYY",
-        "parser:PIRULITOROSA",
-        "parser:PLATINUMSCANS",
-        "parser:PLUMACOMICS",
-        "parser:POINTZEROTOONS",
-        "parser:POJOKMANGA",
-        "parser:POPSMANGA",
-        "parser:PORNCOMIXONLINE",
-        "parser:PUSSYSUSSYTOONS",
-        "parser:RAGNARSCANS",
-        "parser:RAIJINSCANS",
-        "parser:RAIKISCAN",
-        "parser:RAINDROPTEAMFAN",
-        "parser:RAISCANS",
-        "parser:RAMAREADER",
-        "parser:RAWDEX",
         "parser:RAYSSCAN",
-        "parser:READCOMICSONLINE",
         "parser:READER_EVILFLOWERS",
-        "parser:READKOMIK",
-        "parser:REAPERSCANSUNORIGINAL",
-        "parser:REMANGA",
-        "parser:RESETSCANS",
-        "parser:REZOSCANS",
-        "parser:RIMUSCANS",
-        "parser:RIO2MANGANET",
-        "parser:ROMANTIKMANGA",
+        "parser:REAPERCOMICS",
         "parser:RUAHAPCHANHDAY",
-        "parser:RYZUKOMIK",
-        "parser:S2MANGA",
-        "parser:SADSCANS",
-        "parser:SAKAMOTODAYS",
-        "parser:SAMURAISCAN",
-        "parser:SAPPHIRESCAN",
-        "parser:SARCASMSCANS",
-        "parser:SCANBORUTO",
-        "parser:SCANHENTAIMENU",
-        "parser:SCANITA",
-        "parser:SCANJUJUTSUKAISEN",
-        "parser:SCANS4U",
-        "parser:SCANTRAD",
-        "parser:SCANVF",
-        "parser:SCANVFORG",
-        "parser:SCYLLACOMICS",
         "parser:SECTSCANS",
-        "parser:SEINEMANGA",
-        "parser:SEKAIKOMIK",
-        "parser:SEKTEKOMIK",
-        "parser:SELFMANGA",
-        "parser:SENKURO",
-        "parser:SEREINSCAN",
-        "parser:SETSUSCANS",
-        "parser:SHADOWMANGAS",
-        "parser:SHIBAMANGA",
-        "parser:SHIRAKAMI",
-        "parser:SHIRO_DOUJIN",
+        "parser:SEINAGI",
         "parser:SHOOTINGSTARSCANS",
-        "parser:SILENCESCAN",
-        "parser:SIRENKOMIK",
         "parser:SITEMANGA",
-        "parser:SNKSCAN",
-        "parser:SNOWMACHINETRANSLATION",
-        "parser:SOULSCANS",
         "parser:SSREADING",
-        "parser:STELLARSABER",
-        "parser:SUMMANGA",
-        "parser:SUMMERTOON",
-        "parser:SUSHISCAN",
-        "parser:SUSSYSCAN",
         "parser:SWEETSCAN",
-        "parser:TAROTSCANS",
         "parser:TATAKAE_SCANS",
         "parser:TAURUSMANGA",
         "parser:TCBSCANSMANGA",
         "parser:TECNOSCANS",
-        "parser:TEMAKIMANGAS",
-        "parser:TEMPESTFANSUBNET",
-        "parser:TEMPESTSCANS",
-        "parser:TENSHIMANGA",
-        "parser:TERRITORIOLEAL",
-        "parser:THEBLANK",
-        "parser:THUNDERSCANS",
         "parser:TIMENAIGHT",
-        "parser:TITANMANGA",
-        "parser:TOKYOREVENGERS",
-        "parser:TOONFR",
-        "parser:TOONGOD",
-        "parser:TOONILY_ME",
-        "parser:TOONITUBE",
-        "parser:TOONIZY",
-        "parser:TOPCOMICPORNO",
-        "parser:TOPREADMANHWA",
-        "parser:TOPTRUYEN",
         "parser:TRADUCCIONESAMISTOSAS",
-        "parser:TRADUCCIONESMOONLIGHT",
-        "parser:TRESDAOS",
-        "parser:TRUEMANGA",
-        "parser:TRUYENHENTAIVN",
-        "parser:TRUYENTRANH3Q",
-        "parser:TRUYENTRANHFULL",
-        "parser:TRUYENVN",
-        "parser:TUKANGKOMIK",
-        "parser:TUMANGAONLINE",
-        "parser:TUMANHWAS",
-        "parser:TUTTOANIMEMANGA",
-        "parser:TU_MANHWAS",
         "parser:TYRANTSCANS",
-        "parser:ULASCOMIC",
-        "parser:UNIVERSOHENTAI",
-        "parser:USAGI",
-        "parser:UTOON",
-        "parser:UZAYMANGA",
-        "parser:VALKYRIESCAN",
-        "parser:VARNASCAN",
-        "parser:VCOMYCS",
-        "parser:VERCOMICSPORNO",
-        "parser:VERMANGASPORNO",
-        "parser:VINLANDSAGA",
-        "parser:VYMANGA",
-        "parser:WALPURGISCAN",
-        "parser:WAMANGA",
-        "parser:WAVETEAMY",
-        "parser:WEBDEXSCANS",
-        "parser:WEBTOONEMPIRE",
-        "parser:WEBTOONHATTI",
         "parser:WEBTOONTR",
-        "parser:WEBTOONXYZ",
-        "parser:WEEBDEX_DE",
-        "parser:WEEBDEX_EN",
-        "parser:WEEBDEX_ES",
-        "parser:WEEBDEX_FR",
-        "parser:WEEBDEX_IT",
-        "parser:WEEBDEX_JA",
-        "parser:WEEBDEX_KO",
-        "parser:WEEBDEX_PT",
-        "parser:WEEBDEX_RU",
-        "parser:WEEBDEX_ZH",
-        "parser:WELOVEMANGA",
-        "parser:WESTMANGA",
-        "parser:WHALEMANGA",
-        "parser:WICKEDWITCHSCAN",
         "parser:WINTERSCAN",
-        "parser:WITCHSCANS",
-        "parser:WONDERLANDSCAN",
-        "parser:WOOPREAD",
-        "parser:XCALIBRSCANS",
-        "parser:XSSCAN",
-        "parser:YANPFANSUB",
-        "parser:YAOIBAR",
-        "parser:YAOIFLIX",
-        "parser:YAOIHUB",
-        "parser:YAOIMANGAOKU",
-        "parser:YAOISCAN",
-        "parser:YAOIX3",
-        "parser:YCSCAN",
-        "parser:YOMUMANGAS",
-        "parser:YONABAR",
-        "parser:YUGENMANGAS",
-        "parser:YUMEKOMIK",
-        "parser:YURIGARDEN",
-        "parser:YURIGARDEN_R18",
-        "parser:YURILAB",
-        "parser:YURILIVE",
         "parser:ZANDYNOFANSUB",
-        "parser:ZINCHANMANGA",
+        "parser:ZENITHSCANS",
         "parser:ZINCHANMANGA_NET",
         "parser:ZIN_MANGA_COM",
     ]

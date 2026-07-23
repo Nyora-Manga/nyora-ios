@@ -27,8 +27,9 @@ extension CustomSourceConfig {
                 .komga(key: key, name: name, server: server)
             case let .kavita(key, name, server):
                 .kavita(key: key, name: name, server: server)
-            case let .nyora(key, name, server, parserSource, lang):
-                .nyora(key: key, name: name, lang: lang, parserSource: parserSource, server: server)
+            case let .nyora(key, name, domain, parserSource, lang):
+                // The former `server` field now stores the source's site domain (for its favicon).
+                .nyora(key: key, name: name, lang: lang, parserSource: parserSource, domain: domain)
         }
     }
 }

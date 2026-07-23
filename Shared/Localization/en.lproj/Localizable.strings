@@ -14,6 +14,7 @@
 "DISCOVER_EMPTY_MESSAGE" = "Couldn't load the discover feed. Pull to try again.";
 "DISCOVER_SECTION_COUNT" = "%d items";
 "TRENDING" = "Trending";
+"SHOW_ALL" = "Show all";
 "POPULAR" = "Popular";
 "FIND_TO_READ" = "Find to read";
 "FIND_TO_READ_SUBTITLE" = "Searching your installed sources for a readable copy.";
@@ -152,6 +153,8 @@
 // Browse
 "BROWSE" = "Browse";
 "BOOKMARKS" = "Bookmarks";
+"BOOKMARKS_EMPTY" = "No bookmarks yet. Tap the bookmark icon while reading to save a page.";
+"PAGE_NUMBER" = "Page %i";
 "RANDOM" = "Random";
 "BROWSE_NO_SOURCES" = "No Sources";
 "BROWSE_NO_SOURCES_TEXT_NEW" = "Add a source with the plus button.";
@@ -229,6 +232,7 @@
 
 // Local Source
 "LOCAL_FILES" = "Local Files";
+"LOCAL_FILES_EMPTY" = "No local files yet. Tap + to import a .cbz or .zip.";
 "LOCAL_FILES_TAGLINE" = "Read from local files";
 "LOCAL_FILES_INFO" = "The local files source allows you to upload and manage your own reading library directly within Nyora.";
 "LOCAL_FILES_SETUP" = "Local Files Setup";

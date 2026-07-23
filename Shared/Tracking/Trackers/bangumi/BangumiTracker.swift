@@ -128,7 +128,7 @@ final class BangumiTracker: OAuthTracker {
     }
 
     func getAuthenticationUrl() async -> URL? {
-        await api.oauth.getAuthenticationUrl(responseType: "code", redirectUri: "aidoku://bangumi-auth")
+        await api.oauth.getAuthenticationUrl(responseType: "code", redirectUri: "nyora://bangumi-auth")
     }
 
     func handleAuthenticationCallback(url: URL) async {

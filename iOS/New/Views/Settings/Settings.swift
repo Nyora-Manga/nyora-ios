@@ -78,6 +78,15 @@ enum Settings {
                     inlineTitle: true,
                     icon: .system(name: "character.bubble", color: "purple", inset: 4)
                 ))
+            ),
+            .init(
+                key: "Colorization",
+                title: "Colorization",
+                value: .page(.init(
+                    items: [],
+                    inlineTitle: true,
+                    icon: .system(name: "paintpalette.fill", color: "pink", inset: 4)
+                ))
             )
         ]))),
         .init(value: .group(.init(items: [

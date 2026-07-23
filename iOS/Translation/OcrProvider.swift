@@ -30,10 +30,33 @@ actor OcrProvider {
         if aspect > 2.5 {
             return await runTiledOcr(cgImage: cgImage, imageSize: imageSize, sourceLang: sourceLang)
         }
+        let blocks = await ocrImage(cgImage, imageSize: imageSize, sourceLang: sourceLang)
+        return TextResult(blocks: blocks, language: Self.detectScript(blocks.map(\.text).joined()))
+    }
+
+    /// OCR one image (a full page or a webtoon tile). Prefers **ML Kit** on device — its
+    /// language models read VERTICAL Japanese (tategaki), the dominant manga layout, which Apple
+    /// Vision garbles. Falls back to the Vision preprocess + rot90/inverted orientation ensemble
+    /// (simulator, or when ML Kit found nothing). Boxes are in the input image's pixel space.
+    private func ocrImage(_ cgImage: CGImage, imageSize: CGSize, sourceLang: String) async -> [MangaBlock] {
+        if Self.mlkitAvailable {
+            let mlkit = await runMLKitOcr(cgImage: cgImage, imageSize: imageSize, sourceLang: sourceLang)
+            if !mlkit.isEmpty { return mlkit.blocks }
+        }
         let processed = preprocess(cgImage)
-        let blocks = await ensembleOcr(image: processed, sourceLang: sourceLang)
-        let mapped = remapToOriginal(blocks: blocks, processed: processed, original: imageSize)
-        return TextResult(blocks: mapped, language: Self.detectScript(mapped.map(\.text).joined()))
+        let pSize = CGSize(width: processed.width, height: processed.height)
+        async let normalBlocks = ensembleOcr(image: processed, sourceLang: sourceLang)
+        async let rotBlocks: [MangaBlock] = {
+            guard let rotated = Self.rotate90CW(processed) else { return [] }
+            let blocks = await self.ensembleOcr(image: rotated, sourceLang: sourceLang)
+            return Self.mapBoxesFromRotated90CW(blocks, originalSize: pSize)
+        }()
+        async let invBlocks: [MangaBlock] = {
+            guard let inverted = Self.invertImage(processed) else { return [] }
+            return await self.ensembleOcr(image: inverted, sourceLang: sourceLang)
+        }()
+        let combined = mergeDuplicates(await normalBlocks + rotBlocks + invBlocks)
+        return remapToOriginal(blocks: combined, processed: processed, original: imageSize)
     }
 
     // MARK: Tiled OCR for tall webtoons
@@ -49,12 +72,14 @@ actor OcrProvider {
             guard let tile = cgImage.cropping(to: CGRect(x: 0, y: y, width: imageSize.width, height: h)) else {
                 y += step; continue
             }
-            let processed = preprocess(tile)
-            let tileBlocks = await ensembleOcr(image: processed, sourceLang: sourceLang)
-            let mapped = remapToOriginal(blocks: tileBlocks, processed: processed,
-                                         original: CGSize(width: imageSize.width, height: h))
+            // Prefer ML Kit per tile (reads tategaki); Vision ensemble fallback (see `ocrImage`).
+            let tileBlocks = await ocrImage(
+                tile,
+                imageSize: CGSize(width: imageSize.width, height: h),
+                sourceLang: sourceLang
+            )
             let offsetY = y
-            collected.append(contentsOf: mapped.map {
+            collected.append(contentsOf: tileBlocks.map {
                 MangaBlock(text: $0.text, boundingBox: $0.boundingBox.offsetBy(dx: 0, dy: offsetY))
             })
             y += step
@@ -135,7 +160,7 @@ actor OcrProvider {
         return best?.1 ?? []
     }
 
-    private static func score(_ text: String) -> Int {
+    static func score(_ text: String) -> Int {
         if text.isEmpty { return 0 }
         let cjk = text.unicodeScalars.reduce(0) { acc, s in
             acc + (((0x4E00...0x9FFF).contains(s.value) ||
@@ -155,6 +180,7 @@ actor OcrProvider {
                     let w = CGFloat(cgImage.width), h = CGFloat(cgImage.height)
                     let blocks: [MangaBlock] = obs.compactMap { o in
                         guard let top = o.topCandidates(1).first,
+                              top.confidence >= Self.visionConfidenceFloor,
                               !top.string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         else { return nil }
                         let box = CGRect(x: o.boundingBox.minX * w,
@@ -178,6 +204,76 @@ actor OcrProvider {
                 do { try handler.perform([request]) } catch { cont.resume(returning: []) }
             }
         }
+    }
+
+    // MARK: Orientation ensemble helpers (ported from the mac OcrProvider)
+
+    /// Minimum per-candidate Vision confidence. Below this a read is almost
+    /// always rotation hallucination or screentone pareidolia (the rot90 pass
+    /// "reading" horizontal text as vertical garbage), so we drop it.
+    private static let visionConfidenceFloor: VNConfidence = 0.3
+
+    private static func invertImage(_ cgImage: CGImage) -> CGImage? {
+        let ci = CIImage(cgImage: cgImage)
+        let invert = CIFilter.colorInvert()
+        invert.inputImage = ci
+        guard let out = invert.outputImage else { return nil }
+        let ctx = CIContext(options: [.useSoftwareRenderer: false])
+        return ctx.createCGImage(out, from: out.extent)
+    }
+
+    private static func rotate90CW(_ cgImage: CGImage) -> CGImage? {
+        let w = cgImage.width, h = cgImage.height
+        guard let ctx = CGContext(
+            data: nil, width: h, height: w,
+            bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
+        ) else { return nil }
+        ctx.translateBy(x: CGFloat(h), y: 0)
+        ctx.rotate(by: .pi / 2)
+        ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: w, height: h))
+        return ctx.makeImage()
+    }
+
+    /// Maps boxes found in a 90°-CW-rotated image back to the un-rotated frame.
+    /// `originalSize` is the pre-rotation (processed) image size.
+    private static func mapBoxesFromRotated90CW(_ blocks: [MangaBlock], originalSize: CGSize) -> [MangaBlock] {
+        let W = originalSize.width
+        return blocks.map { b in
+            let r = b.boundingBox
+            return MangaBlock(
+                text: b.text,
+                boundingBox: CGRect(
+                    x: r.minY,
+                    y: W - r.minX - r.width,
+                    width: r.height,
+                    height: r.width
+                )
+            )
+        }
+    }
+
+    /// Drop near-identical blocks across passes. High IoU + same text → dup;
+    /// high IoU + different text → keep the higher-scoring (more CJK / longer) read.
+    private func mergeDuplicates(_ blocks: [MangaBlock]) -> [MangaBlock] {
+        var out: [MangaBlock] = []
+        for b in blocks {
+            if let idx = out.firstIndex(where: { Self.iou($0.boundingBox, b.boundingBox) > 0.7 }) {
+                if Self.score(b.text) > Self.score(out[idx].text) { out[idx] = b }
+                continue
+            }
+            out.append(b)
+        }
+        return out
+    }
+
+    private static func iou(_ a: CGRect, _ b: CGRect) -> CGFloat {
+        let inter = a.intersection(b)
+        if inter.isNull || inter.isEmpty { return 0 }
+        let interArea = inter.width * inter.height
+        let unionArea = a.width * a.height + b.width * b.height - interArea
+        return unionArea > 0 ? interArea / unionArea : 0
     }
 
     private func remapToOriginal(blocks: [MangaBlock], processed: CGImage, original: CGSize) -> [MangaBlock] {

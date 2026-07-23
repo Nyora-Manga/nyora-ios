@@ -179,7 +179,7 @@ struct PlaceholderHomeImageScrollerView: View {
             component: .init(
                 title: "Title",
                 value: .imageScroller(
-                    links: [.init(title: "", imageUrl: "https://nyora.pages.dev/icon.png", value: .url("https://nyora.pages.dev"))],
+                    links: [.init(title: "", imageUrl: "https://nyora.xyz/icon.png", value: .url("https://nyora.xyz"))],
                     autoScrollInterval: nil
                 )
             )

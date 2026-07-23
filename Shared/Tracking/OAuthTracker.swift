@@ -9,7 +9,7 @@ import Foundation
 
 /// A protocol for trackers that utilize OAuth authentication.
 protocol OAuthTracker: Tracker {
-    /// The host in the oauth callback url, e.g. `host` in `aidoku://host`.
+    /// The host in the oauth callback url, e.g. `host` in `nyora://host`.
     var callbackHost: String { get }
     /// The OAuth access token for the tracker.
     var token: String? { get set }

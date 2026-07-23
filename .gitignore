@@ -23,3 +23,7 @@ buildServer.json
 # Internal Nyora porting/dev backlogs (kept local, not shipped)
 NYORA_*_BACKLOG.md
 NYORA_TRACKING_SCHEMA.md
+build/
+vendor/
+native-engine/
+DerivedData/

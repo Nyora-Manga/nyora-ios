@@ -19,12 +19,11 @@ class BrowseViewController: BaseTableViewController {
 
     // Nyora Explore header: a 2×2 quick-actions card (search uses the native search bar).
     private let headerContainer = UIView()
-    private static let quickActionsHeight: CGFloat = 178
+    private static let quickActionsHeight: CGFloat = 108
     private lazy var quickActionsHost: UIHostingController<QuickActionsCard> = {
         let card = QuickActionsCard(
             onLocal: { [weak self] in self?.openLocalSource() },
             onBookmarks: { [weak self] in self?.openBookmarks() },
-            onRandom: { [weak self] in self?.openRandomManga() },
             onDownloads: { [weak self] in self?.openDownloads() }
         )
         let host = UIHostingController(rootView: card)
@@ -276,7 +275,7 @@ extension BrowseViewController {
 
     @objc func openGuidePage() {
         let safariViewController = SFSafariViewController(
-            url: URL(string: "https://nyora.pages.dev")!
+            url: URL(string: "https://nyora.xyz")!
         )
         present(safariViewController, animated: true)
     }
@@ -324,55 +323,41 @@ extension BrowseViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
 
-    /// Local: present the local-file importer (accepts .cbz / .zip). Imported titles
-    /// then appear under the local source in the library.
+    /// Local: present the local-file importer (accepts .cbz / .zip). Ensures the local source is
+    /// installed first, otherwise imports are orphaned — invisible in Browse and unreadable. Imported
+    /// titles then appear under the "Local files" source in Browse.
     func openLocalSource() {
-        let hosting = UIHostingController(rootView: LocalFileImportView())
-        hosting.navigationItem.largeTitleDisplayMode = .never
-        let nav = UINavigationController(rootViewController: hosting)
-        present(nav, animated: true)
-    }
-
-    /// Bookmarks: switch to the Favourites (library) tab. iOS 26 uses UITab, so
-    /// `viewControllers` is nil — select by section index instead.
-    func openBookmarks() {
-        guard let tabBarController, let index = NavConfig.enabledSections.firstIndex(of: .library) else { return }
-        tabBarController.selectedIndex = index
-    }
-
-    /// Random: open a random manga from a random installed source. Uses the source's
-    /// listing (Popular) since nil-query search returns nothing for many sources.
-    func openRandomManga() {
-        let candidates = SourceManager.shared.sources.filter { $0.id != LocalSourceRunner.sourceKey }
-        guard let source = candidates.randomElement() else {
-            openAddSourcePage()
-            return
-        }
         Task { @MainActor in
-            var manga: AidokuRunner.Manga?
-            if let listing = try? await source.getListings().first {
-                manga = try? await source.getMangaList(listing: listing, page: 1).entries.randomElement()
-            }
-            if manga == nil {
-                manga = try? await source.getSearchMangaList(query: nil, page: 1, filters: []).entries.randomElement()
-            }
-            if let manga {
-                self.navigationController?.pushViewController(
-                    MangaViewController(source: source, manga: manga, parent: self),
-                    animated: true
-                )
-            } else {
-                self.push(source: source)
-            }
+            await SourceManager.shared.installLocalSourceIfNeeded()
+            presentInNav(LocalLibraryView(), title: NSLocalizedString("LOCAL_FILES", comment: ""))
         }
     }
 
-    /// Downloads: present the download queue.
+    /// Bookmarks: present the saved-page bookmarks list (grouped per manga; tapping one opens the
+    /// reader at that page).
+    func openBookmarks() {
+        let hosting = UIHostingController(rootView: AllBookmarksView())
+        present(hosting, animated: true)
+    }
+
+    /// Downloads: present the downloaded-manga library (the active queue is reachable from Library).
     func openDownloads() {
-        let hosting = UIHostingController(rootView: DownloadQueueView())
+        presentInNav(DownloadsView(), title: NSLocalizedString("DOWNLOADS", comment: ""))
+    }
+
+    /// Present a SwiftUI view in a nav stack with its own NavigationCoordinator (so it can push
+    /// UIKit detail screens) and a Done button.
+    private func presentInNav(_ view: some View, title: String) {
+        let coordinator = NavigationCoordinator(rootViewController: nil)
+        let hosting = UIHostingController(rootView: view.environmentObject(coordinator))
+        coordinator.rootViewController = hosting
+        hosting.title = title
         hosting.navigationItem.largeTitleDisplayMode = .never
-        hosting.navigationItem.title = NSLocalizedString("DOWNLOAD_QUEUE")
-        let nav = UINavigationController(rootViewController: hosting)
+        hosting.navigationItem.leftBarButtonItem = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction { [weak hosting] _ in hosting?.dismiss(animated: true) }
+        )
+        let nav = NavigationController(rootViewController: hosting)
         present(nav, animated: true)
     }
 

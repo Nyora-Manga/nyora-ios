@@ -2,36 +2,50 @@
 //  DiscoverRailView.swift
 //  Aidoku (iOS) — Nyora fork
 //
-//  ND-014 — Discover horizontal RAIL.
-//
-//  A section of the Discover feed ported from nyora-android's item_discover_rail.xml
-//  / item_discover_rail_card.xml: a section title above a horizontal scroller of
-//  140pt-wide flat bordered cards. Each card is a 13:18 full-bleed cover with a
-//  2-line Poppins-SemiBold title beneath it, and taps through to manga details.
+//  Discover horizontal RAIL, redesigned 1:1 with nyora-web's `.discover-rail`:
+//  a header (title + a "Show all" tonal pill) above a horizontal scroller of
+//  138pt cards. Each card is a 2:3 cover filling a rounded surface card, with a
+//  single dark-blurred lead-genre chip pinned to the cover's bottom-left and a
+//  2-line title beneath. Tapping a card runs a title search.
 //
 
-import AidokuRunner
 import SwiftUI
 
 struct DiscoverRailView: View {
-    let source: AidokuRunner.Source?
-    let title: String?
-    let manga: [AidokuRunner.Manga]
-    /// When set, taps invoke this instead of opening source details directly.
-    var onSelect: ((AidokuRunner.Manga) -> Void)?
+    let title: String
+    let items: [DiscoverItem]
+    let onSelect: (DiscoverItem) -> Void
+    var onShowAll: (() -> Void)?
+
+    @ObservedObject private var accentManager = AccentManager.shared
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if let title, !title.isEmpty {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
                 Text(title)
                     .font(.poppins(18, weight: .semibold))
-                    .padding(.horizontal, 16)
+                    .foregroundStyle(.primary)
+                Spacer(minLength: 0)
+                if let onShowAll {
+                    Button(action: onShowAll) {
+                        Text(NSLocalizedString("SHOW_ALL", comment: ""))
+                            .font(.poppins(13, weight: .semibold))
+                            .foregroundStyle(accentManager.color)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 7)
+                            .background(Color.nyoraCardSurface)
+                            .clipShape(Capsule())
+                            .overlay(Capsule().strokeBorder(Color.nyoraCardOutline, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
             }
+            .padding(.horizontal, 16)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 12) {
-                    ForEach(manga.indices, id: \.self) { index in
-                        DiscoverRailCard(source: source, manga: manga[index], onSelect: onSelect)
+                    ForEach(items) { item in
+                        DiscoverRailCard(item: item) { onSelect(item) }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -41,46 +55,52 @@ struct DiscoverRailView: View {
 }
 
 private struct DiscoverRailCard: View {
-    let source: AidokuRunner.Source?
-    let manga: AidokuRunner.Manga
-    var onSelect: ((AidokuRunner.Manga) -> Void)?
+    let item: DiscoverItem
+    let onTap: () -> Void
 
-    @EnvironmentObject private var path: NavigationCoordinator
-
-    // nyora-android item_discover_rail_card.xml: 140dp wide, 16dp corners, 1px outline.
-    private static let width: CGFloat = 140
-    private static let corner: CGFloat = 16
-
-    private var coverHeight: CGFloat {
-        (Self.width / NyoraTheme.coverAspectRatio).rounded()
-    }
+    // nyora-web: 138px cards, 2:3 cover, 18–20px radius surface card.
+    private static let width: CGFloat = 138
+    private static let corner: CGFloat = 18
+    private var coverHeight: CGFloat { (Self.width * 3 / 2).rounded() }
 
     var body: some View {
-        Button(action: openDetails) {
+        Button(action: onTap) {
             VStack(alignment: .leading, spacing: 0) {
-                SourceImageView(
-                    source: source,
-                    imageUrl: manga.cover ?? "",
-                    downsampleWidth: 300,
-                    contentMode: .fill,
-                    showsLoadingIndicator: true
-                )
-                .frame(width: Self.width, height: coverHeight)
-                .clipped()
+                ZStack(alignment: .bottomLeading) {
+                    SourceImageView(
+                        imageUrl: item.cover ?? "",
+                        downsampleWidth: 300,
+                        contentMode: .fill,
+                        showsLoadingIndicator: true
+                    )
+                    .frame(width: Self.width, height: coverHeight)
+                    .clipped()
 
-                Text(manga.title)
+                    if let genre = item.genres.first {
+                        Text(genre)
+                            .font(.poppins(11, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(.ultraThinMaterial, in: Capsule())
+                            .background(Color.black.opacity(0.35), in: Capsule())
+                            .padding(8)
+                    }
+                }
+
+                Text(item.title)
                     .font(.poppins(13, weight: .semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, minHeight: 36, alignment: .topLeading)
-                    .padding(8)
+                    .frame(maxWidth: .infinity, minHeight: 38, alignment: .topLeading)
+                    .padding(.horizontal, 10)
+                    .padding(.top, 8)
+                    .padding(.bottom, 10)
             }
             .frame(width: Self.width)
-            .background(
-                RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
-                    .fill(Color.nyoraCardSurface)
-            )
+            .background(Color.nyoraCardSurface)
             .clipShape(RoundedRectangle(cornerRadius: Self.corner, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: Self.corner, style: .continuous)
@@ -88,13 +108,5 @@ private struct DiscoverRailCard: View {
             )
         }
         .buttonStyle(.plain)
-    }
-
-    private func openDetails() {
-        if let onSelect {
-            onSelect(manga)
-        } else if let source {
-            path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
-        }
     }
 }

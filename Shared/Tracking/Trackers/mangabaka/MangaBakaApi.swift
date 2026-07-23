@@ -10,10 +10,11 @@ import Foundation
 actor MangaBakaApi {
     let baseApiUrl = URL(string: "https://api.mangabaka.dev")!
 
-    // registered under skitty's MangaBaka account
+    // Nyora MangaBaka OAuth client — register your app (PKCE) at mangabaka.org
+    // with redirect nyora://mangabaka-auth, then set the client id.
     nonisolated let oauth = OAuthClient(
         id: "mangabaka",
-        clientId: "rhqyADkXfqdmFVZcslegTvgLvLeOpFdz",
+        clientId: "WFVyyltyYIteXTlesNaCnZwLnkjwGWRp",
         baseUrl: "https://mangabaka.org/auth/oauth2",
         challengeMethod: .s256
     )
@@ -31,7 +32,7 @@ actor MangaBakaApi {
             "client_id": oauth.clientId,
             "refresh_token": refreshToken,
             "grant_type": "refresh_token",
-            "redirect_uri": "aidoku://mangabaka-auth"
+            "redirect_uri": "nyora://mangabaka-auth"
         ].percentEncoded()
         let response: OAuthResponse? = try? await URLSession.shared.object(from: request)
         await oauth.setTokens(response)

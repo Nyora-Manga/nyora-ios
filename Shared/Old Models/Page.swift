@@ -30,6 +30,13 @@ struct Page: Hashable {
     var hasDescription: Bool = false
     var description: String?
 
+    /// Marks a synthetic "couldn't load this chapter" placeholder (see
+    /// ReaderPagedViewModel). It carries `text` so whichever reader is active renders
+    /// a clean message inline, but callers must not treat it as real content:
+    /// ReaderViewController.setPages must not mis-route a failed IMAGE chapter into
+    /// the text/novel reader on it, and the chapter must not be marked read.
+    var isError: Bool = false
+
     var key: String {
         "\(chapterId)|\(index)"
     }

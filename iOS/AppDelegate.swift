@@ -475,6 +475,9 @@ extension AppDelegate {
         SourceManager.oldDirectory.removeItem()
         await SourceManager.shared.reloadSources()
 
+        // Sync library/history automatically (foreground + on-change), like android/web.
+        NyoraSyncClient.shared.startAutoSync()
+
         await hideLoadingIndicator()
     }
 

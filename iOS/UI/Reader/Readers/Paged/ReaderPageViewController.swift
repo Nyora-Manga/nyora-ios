@@ -166,7 +166,17 @@ class ReaderPageViewController: BaseObservingViewController {
     }
 
     func setPage(_ page: Page, sourceId: String? = nil, skipProcessing: Bool = false) {
-        guard !pageSet, let pageView else { return }
+        guard let pageView else { return }
+        // Per-page freshness contract (mirrors nyora-web, which binds one <img> to one
+        // page URL for its entire lifetime and never reuses a node for a different page):
+        // if this controller was recycled and already holds a DIFFERENT page, tear down all
+        // stale per-page state before rendering the new one. Without this the original
+        // `guard !pageSet` would silently no-op and keep showing the previous page's image /
+        // aspect ratio (the per-page analogue of the chapter-level fresh-build fix).
+        if pageSet {
+            guard self.page != page else { return } // same page already rendered — idempotent no-op
+            clearPage()
+        }
         pageSet = true
         self.page = page
         self.sourceId = sourceId
@@ -319,9 +329,21 @@ class ReaderPageViewController: BaseObservingViewController {
 
     func clearPage() {
         pageSet = false
+        page = nil
+        sourceId = nil
+        // Tear down any translation overlay + cancel its OCR/MT task so a recycled controller
+        // can't show the previous page's translated boxes (the host view lives inside imageView).
+        pageView?.removeTranslationOverlay()
+        pageView?.removeColorization()
         pageView?.imageView.image = nil
         zoomView?.zoomEnabled = false
         imageAspectRatio = nil
+        // Drop residual visual state so a recycled controller can't paint the previous
+        // page's auto-background / gradient or keep its old zoom scale & content offset.
+        pageBackground = nil
+        view.layer.sublayers?.removeAll(where: { $0 is CAGradientLayer })
+        zoomView?.minimumZoomScale = 1
+        zoomView?.setZoomScale(1, animated: false)
     }
 
     /// Check if this is a wide image (aspect ratio > 1)

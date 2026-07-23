@@ -85,10 +85,11 @@ extension Chapter: Equatable {
 
 extension Chapter {
     func toNew() -> AidokuRunner.Chapter {
-        AidokuRunner.Chapter(
+        let normalized = ChapterMetadataNormalizer.normalize(title: title, url: url, number: chapterNum)
+        return AidokuRunner.Chapter(
             key: id,
-            title: title,
-            chapterNumber: chapterNum,
+            title: normalized.title,
+            chapterNumber: normalized.number,
             volumeNumber: volumeNum,
             dateUploaded: dateUploaded,
             scanlators: scanlator?.components(separatedBy: ", "),
@@ -136,5 +137,85 @@ extension Chapter {
 
     var identifier: ChapterIdentifier {
         .init(sourceKey: sourceId, mangaKey: mangaId, chapterKey: id)
+    }
+}
+
+private enum ChapterMetadataNormalizer {
+    static func normalize(title: String?, url: String?, number: Float?) -> (title: String?, number: Float?) {
+        let rawTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let sourceNumber = number.flatMap { $0 > 0 ? $0 : nil }
+
+        if let rawTitle,
+           let duplicate = duplicateLeadingLabels(rawTitle) {
+            return (emptyToNil(duplicate.cleanTitle), duplicate.number)
+        }
+
+        if let rawTitle,
+           let leading = leadingLabel(rawTitle) {
+            return (emptyToNil(leading.cleanTitle), leading.number ?? sourceNumber)
+        }
+
+        if let sourceNumber {
+            return (emptyToNil(rawTitle), sourceNumber)
+        }
+
+        if let rawTitle,
+           let parsed = firstChapterNumber(in: rawTitle) {
+            return (emptyToNil(rawTitle), parsed)
+        }
+
+        if let url,
+           let parsed = firstChapterNumber(in: url) {
+            return (emptyToNil(rawTitle), parsed)
+        }
+
+        return (emptyToNil(rawTitle), sourceNumber)
+    }
+
+    private static func duplicateLeadingLabels(_ title: String) -> (number: Float, cleanTitle: String)? {
+        let pattern = #"(?i)^\s*(?:chapter|chap|ch\.?|episode|ep\.?|c)\s*\d+(?:\.\d+)?\s*[-:–—]\s*(?:chapter|chap|ch\.?|episode|ep\.?|c)\s*(\d+(?:\.\d+)?)(?:\s*[-:–—]\s*(.*))?$"#
+        guard
+            let regex = try? NSRegularExpression(pattern: pattern),
+            let match = regex.firstMatch(in: title, range: NSRange(title.startIndex..., in: title)),
+            match.numberOfRanges > 1,
+            let numberRange = Range(match.range(at: 1), in: title),
+            let number = Float(title[numberRange])
+        else { return nil }
+        let rest = match.numberOfRanges > 2 && match.range(at: 2).location != NSNotFound
+            ? Range(match.range(at: 2), in: title).map { String(title[$0]) }
+            : nil
+        return (number, rest?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
+    }
+
+    private static func leadingLabel(_ title: String) -> (number: Float?, cleanTitle: String)? {
+        let pattern = #"(?i)^\s*(?:chapter|chap|ch\.?|episode|ep\.?|c)\s*(\d+(?:\.\d+)?)(?:\s*[-:–—]\s*(.*))?$"#
+        guard
+            let regex = try? NSRegularExpression(pattern: pattern),
+            let match = regex.firstMatch(in: title, range: NSRange(title.startIndex..., in: title)),
+            match.numberOfRanges > 1
+        else { return nil }
+        let number = Range(match.range(at: 1), in: title).flatMap { Float(title[$0]) }
+        let rest = match.numberOfRanges > 2 && match.range(at: 2).location != NSNotFound
+            ? Range(match.range(at: 2), in: title).map { String(title[$0]) }
+            : nil
+        return (number, rest?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
+    }
+
+    private static func firstChapterNumber(in text: String) -> Float? {
+        let pattern = #"(?i)(?:chapter|chap|ch\.?|episode|ep\.?|c)[\s._:-]*(\d+(?:\.\d+)?)"#
+        guard
+            let regex = try? NSRegularExpression(pattern: pattern),
+            let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+            match.numberOfRanges > 1,
+            let range = Range(match.range(at: 1), in: text)
+        else { return nil }
+        return Float(text[range])
+    }
+
+    private static func emptyToNil(_ value: String?) -> String? {
+        guard let value = value?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty else {
+            return nil
+        }
+        return value
     }
 }

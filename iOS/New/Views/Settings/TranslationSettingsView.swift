@@ -85,7 +85,13 @@ struct TranslationSettingsView: View {
                 } header: {
                     Text("Custom API (OpenAI-compatible)")
                 } footer: {
-                    Text("Any OpenAI-compatible /chat/completions endpoint (OpenAI, Groq, Mistral, Together, Ollama, LM Studio, …). Your key is stored on this device only.")
+                    if !byokEndpoint.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                       AIEndpointPolicy.chatCompletionsURL(baseURL: byokEndpoint) == nil {
+                        Text("Use HTTPS. HTTP is allowed only for localhost, 127.0.0.1, or ::1.")
+                            .foregroundStyle(.red)
+                    } else {
+                        Text("Any OpenAI-compatible /chat/completions endpoint (OpenAI, Groq, Mistral, Together, Ollama, LM Studio, …). Your key is stored in this device’s Keychain only. HTTPS is required except for local loopback models.")
+                    }
                 }
             }
 

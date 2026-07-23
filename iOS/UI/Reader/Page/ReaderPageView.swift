@@ -59,6 +59,17 @@ class ReaderPageView: UIView {
     private var translationTask: Task<Void, Never>?
     private var translationObserver: NSObjectProtocol?
 
+    // MARK: - On-device colorization state
+    // Keep the decoded/reader-processed source separate from the image currently
+    // displayed by the view. Otherwise a completion would recursively feed a
+    // colored result back into the model or OCR pipeline on layout refresh.
+    private var colorizationSourceImage: UIImage?
+    private var displayedColorizedImage: UIImage?
+    private var colorizationTask: Task<Void, Never>?
+    private var colorizationGeneration = 0
+    private var activeColorizationKey: String?
+    private var colorizationObserver: NSObjectProtocol?
+
     init() {
         super.init(frame: .zero)
         configure()
@@ -111,6 +122,13 @@ class ReaderPageView: UIView {
         ) { [weak self] _ in
             Task { @MainActor in self?.refreshTranslation() }
         }
+        colorizationObserver = NotificationCenter.default.addObserver(
+            forName: .colorizationSettingsChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.refreshColorization() }
+        }
     }
 
     deinit {
@@ -120,7 +138,11 @@ class ReaderPageView: UIView {
         if let pageNumberObserver {
             NotificationCenter.default.removeObserver(pageNumberObserver)
         }
+        if let colorizationObserver {
+            NotificationCenter.default.removeObserver(colorizationObserver)
+        }
         translationTask?.cancel()
+        colorizationTask?.cancel()
     }
 
     /// Show/hide and populate the on-page page-number overlay based on the
@@ -154,6 +176,7 @@ class ReaderPageView: UIView {
     }
 
     func setPage(_ page: Page, sourceId: String? = nil, skipProcessing: Bool = false) async -> Bool {
+        prepareForNewPage()
         // Store current page data for reload functionality
         self.currentPage = page
         updatePageNumber()
@@ -544,16 +567,108 @@ class ReaderPageView: UIView {
         imageWidthConstraint?.isActive = true
         imageHeightConstraint?.isActive = true
 
+        captureColorizationSourceIfNeeded()
+        refreshColorization()
         // Single chokepoint after every successful image set — (re)evaluate the
-        // translation overlay if the feature is on.
+        // translation overlay if the feature is on. Translation intentionally
+        // uses the original processed source, not a model-colourized bitmap.
         refreshTranslation()
+    }
+
+    // MARK: - Colorization
+
+    private var colorizationPageKey: String {
+        let page = currentPage
+        let pageID = page.map { "\($0.chapterId)\u{1}\($0.index)" } ?? "unkeyed"
+        return "\(pageID)|\(ImageProcessingSettingsKey.getProcessorSettingsKey())"
+    }
+
+    private var isAnimatedPage: Bool {
+        guard let page = currentPage else { return imageView.isAnimating }
+        let path = page.imageURL?.lowercased() ?? ""
+        return imageView.isAnimating || path.hasSuffix(".gif")
+    }
+
+    private func prepareForNewPage() {
+        colorizationGeneration &+= 1
+        colorizationTask?.cancel()
+        colorizationTask = nil
+        activeColorizationKey = nil
+        colorizationSourceImage = nil
+        displayedColorizedImage = nil
+        removeTranslationOverlay()
+    }
+
+    /// Detect a fresh reader source assignment without forcing every Nuke/ZIP/
+    /// base64 path to maintain its own colorization hook. A colored completion
+    /// never calls `fixImageSize`, so it is never mistaken for source input.
+    private func captureColorizationSourceIfNeeded() {
+        guard let image = imageView.image else { return }
+        if let displayedColorizedImage, image === displayedColorizedImage { return }
+        if colorizationSourceImage === image { return }
+        colorizationGeneration &+= 1
+        colorizationTask?.cancel()
+        colorizationTask = nil
+        activeColorizationKey = nil
+        colorizationSourceImage = image
+        displayedColorizedImage = nil
+    }
+
+    func refreshColorization() {
+        let controller = ColorizationController.shared
+        guard controller.enabled,
+              !isAnimatedPage,
+              let source = colorizationSourceImage,
+              source.cgImage != nil else {
+            colorizationTask?.cancel()
+            colorizationTask = nil
+            activeColorizationKey = nil
+            if displayedColorizedImage != nil {
+                imageView.image = colorizationSourceImage
+                displayedColorizedImage = nil
+            }
+            return
+        }
+
+        let key = colorizationPageKey
+        if displayedColorizedImage != nil { return }
+        if colorizationTask != nil, activeColorizationKey == key { return }
+
+        colorizationTask?.cancel()
+        let generation = colorizationGeneration
+        activeColorizationKey = key
+        colorizationTask = Task { @MainActor [weak self, source] in
+            let result = await controller.colorize(source, cacheKey: key)
+            guard !Task.isCancelled,
+                  let self,
+                  self.colorizationGeneration == generation,
+                  self.colorizationPageKey == key,
+                  self.colorizationSourceImage === source,
+                  controller.enabled else { return }
+            self.colorizationTask = nil
+            self.activeColorizationKey = nil
+            guard let result else { return }
+            self.imageView.image = result
+            self.displayedColorizedImage = result
+        }
+    }
+
+    /// Called by recycled page controllers and text/reload paths. It cancels a
+    /// late completion and drops strong references to full-resolution bitmaps.
+    func removeColorization() {
+        colorizationGeneration &+= 1
+        colorizationTask?.cancel()
+        colorizationTask = nil
+        activeColorizationKey = nil
+        colorizationSourceImage = nil
+        displayedColorizedImage = nil
     }
 
     // MARK: - Translation overlay
 
     /// Start or tear down the translation overlay based on the global toggle.
     func refreshTranslation() {
-        if TranslationController.shared.enabled, imageView.image?.cgImage != nil {
+        if TranslationController.shared.enabled, colorizationSourceImage?.cgImage != nil {
             startTranslation()
         } else {
             removeTranslationOverlay()
@@ -561,7 +676,7 @@ class ReaderPageView: UIView {
     }
 
     private func startTranslation() {
-        guard let cg = imageView.image?.cgImage else { return }
+        guard let cg = colorizationSourceImage?.cgImage else { return }
         let pxSize = CGSize(width: cg.width, height: cg.height)
         translationTask?.cancel()
         ensureTranslationHost(imageSize: pxSize)
@@ -578,7 +693,10 @@ class ReaderPageView: UIView {
                 endpoint: controller.byokEndpoint,
                 apiKey: controller.byokApiKey,
                 model: controller.byokModel
-            )
+            ),
+            pageKey: currentPage.map {
+                "\($0.chapterId)\u{1}\($0.index)|\(ImageProcessingSettingsKey.getProcessorSettingsKey())"
+            } ?? ""
         )
         translationTask = Task { [weak self] in
             for await blocks in stream {
@@ -599,9 +717,15 @@ class ReaderPageView: UIView {
         host.view.isUserInteractionEnabled = false
         host.view.translatesAutoresizingMaskIntoConstraints = false
         if #available(iOS 16.4, *) { host.safeAreaRegions = [] }
-        parent?.addChild(host)
+        // Add ONLY the overlay's view — no UIViewController containment. In the
+        // double-page reader the pageView is re-parented between controllers
+        // (ReaderPageViewController → ReaderDoublePageViewController), so any
+        // child-VC relationship immediately goes stale and UIKit asserts
+        // "should have parent … but actual parent is …" on the next layout pass.
+        // The overlay is non-interactive and driven entirely by `rootView`
+        // updates, so it renders correctly as a plain subview; `translationHost`
+        // keeps the hosting controller alive.
         imageView.addSubview(host.view)
-        host.didMove(toParent: parent)
         // Pin to the image view so the overlay always covers exactly the
         // displayed image (imageView is constrained to the image's aspect, and
         // scales with pinch-zoom since the overlay is its subview).
@@ -619,18 +743,16 @@ class ReaderPageView: UIView {
         translationHost?.rootView = TranslationOverlayContainer(blocks: blocks, imageSize: imageSize)
     }
 
-    private func removeTranslationOverlay() {
+    func removeTranslationOverlay() {
         translationTask?.cancel()
         translationTask = nil
-        if let host = translationHost {
-            host.willMove(toParent: nil)
-            host.view.removeFromSuperview()
-            host.removeFromParent()
-            translationHost = nil
-        }
+        translationHost?.view.removeFromSuperview()
+        translationHost = nil
     }
 
     func setPageText(text: String) {
+        removeColorization()
+        removeTranslationOverlay()
         imageView.image = nil
         progressView.isHidden = true
 
@@ -733,6 +855,7 @@ extension ReaderPageView {
         clearCurrentImageCache()
 
         // Clear the current image to show loading state
+        removeColorization()
         imageView.image = nil
 
         // Reload the image using the original page data

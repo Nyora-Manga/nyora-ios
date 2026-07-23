@@ -362,7 +362,17 @@ class ReaderPagedTextViewController: BaseObservingViewController {
             return
         }
 
-        let targetIndex = min(max(0, index), pages.count - 1)
+        var targetIndex = min(max(0, index), pages.count - 1)
+
+        // In double-page mode, spreads are paired [0,1], [2,3], … from an even
+        // boundary (the data source steps by 2 starting at index 0). Restoring or
+        // sliding to an ODD index would create off-by-one spreads ([3,4], [5,6], …)
+        // that misalign with forward/back swipe pairing and can orphan a page.
+        // Snap to the enclosing even (left-hand) page so the pairing stays stable.
+        // The requested page is still visible (as the right half of the spread).
+        if usesDoublePages {
+            targetIndex -= targetIndex % 2
+        }
 
         let oldIndex = currentPageIndex
         currentPageIndex = targetIndex
@@ -618,44 +628,23 @@ extension ReaderPagedTextViewController: ReaderReaderDelegate {
 
     func loadPreviousChapter() {
         guard let previousChapter else { return }
+        // Load live. `preload()`/`preloadedPages` are disabled (permanently empty),
+        // so the old preloaded-pages gate ALWAYS failed and snapped back — the paged
+        // text reader could never reach the previous chapter. `loadChapter` fetches
+        // live and, if the chapter isn't text, informs the delegate so the parent
+        // reader switches reading modes (matching the image reader's loadNextChapter).
+        delegate?.setChapter(previousChapter)
         Task {
-            // Preload and verify the chapter has text pages before switching.
-            // Non-text chapters would require a reading-mode change that the
-            // paged text reader can't handle — snap back to the transition page.
-            await viewModel.preload(chapter: previousChapter)
-            let preloaded = viewModel.preloadedPages
-            guard !preloaded.isEmpty, preloaded.allSatisfy({ $0.isTextPage }) else {
-                await MainActor.run { snapBackToTransitionPage() }
-                return
-            }
-            delegate?.setChapter(previousChapter)
             await loadChapter(previousChapter, startPage: Int.max)
         }
     }
 
     func loadNextChapter() {
         guard let nextChapter else { return }
+        delegate?.setChapter(nextChapter)
         Task {
-            await viewModel.preload(chapter: nextChapter)
-            let preloaded = viewModel.preloadedPages
-            guard !preloaded.isEmpty, preloaded.allSatisfy({ $0.isTextPage }) else {
-                await MainActor.run { snapBackToTransitionPage() }
-                return
-            }
-            delegate?.setChapter(nextChapter)
             await loadChapter(nextChapter, startPage: 0)
         }
-    }
-
-    /// Navigate back from the blank trigger page to the visible transition page.
-    private func snapBackToTransitionPage() {
-        guard let currentVC = pageViewController.viewControllers?.first,
-              let triggerVC = currentVC as? ChapterLoadTriggerViewController else { return }
-        pageViewController.setViewControllers(
-            [triggerVC.transitionVC],
-            direction: .reverse,
-            animated: true
-        )
     }
 }
 

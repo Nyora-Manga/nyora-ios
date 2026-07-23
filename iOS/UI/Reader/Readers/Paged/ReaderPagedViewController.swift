@@ -192,27 +192,26 @@ extension ReaderPagedViewController {
     func loadPageControllers(chapter: AidokuRunner.Chapter) {
         guard !viewModel.pages.isEmpty else { return } // TODO: handle zero pages
 
-        // if transitioning from an adjacent chapter, keep the existing pages
-        var firstPageController: ReaderPageViewController?
-        var lastPageController: ReaderPageViewController?
-        var nextChapterPreviewController: ReaderPageViewController?
-        var previousChapterPreviewController: ReaderPageViewController?
-        if chapter == previousChapter {
-            lastPageController = pageViewControllers.first
-            nextChapterPreviewController = pageViewControllers[2]
-
-            if let previousPreviewSplitPages {
-                splitPages[viewModel.pages.count] = previousPreviewSplitPages
-                self.previousPreviewSplitPages = nil
-            }
-        } else if chapter == nextChapter {
-            firstPageController = pageViewControllers.last
-            previousChapterPreviewController = pageViewControllers[pageViewControllers.count - 3]
-
-            if let nextPreviewSplitPages {
-                splitPages[1] = nextPreviewSplitPages
-                self.nextPreviewSplitPages = nil
-            }
+        // Prefetch/preview is disabled (ReaderPagedViewModel.preload is a no-op and
+        // preloadedPages is always empty), so the previous chapter's adjacent controllers
+        // hold no data for this chapter. Never reuse them as the new chapter's pages: a
+        // reused controller keeps its old `pageSet`/image state and ReaderPageViewController
+        // .setPage bails via `guard !pageSet`, so the new chapter's real page never loads and
+        // renders blank. Chapter 1 never takes this reuse path (previousChapter/nextChapter
+        // start nil) — which is exactly why only non-first chapters went blank. Build every
+        // chapter from fresh page controllers, matching nyora-web, which tears down and
+        // rebuilds the whole reader on every chapter change (reader.js view.replaceChildren).
+        let firstPageController: ReaderPageViewController? = nil
+        let lastPageController: ReaderPageViewController? = nil
+        let nextChapterPreviewController: ReaderPageViewController? = nil
+        let previousChapterPreviewController: ReaderPageViewController? = nil
+        // Preserve split-preview carryover (only ever populated in split-wide-image mode).
+        if chapter == previousChapter, let previousPreviewSplitPages {
+            splitPages[viewModel.pages.count] = previousPreviewSplitPages
+            self.previousPreviewSplitPages = nil
+        } else if chapter == nextChapter, let nextPreviewSplitPages {
+            splitPages[1] = nextPreviewSplitPages
+            self.nextPreviewSplitPages = nil
         }
 
         pageViewControllers = []

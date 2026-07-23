@@ -16,7 +16,6 @@ actor ByokTranslator {
         let model: String
     }
 
-    private let session = URLSession.shared
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
@@ -35,12 +34,9 @@ actor ByokTranslator {
         let fallback = mtDrafts.count == originals.count ? mtDrafts : originals
         guard !originals.isEmpty else { return [] }
 
-        let endpoint = config.endpoint.hasSuffix("/")
-            ? String(config.endpoint.dropLast())
-            : config.endpoint
         let model = config.model.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !endpoint.isEmpty, !model.isEmpty,
-              let url = URL(string: "\(endpoint)/chat/completions") else {
+        guard !model.isEmpty,
+              let url = AIEndpointPolicy.chatCompletionsURL(baseURL: config.endpoint) else {
             return fallback
         }
 
@@ -95,7 +91,17 @@ actor ByokTranslator {
         }
         do {
             req.httpBody = try encoder.encode(body)
-            let (data, resp) = try await session.data(for: req)
+            let configuration = URLSessionConfiguration.ephemeral
+            configuration.urlCache = nil
+            configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+            configuration.httpCookieStorage = nil
+            let delegate = BoundedAIResponseDelegate(
+                origin: url,
+                maximumResponseBytes: AIEndpointPolicy.maximumBYOKResponseBytes
+            )
+            let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
+            defer { session.invalidateAndCancel() }
+            let (data, resp) = try await delegate.data(for: req, session: session)
             if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
                 return fallback
             }

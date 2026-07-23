@@ -109,6 +109,7 @@ struct AddSourceView: View {
         ExternalSourceTableCell(
             source: .init(
                 sourceId: entry.id,
+                iconUrl: nyoraFaviconURL(for: entry.domain),
                 name: entry.name,
                 languages: [entry.lang.isEmpty ? "multi" : entry.lang],
                 version: 1,
@@ -125,7 +126,7 @@ struct AddSourceView: View {
     private func load() async {
         loading = true
         loadFailed = false
-        let entries = await NyoraCatalog.fetchAll(server: SourceManager.nyoraServer)
+        let entries = await NyoraCatalog.fetchAll()
         installedParserSources = Set(
             SourceManager.shared.sources
                 .filter { $0.key.hasPrefix("\(NyoraSourceRunner.sourceKeyPrefix).") }

@@ -42,6 +42,8 @@ class ReaderViewController: BaseObservingViewController {
         }
     }
     private var currentPage = 1
+    /// One-shot start page (from a bookmark) that overrides the resumed history page.
+    private var initialPage: Int?
     private var currentPosition: Double?
     private var sessionReadPages: Set<Int> = []
     private var sessionStartDate: Date?
@@ -181,6 +183,21 @@ class ReaderViewController: BaseObservingViewController {
         button.tintColor = translateOn ? .tintColor : nil
         return button
     }()
+    /// Shown only after the locally verified model is available. This keeps the
+    /// reader chrome compact for everyone else and, importantly, makes a page
+    /// turn incapable of initiating a surprise model download.
+    private lazy var colorizeButton: UIBarButtonItem = {
+        let colorizationOn = ColorizationController.shared.enabled
+        let button = UIBarButtonItem(
+            image: UIImage(systemName: colorizationOn ? "paintpalette.fill" : "paintpalette"),
+            style: .plain,
+            target: self,
+            action: #selector(toggleColorization(_:))
+        )
+        button.tintColor = colorizationOn ? .tintColor : nil
+        button.accessibilityLabel = "Colorize pages"
+        return button
+    }()
 
     // save current page to Photos (NP-032)
     private lazy var saveButton = UIBarButtonItem(
@@ -188,6 +205,14 @@ class ReaderViewController: BaseObservingViewController {
         style: .plain,
         target: self,
         action: #selector(saveCurrentPage)
+    )
+
+    // bookmark the current page (Nyora)
+    private lazy var bookmarkButton = UIBarButtonItem(
+        image: UIImage(systemName: "bookmark"),
+        style: .plain,
+        target: self,
+        action: #selector(togglePageBookmark)
     )
 
     // in-reader rotate / orientation-lock quick control (NP-016)
@@ -223,11 +248,13 @@ class ReaderViewController: BaseObservingViewController {
     init(
         source: AidokuRunner.Source?,
         manga: AidokuRunner.Manga,
-        chapter: AidokuRunner.Chapter
+        chapter: AidokuRunner.Chapter,
+        startPage: Int? = nil
     ) {
         self.source = source
         self.manga = manga
         self.chapter = chapter
+        self.initialPage = startPage
         self.chapterList = manga.chapters ?? []
         self.chaptersToMark = [chapter]
         self.defaultReadingMode = switch manga.viewer {
@@ -251,7 +278,10 @@ class ReaderViewController: BaseObservingViewController {
         let navigationBarAppearance = UINavigationBarAppearance()
         let toolbarAppearance = UIToolbarAppearance()
         navigationBarAppearance.configureWithDefaultBackground()
-        toolbarAppearance.configureWithDefaultBackground()
+        // The bottom slider lives in its OWN floating blur pill (ReaderToolbarView),
+        // so a solid toolbar background renders a second bar behind it ("double
+        // bottom bar"). Keep the toolbar transparent — only the pill shows.
+        toolbarAppearance.configureWithTransparentBackground()
         navigationController?.navigationBar.standardAppearance = navigationBarAppearance
         navigationController?.navigationBar.compactAppearance = navigationBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navigationBarAppearance
@@ -395,6 +425,11 @@ class ReaderViewController: BaseObservingViewController {
         }
         // customizable reader controls (NP-022)
         addObserver(forName: "Reader.controls") { [weak self] _ in
+            self?.applyReaderControls()
+        }
+        addObserver(forName: .colorizationSettingsChanged) { [weak self] _ in
+            // Download/delete/enable events can change whether this optional
+            // quick control belongs in the navbar at all.
             self?.applyReaderControls()
         }
         let reloadBlock: (Notification) -> Void = { [weak self] _ in
@@ -542,11 +577,31 @@ class ReaderViewController: BaseObservingViewController {
         super.viewWillTransition(to: size, with: coordinator)
 
         coordinator.animate(alongsideTransition: nil) { _ in
-            if #available(iOS 26.0, *) {
-                self.toolbarViewWidthConstraint?.constant = size.width - 32 - 10
-            } else {
-                self.toolbarViewWidthConstraint?.constant = size.width
-            }
+            self.updateToolbarWidth(for: size.width)
+        }
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // The bottom toolbar pill width is seeded in configure() from node.bounds,
+        // which isn't laid out yet at viewDidLoad (Texture reports 0 / a stale size),
+        // so the pill can collapse on first appearance and was only ever re-synced on
+        // rotation. Re-apply the correct width on every layout pass (idempotent).
+        updateToolbarWidth(for: view.bounds.width)
+    }
+
+    /// Sizes the bottom toolbar pill to the current screen width (minus the pill's
+    /// horizontal insets on iOS 26's inset toolbar).
+    private func updateToolbarWidth(for width: CGFloat) {
+        guard width > 0 else { return }
+        let target: CGFloat
+        if #available(iOS 26.0, *) {
+            target = width - 32 - 10
+        } else {
+            target = width
+        }
+        if toolbarViewWidthConstraint?.constant != target {
+            toolbarViewWidthConstraint?.constant = target
         }
     }
 
@@ -649,15 +704,21 @@ class ReaderViewController: BaseObservingViewController {
             }
         }
 
-        let (completed, startPage) = CoreDataManager.shared.getProgress(
-            sourceId: source?.key ?? manga.sourceKey,
-            mangaId: manga.key,
-            chapterId: chapter.key
-        )
-        if !completed, let startPage {
-            currentPage = startPage
+        if let initialPage {
+            // Opened at a specific page (a bookmark) — override the resumed history page once.
+            currentPage = initialPage
+            self.initialPage = nil
         } else {
-            currentPage = -1
+            let (completed, startPage) = CoreDataManager.shared.getProgress(
+                sourceId: source?.key ?? manga.sourceKey,
+                mangaId: manga.key,
+                chapterId: chapter.key
+            )
+            if !completed, let startPage {
+                currentPage = startPage
+            } else {
+                currentPage = -1
+            }
         }
         reader?.setChapter(chapter, startPage: currentPage)
     }
@@ -697,6 +758,40 @@ class ReaderViewController: BaseObservingViewController {
         let on = TranslationController.shared.enabled
         sender.image = UIImage(systemName: on ? "character.bubble.fill" : "character.bubble")
         sender.tintColor = on ? .tintColor : nil
+    }
+
+    @objc private func toggleColorization(_ sender: UIBarButtonItem) {
+        let controller = ColorizationController.shared
+        if controller.enabled {
+            controller.setEnabled(false)
+            updateColorizationButton()
+            return
+        }
+        guard controller.isModelReady else {
+            let alert = UIAlertController(
+                title: "Colorization model needed",
+                message: "Download and verify the on-device colorization model in Settings before enabling this feature.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: NSLocalizedString("CANCEL"), style: .cancel))
+            alert.addAction(UIAlertAction(title: "Open Settings", style: .default) { [weak self] _ in
+                self?.navigationController?.pushViewController(
+                    UIHostingController(rootView: ColorizationSettingsView()),
+                    animated: true
+                )
+            })
+            present(alert, animated: true)
+            Task { await controller.refreshModelStatus() }
+            return
+        }
+        controller.setEnabled(true)
+        updateColorizationButton()
+    }
+
+    private func updateColorizationButton() {
+        let colorizationOn = ColorizationController.shared.enabled
+        colorizeButton.image = UIImage(systemName: colorizationOn ? "paintpalette.fill" : "paintpalette")
+        colorizeButton.tintColor = colorizationOn ? .tintColor : nil
     }
 
     // MARK: - Orientation quick control (NP-016)
@@ -796,7 +891,12 @@ class ReaderViewController: BaseObservingViewController {
             next: controls.contains(.nextChapter)
         )
 
-        var right: [UIBarButtonItem] = [moreButton, settingsButton, translateButton]
+        var right: [UIBarButtonItem] = [bookmarkButton, moreButton, settingsButton, translateButton]
+        let colorization = ColorizationController.shared
+        if colorization.isModelReady || colorization.enabled {
+            updateColorizationButton()
+            right.append(colorizeButton)
+        }
         // in-reader rotate / orientation-lock quick control (NP-016), iPhone only
         if UIDevice.current.userInterfaceIdiom != .pad && controls.contains(.screenRotation) {
             orientationButton.tintColor = currentOrientationSetting == "device" ? nil : .tintColor
@@ -807,6 +907,7 @@ class ReaderViewController: BaseObservingViewController {
             right.append(saveButton)
         }
         navigationItem.rightBarButtonItems = right
+        updateBookmarkButton()
 
         toolbarView.setSliderVisible(controls.contains(.slider))
         updateAutoScrollButton()
@@ -841,6 +942,38 @@ class ReaderViewController: BaseObservingViewController {
         }
         UISelectionFeedbackGenerator().selectionChanged()
         image.saveToAlbum(viewController: self)
+    }
+
+    /// Toggle a page bookmark for the current manga/chapter/page (Nyora).
+    @objc func togglePageBookmark() {
+        guard currentPage >= 1 else { return }
+        let bookmark = NyoraBookmark(
+            sourceId: manga.sourceKey,
+            mangaId: manga.key,
+            mangaTitle: manga.title,
+            mangaCover: manga.cover,
+            chapterId: chapter.key,
+            chapterTitle: chapter.title,
+            page: currentPage,
+            note: nil,
+            imageUrl: nil,
+            createdAt: Date()
+        )
+        _ = NyoraBookmarkStore.shared.toggle(bookmark)
+        updateBookmarkButton()
+        UISelectionFeedbackGenerator().selectionChanged()
+    }
+
+    /// Reflect whether the current page is bookmarked (filled vs outline icon).
+    func updateBookmarkButton() {
+        let bookmarked = currentPage >= 1 && NyoraBookmarkStore.shared.isBookmarked(
+            sourceId: manga.sourceKey,
+            mangaId: manga.key,
+            chapterId: chapter.key,
+            page: currentPage
+        )
+        bookmarkButton.image = UIImage(systemName: bookmarked ? "bookmark.fill" : "bookmark")
+        bookmarkButton.tintColor = bookmarked ? .tintColor : nil
     }
 
     @objc func openReaderSettings() {
@@ -1036,9 +1169,45 @@ extension ReaderViewController: ReaderHoldingDelegate {
         return firstCandidate
     }
 
+    private func parsedChapterNumber(_ chapter: AidokuRunner.Chapter) -> Float? {
+        if let number = chapter.chapterNumber, number > 0 {
+            return number
+        }
+
+        let candidates = [chapter.title, chapter.key].compactMap { $0 }
+        for text in candidates {
+            let pattern = #"(?i)(?:chapter|chap|ch\.?|episode|ep\.?|c)[\s._:-]*(\d+(?:\.\d+)?)"#
+            if let regex = try? NSRegularExpression(pattern: pattern),
+               let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+               match.numberOfRanges > 1,
+               let range = Range(match.range(at: 1), in: text),
+               let value = Float(text[range]) {
+                return value
+            }
+        }
+        return nil
+    }
+
+    private func chapterNextStep() -> Int {
+        let numbered = chapterList.compactMap { parsedChapterNumber($0) }
+        guard let first = numbered.first, let last = numbered.last, first != last else {
+            // Match nyora-web reader.js `nextDelta()` fallback: when chapter numbers
+            // can't be parsed, assume the shared helper returned chapters oldest-first
+            // (ascending) so "next" is +1. Returning -1 here diverged from web and made
+            // the next/prev buttons + auto-advance move backwards for such sources.
+            return 1
+        }
+        return first < last ? 1 : -1
+    }
+
     func getNextChapter() -> AidokuRunner.Chapter? {
+        // Match by key, not full-struct Equatable: chapterList may be refreshed
+        // (loadChapterList) with freshly-fetched Chapter objects that differ from the
+        // held `chapter` in incidental fields (locked/thumbnail/dateUploaded/scanlators).
+        // firstIndex(of:) would then return nil and silently kill all chapter nav.
+        // nyora-web matches on chapter url/key for the same reason.
         guard
-            var index = chapterList.firstIndex(of: chapter)
+            var index = chapterList.firstIndex(where: { $0.key == chapter.key })
         else {
             return nil
         }
@@ -1046,10 +1215,11 @@ extension ReaderViewController: ReaderHoldingDelegate {
         let skipDuplicates = UserDefaults.standard.bool(forKey: "Reader.skipDuplicateChapters")
         let markDuplicates = UserDefaults.standard.bool(forKey: "Reader.markDuplicateChapters")
 
-        index -= 1
+        let step = chapterNextStep()
+        index += step
         var nextChapterInList: AidokuRunner.Chapter?
 
-        while index >= 0 {
+        while index >= 0 && index < chapterList.count {
             let new = chapterList[index]
             let identifier = ChapterIdentifier(sourceKey: manga.sourceKey, mangaKey: manga.key, chapterKey: new.key)
 
@@ -1066,27 +1236,30 @@ extension ReaderViewController: ReaderHoldingDelegate {
                     chaptersToMark.append(new)
                 }
                 if !isDuplicate {
-                    return skipDuplicates ? findBestChapterMatch(from: index, step: -1) : nextChapterInList
+                    return skipDuplicates ? findBestChapterMatch(from: index, step: step) : nextChapterInList
                 } else if !skipDuplicates && !markDuplicates {
                     return new
                 }
             }
-            index -= 1
+            index += step
         }
         return nil
     }
 
     func getPreviousChapter() -> AidokuRunner.Chapter? {
+        // Key-based lookup (see getNextChapter): full Equatable would fail if the list
+        // was re-fetched with objects differing in incidental fields.
         guard
-            var index = chapterList.firstIndex(of: chapter)
+            var index = chapterList.firstIndex(where: { $0.key == chapter.key })
         else {
             return nil
         }
         // find previous non-duplicate chapter
         let markDuplicates = UserDefaults.standard.bool(forKey: "Reader.markDuplicateChapters")
 
-        index += 1
-        while index < chapterList.count {
+        let step = -chapterNextStep()
+        index += step
+        while index >= 0 && index < chapterList.count {
             let new = chapterList[index]
             let identifier = ChapterIdentifier(sourceKey: manga.sourceKey, mangaKey: manga.key, chapterKey: new.key)
 
@@ -1096,13 +1269,13 @@ extension ReaderViewController: ReaderHoldingDelegate {
             if readable {
                 let isDuplicate = areDuplicates(new, chapter)
                 if !isDuplicate {
-                    return findBestChapterMatch(from: index, step: 1)
+                    return findBestChapterMatch(from: index, step: step)
                 }
                 if markDuplicates {
                     chaptersToMark.append(new)
                 }
             }
-            index += 1
+            index += step
         }
         return nil
     }
@@ -1178,6 +1351,7 @@ extension ReaderViewController: ReaderHoldingDelegate {
         toolbarView.currentPage = page
         toolbarView.updateSliderPosition()
         updateInfoBar()
+        updateBookmarkButton()
         // Mark as completed when reaching the last page
         // Exception: Don't mark for the pre-pagination placeholder (single text page before
         // ReaderPagedTextViewController has paginated it). Once paginated, even single-page
@@ -1185,7 +1359,10 @@ extension ReaderViewController: ReaderHoldingDelegate {
         let isPrePaginationPlaceholder = totalPages == 1
             && self.pages.first?.isTextPage == true
             && !(reader is ReaderPagedTextViewController && (reader as? ReaderPagedTextViewController)?.hasPaginated == true)
-        if pages.upperBound >= totalPages && !isPrePaginationPlaceholder {
+        // Never mark a failed chapter (the single "couldn't load" error placeholder)
+        // as read just because its one page is on screen.
+        let isFailurePlaceholder = self.pages.contains { $0.isError }
+        if pages.upperBound >= totalPages && !isPrePaginationPlaceholder && !isFailurePlaceholder {
             setCompleted()
         }
     }
@@ -1226,8 +1403,10 @@ extension ReaderViewController: ReaderHoldingDelegate {
         if pages.isEmpty {
             // no pages, show error
             showLoadFailAlert()
-        } else if pages.count == 1 && pages[0].isTextPage {
+        } else if pages.count == 1 && pages[0].isTextPage && !pages[0].isError {
             // single text page, should switch to text reader
+            // (an error placeholder is NOT a novel — never switch the reader on it,
+            // otherwise a failed image chapter flips into the text/novel reader)
             if !(reader is ReaderPagedTextViewController) && !(reader is ReaderTextViewController) {
                 setReader(.text)
                 setChapter(chapter)
@@ -1262,6 +1441,10 @@ extension ReaderViewController: ReaderHoldingDelegate {
     }
 
     func setCompleted() {
+        // Don't record a failed chapter (the "couldn't load" error placeholder) as read.
+        // The webtoon reader calls this directly when the bottom is reached, bypassing
+        // the setCurrentPages guard.
+        if pages.contains(where: { $0.isError }) { return }
         if !UserDefaults.standard.bool(forKey: "General.incognitoMode") {
             Task {
                 await HistoryManager.shared.addHistory(
@@ -1287,11 +1470,17 @@ extension ReaderViewController {
     func updateInfoBar() {
         guard infoBarEnabled else { return }
         let chaptersTotal = chapterList.count
-        // 1-based position of the current chapter within the list (list is newest-first,
-        // so invert the index to read as "chapter N of total")
         let chapterNumber: Int
-        if let index = chapterList.firstIndex(where: { areSameChapter($0, chapter) }) {
-            chapterNumber = chaptersTotal - index
+        let chronological = chapterList.sorted {
+            let lhs = parsedChapterNumber($0)
+            let rhs = parsedChapterNumber($1)
+            if let lhs, let rhs, lhs != rhs { return lhs < rhs }
+            let lhsIndex = chapterList.firstIndex(of: $0) ?? 0
+            let rhsIndex = chapterList.firstIndex(of: $1) ?? 0
+            return lhsIndex < rhsIndex
+        }
+        if let index = chronological.firstIndex(where: { areSameChapter($0, chapter) }) {
+            chapterNumber = index + 1
         } else {
             chapterNumber = 0
         }

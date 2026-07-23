@@ -337,7 +337,11 @@ extension HistoryView.ViewModel {
         let tempManga = AidokuRunner.Manga(sourceKey: sourceId, key: mangaId, title: "")
 
         let mangaCacheKey = "\(sourceId).\(mangaId)"
-        let needsManga = mangaCache[mangaCacheKey] == nil
+        // Fetch details when the manga is absent OR cached without a cover — synced
+        // history seeds title-only records, so a coverless cache hit still needs a
+        // real fetch to backfill the cover.
+        let cachedManga = mangaCache[mangaCacheKey]
+        let needsManga = cachedManga == nil || (cachedManga?.cover?.isEmpty ?? true)
 
         if let newManga = try? await source.getMangaUpdate(
             manga: tempManga,
@@ -396,7 +400,10 @@ extension HistoryView.ViewModel {
         var newChapterCacheItems: [String: AidokuRunner.Chapter] = [:]
 
         for obj in historyObj {
-            let readDate = obj.dateRead ?? Date.distantPast
+            // Skip malformed entries with no real read date — after syncing these
+            // arrive dateless and would bucket into a bogus "distant past" (01/01/01)
+            // section with an empty title.
+            guard let readDate = obj.dateRead, readDate != .distantPast else { continue }
             let endOfDay = Date.endOfDay()
             let isInFuture = readDate > endOfDay
             let endDate = if isInFuture {
@@ -427,8 +434,11 @@ extension HistoryView.ViewModel {
                 )
             }
 
-            // If manga or chapter is missing, add to queue for background loading
-            if manga == nil || chapter == nil {
+            // If manga or chapter is missing — or the manga has no cover yet, which
+            // is the norm for synced history (whose local records seed title-only) —
+            // queue a background load so the cover gets backfilled from the source.
+            let coverMissing = manga?.cover?.isEmpty ?? true
+            if manga == nil || chapter == nil || coverMissing {
                 let key = MangaKey(sourceId: obj.sourceId, mangaId: obj.mangaId)
                 let shortChapterKey = obj.chapterId
                 await addToQueue(mangaKey: key, chapterKey: shortChapterKey)
@@ -443,7 +453,7 @@ extension HistoryView.ViewModel {
                 sourceKey: obj.sourceId,
                 mangaKey: obj.mangaId,
                 chapterKey: obj.chapterId,
-                date: obj.dateRead ?? Date.distantPast,
+                date: readDate,
                 currentPage: obj.completed ? -1 : Int(obj.progress),
                 totalPages: Int(obj.total)
             )

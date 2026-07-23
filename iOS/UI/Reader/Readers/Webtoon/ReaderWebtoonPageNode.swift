@@ -21,6 +21,11 @@ class ReaderWebtoonPageNode: BaseObservingCellNode {
 
     var image: UIImage? {
         didSet {
+            colorizationGeneration &+= 1
+            colorizationTask?.cancel()
+            colorizationTask = nil
+            activeColorizationKey = nil
+            displayedColorizedImage = nil
             guard let image, image.size.width > 0 else { return }
             ratio = image.size.height / image.size.width
         }
@@ -57,6 +62,14 @@ class ReaderWebtoonPageNode: BaseObservingCellNode {
     private var translationHost: UIHostingController<TranslationOverlayContainer>?
     private var translationTask: Task<Void, Never>?
 
+    // Keep `image` as the original reader-processed source. Only imageNode gets
+    // the colorized display bitmap, preventing repeated model passes and keeping
+    // translation boxes anchored to the original pixel geometry.
+    private var displayedColorizedImage: UIImage?
+    private var colorizationTask: Task<Void, Never>?
+    private var colorizationGeneration = 0
+    private var activeColorizationKey: String?
+
     lazy var textNode = HostingNode(content: MarkdownView(page.text ?? ""))
 
     lazy var progressNode = ASCellNode(viewBlock: {
@@ -88,6 +101,9 @@ class ReaderWebtoonPageNode: BaseObservingCellNode {
         addObserver(forName: .translationSettingsChanged) { [weak self] _ in
             Task { @MainActor in self?.refreshTranslation() }
         }
+        addObserver(forName: .colorizationSettingsChanged) { [weak self] _ in
+            Task { @MainActor in self?.refreshColorization() }
+        }
     }
 
     override func didEnterDisplayState() {
@@ -102,6 +118,7 @@ class ReaderWebtoonPageNode: BaseObservingCellNode {
         if let delegate, delegate.isZooming {
             return
         }
+        Task { @MainActor in self.removeColorization() }
         imageNode.image = nil
         image = nil
         text = nil
@@ -109,6 +126,11 @@ class ReaderWebtoonPageNode: BaseObservingCellNode {
         textNode.alpha = 0
         progressNode.isHidden = false
         Task { @MainActor in self.removeTranslationOverlay() }
+    }
+
+    deinit {
+        translationTask?.cancel()
+        colorizationTask?.cancel()
     }
 
     override func didEnterPreloadState() {
@@ -556,7 +578,8 @@ extension ReaderWebtoonPageNode {
                 endpoint: controller.byokEndpoint,
                 apiKey: controller.byokApiKey,
                 model: controller.byokModel
-            )
+            ),
+            pageKey: "\(page.chapterId)\u{1}\(page.index)|\(ImageProcessingSettingsKey.getProcessorSettingsKey())"
         )
         translationTask = Task { [weak self] in
             for await blocks in stream {
@@ -598,6 +621,67 @@ extension ReaderWebtoonPageNode {
         translationHost = nil
     }
 
+    // MARK: - Colorization
+
+    private var colorizationPageKey: String {
+        "\(page.chapterId)\u{1}\(page.index)|\(ImageProcessingSettingsKey.getProcessorSettingsKey())"
+    }
+
+    private var isAnimatedPage: Bool {
+        let path = page.imageURL?.lowercased() ?? ""
+        return path.hasSuffix(".gif") || imageNode.imageView?.isAnimating == true
+    }
+
+    @MainActor
+    private func refreshColorization() {
+        let controller = ColorizationController.shared
+        guard controller.enabled,
+              isVisible,
+              !isAnimatedPage,
+              let source = image,
+              source.cgImage != nil else {
+            colorizationTask?.cancel()
+            colorizationTask = nil
+            activeColorizationKey = nil
+            if displayedColorizedImage != nil {
+                imageNode.image = image
+                displayedColorizedImage = nil
+            }
+            return
+        }
+        let key = colorizationPageKey
+        if displayedColorizedImage != nil { return }
+        if colorizationTask != nil, activeColorizationKey == key { return }
+
+        colorizationTask?.cancel()
+        let generation = colorizationGeneration
+        activeColorizationKey = key
+        colorizationTask = Task { @MainActor [weak self, source] in
+            let result = await controller.colorize(source, cacheKey: key)
+            guard !Task.isCancelled,
+                  let self,
+                  self.colorizationGeneration == generation,
+                  self.colorizationPageKey == key,
+                  self.image === source,
+                  self.isVisible,
+                  controller.enabled else { return }
+            self.colorizationTask = nil
+            self.activeColorizationKey = nil
+            guard let result else { return }
+            self.displayedColorizedImage = result
+            self.imageNode.image = result
+        }
+    }
+
+    @MainActor
+    private func removeColorization() {
+        colorizationGeneration &+= 1
+        colorizationTask?.cancel()
+        colorizationTask = nil
+        activeColorizationKey = nil
+        displayedColorizedImage = nil
+    }
+
     func displayPage() {
         guard text != nil || image != nil else {
             Task {
@@ -608,7 +692,7 @@ extension ReaderWebtoonPageNode {
 
         if let image {
             progressNode.isHidden = true
-            imageNode.image = image
+            imageNode.image = displayedColorizedImage ?? image
 
             Task { @MainActor in
                 imageNode.isUserInteractionEnabled = true
@@ -628,6 +712,7 @@ extension ReaderWebtoonPageNode {
                     await analyzeLiveText()
                 }
 
+                refreshColorization()
                 refreshTranslation()
             }
         } else if let text {
@@ -690,6 +775,7 @@ extension ReaderWebtoonPageNode {
         clearCurrentImageCache()
 
         // Clear the current image and text to show loading state
+        removeColorization()
         image = nil
         text = nil
         imageNode.image = nil

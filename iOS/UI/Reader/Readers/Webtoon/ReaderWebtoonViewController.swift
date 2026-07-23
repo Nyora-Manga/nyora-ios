@@ -392,10 +392,11 @@ extension ReaderWebtoonViewController {
     /// Prepend the previous chapter's pages
     func prependPreviousChapter() async {
         guard let prevChapter = delegate?.getPreviousChapter() else { return }
-        await viewModel.preload(chapter: prevChapter)
-
-        // check if pages failed to load
-        if viewModel.preloadedPages.isEmpty {
+        // Fetch live: prefetch is disabled so `preload`/`preloadedPages` never
+        // populate — the old code always bailed here and infinite scroll never
+        // advanced chapters. Skip on failure (empty or the error placeholder).
+        let previousPages = await viewModel.fetchPages(chapter: prevChapter)
+        guard !previousPages.isEmpty, !previousPages.contains(where: { $0.isError }) else {
             return
         }
 
@@ -414,7 +415,7 @@ extension ReaderWebtoonViewController {
                 sourceId: viewModel.source?.key ?? viewModel.manga.sourceKey,
                 chapterId: prevChapter.key,
                 index: -1
-            )]  + viewModel.preloadedPages,
+            )]  + previousPages,
             at: 0
         )
 
@@ -445,10 +446,11 @@ extension ReaderWebtoonViewController {
     /// Append the next chapter's pages
     func appendNextChapter() async {
         guard let nextChapter = delegate?.getNextChapter() else { return }
-        await viewModel.preload(chapter: nextChapter)
-
-        // check if pages failed to load
-        if viewModel.preloadedPages.isEmpty {
+        // Fetch live: prefetch is disabled so `preload`/`preloadedPages` never
+        // populate — the old code always bailed here and infinite scroll never
+        // advanced chapters. Skip on failure (empty or the error placeholder).
+        let nextPages = await viewModel.fetchPages(chapter: nextChapter)
+        guard !nextPages.isEmpty, !nextPages.contains(where: { $0.isError }) else {
             return
         }
 
@@ -461,7 +463,7 @@ extension ReaderWebtoonViewController {
 //        let removeFirst = chapters.count >= 3
 
         chapters.append(nextChapter)
-        pages.append(viewModel.preloadedPages + [Page(
+        pages.append(nextPages + [Page(
             type: .nextInfoPage,
             sourceId: viewModel.source?.key ?? viewModel.manga.sourceKey,
             chapterId: nextChapter.id,

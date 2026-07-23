@@ -39,6 +39,24 @@ class SourceManager {
         sources.contains(where: { $0.id == LocalSourceRunner.sourceKey })
     }
 
+    /// Installs the built-in local-files source if it isn't already. The "Local" quick action used
+    /// to import .cbz/.zip into an un-installed source, so imported titles were orphaned (invisible
+    /// in Browse and unreadable). Mirrors `LocalSetupView.submit()`.
+    @MainActor
+    func installLocalSourceIfNeeded() async {
+        guard !localSourceInstalled else { return }
+        let config = CustomSourceConfig.local
+        let source = config.toSource()
+        await CoreDataManager.shared.container.performBackgroundTask { context in
+            let result = CoreDataManager.shared.createSource(source: source, context: context)
+            result.customSource = config.encode() as NSObject
+            try? context.save()
+        }
+        sources.append(source)
+        sortSources()
+        NotificationCenter.default.post(name: Notification.Name("updateSourceList"), object: nil)
+    }
+
     init() {
         sourceListURLs = (UserDefaults.standard.array(forKey: "Browse.sourceLists") as? [String] ?? [])
             .compactMap { URL(string: $0) }
@@ -46,15 +64,13 @@ class SourceManager {
         loadSourcesTask = Task {
             await reloadSources()
             await ensureDefaultNyoraSource()
+            await migrateNyoraFavicons()
         }
 
         Task {
             await loadSourceLists(reload: true)
         }
     }
-
-    /// The Nyora helper server (source repository) all Nyora sources point at.
-    static let nyoraServer = "https://api.nyora.xyz"
 
     /// A few popular parser sources pre-installed on first launch so the app is
     /// usable out of the box. The user adds/removes more from Browse → Add source
@@ -67,13 +83,30 @@ class SourceManager {
     ]
 
     /// Nyora fork: pre-install a curated default set once (first launch), only if
-    /// the user has no Nyora sources yet.
+    /// the user has no Nyora sources yet. We seed the full `NyoraCatalog.recommended`
+    /// set (the app's live-probed, working JVM sources) — resolving each id's name +
+    /// language from the helper's catalog — so the app ships with a proper set of JVM
+    /// sources out of the box, not just three. The rest of the ~960-source catalog stays
+    /// available in Browse → Add source. Falls back to the tiny built-in list if the
+    /// catalog can't be reached on first launch.
     private func ensureDefaultNyoraSource() async {
         guard !UserDefaults.standard.bool(forKey: "Nyora.defaultsInstalled") else { return }
         guard !sources.contains(where: { $0.key.hasPrefix("\(NyoraSourceRunner.sourceKeyPrefix).") }) else {
             UserDefaults.standard.set(true, forKey: "Nyora.defaultsInstalled")
             return
         }
+
+        let catalog = await NyoraCatalog.fetchAll()
+        // Keep NyoraCatalog.recommended's order, and only ids the live catalog actually has.
+        let byId = Dictionary(catalog.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        let seed = NyoraCatalog.recommended.compactMap { byId[$0] }
+
+        if !seed.isEmpty {
+            await replaceNyoraSources(with: seed)   // installs the set, marks defaults handled
+            return
+        }
+
+        // Catalog unreachable — fall back to the built-in trio so the app still boots usable.
         for entry in Self.defaultNyoraSources {
             await addNyoraSource(id: entry.id, name: entry.name, lang: entry.lang)
         }
@@ -106,10 +139,12 @@ class SourceManager {
             counter += 1
         }
 
+        // The source's site domain (from the engine) is stored so its favicon can be shown.
+        let domain = await NyoraHelper().domain(for: parserSource)
         let config = CustomSourceConfig.nyora(
             key: key,
             name: name,
-            server: Self.nyoraServer,
+            server: domain,
             parserSource: parserSource,
             lang: lang
         )
@@ -121,17 +156,9 @@ class SourceManager {
             try? context.save()
         }
 
-        UserDefaults.standard.setValue(Self.nyoraServer, forKey: "\(key).server")
         UserDefaults.standard.setValue(parserSource, forKey: "\(key).parserSource")
 
-        // Tell the helper to load this source now (many catalog sources are
-        // isInstalled=false and reject browse until installed). Best-effort;
-        // the runner also self-heals on a "not installed" error. Skipped during
-        // batch seeding (onboarding) so we don't fire hundreds of network calls —
-        // the runner installs on first browse anyway.
-        if installOnServer, let server = URL(string: Self.nyoraServer) {
-            await NyoraHelper(server: server).install(parserSource)
-        }
+        // No cloud install step — every parser is resident in the on-device engine.
 
         sources.append(source)
         sortSources()
@@ -179,6 +206,30 @@ class SourceManager {
         // Mark defaults handled so ensureDefaultNyoraSource never re-adds the
         // curated 3 on top of the user's seeded selection.
         UserDefaults.standard.set(true, forKey: "Nyora.defaultsInstalled")
+    }
+
+    /// One-time back-fill: Nyora sources installed before favicons existed have an empty stored
+    /// domain, so no favicon shows. Fetch each source's domain from the engine and rewrite its
+    /// config so its icon becomes the source's favicon. Retries next launch if some fail.
+    func migrateNyoraFavicons() async {
+        guard !UserDefaults.standard.bool(forKey: "Nyora.faviconDomains.v1") else { return }
+        let nyoraSources = sources.filter { $0.key.hasPrefix("\(NyoraSourceRunner.sourceKeyPrefix).") }
+        var allResolved = true
+        for source in nyoraSources {
+            guard let parserSource = UserDefaults.standard.string(forKey: "\(source.key).parserSource") else { continue }
+            let domain = await NyoraHelper().domain(for: parserSource)
+            guard !domain.isEmpty else { allResolved = false; continue }
+            let lang = source.languages.first.map { $0 == "multi" ? "" : $0 } ?? ""
+            let config = CustomSourceConfig.nyora(
+                key: source.key, name: source.name, server: domain, parserSource: parserSource, lang: lang
+            )
+            updateCustomSource(key: source.key, config: config, updateSourceList: true)
+        }
+        // Only mark done once every source resolved, so a source whose parser was momentarily
+        // slow gets another chance on the next launch.
+        if allResolved {
+            UserDefaults.standard.set(true, forKey: "Nyora.faviconDomains.v1")
+        }
     }
 
     func reloadSources() async {

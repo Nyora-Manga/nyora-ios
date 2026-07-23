@@ -10,12 +10,14 @@ import Foundation
 actor BangumiApi {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
-    private let userAgent = "Aidoku/Aidoku (https://github.com/Aidoku/Aidoku)"
+    private let userAgent = "Nyora (https://github.com/Nyora-Manga)"
 
+    // Nyora Bangumi OAuth client — register your app at bgm.tv/dev/app with
+    // redirect nyora://bangumi-auth, then set the client id + secret.
     nonisolated let oauth = OAuthClient(
         id: "bangumi",
-        clientId: "bgm479068d16523bfca2",
-        clientSecret: "d6328f094c5e43a082b6141ab1f4ecc5",
+        clientId: "YOUR_BANGUMI_CLIENT_ID",
+        clientSecret: "YOUR_BANGUMI_CLIENT_SECRET",
         baseUrl: "https://bgm.tv/oauth"
     )
 
@@ -39,7 +41,7 @@ actor BangumiApi {
             "client_id": oauth.clientId,
             "client_secret": oauth.clientSecret!,
             "code": authCode,
-            "redirect_uri": "aidoku://bangumi-auth"
+            "redirect_uri": "nyora://bangumi-auth"
         ]
         request.httpBody = body.percentEncoded()
 
@@ -62,7 +64,7 @@ actor BangumiApi {
             "client_id": oauth.clientId,
             "client_secret": oauth.clientSecret!,
             "refresh_token": refreshToken,
-            "redirect_uri": "aidoku://bangumi-auth"
+            "redirect_uri": "nyora://bangumi-auth"
         ]
         request.httpBody = body.percentEncoded()
 

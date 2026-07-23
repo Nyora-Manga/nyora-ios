@@ -901,7 +901,7 @@ extension KavitaSourceRunner {
         }
         loginUrl.queryParameters = [
             "apiKey": apiKey,
-            "pluginName": "Aidoku"
+            "pluginName": "Nyora"
         ]
 
         var request = URLRequest(url: loginUrl)

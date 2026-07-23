@@ -12,6 +12,9 @@ import NukeUI
 
 struct MangaCoverView: View {
     var source: AidokuRunner.Source?
+    /// Fallback source key so the cover can re-resolve the source after the source list loads
+    /// (see `SourceImageView.sourceId`) — avoids a cold-launch race dropping the hotlink Referer.
+    var sourceId: String?
 
     let coverImage: String
     var width: CGFloat?
@@ -24,6 +27,7 @@ struct MangaCoverView: View {
     var body: some View {
         SourceImageView(
             source: source,
+            sourceId: sourceId,
             imageUrl: coverImage,
             width: width,
             height: height,

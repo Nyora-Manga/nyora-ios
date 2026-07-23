@@ -12,6 +12,10 @@ actor KitsuApi {
     static let apiUrl = "https://kitsu.app/api/edge"
     static let vndJson = "application/vnd.api+json"
 
+    // Kitsu's public OAuth client credentials (matches Mihon)
+    static let clientId = "dd031b32d2f56c990b1425efe6c42ad847e7fe3ab46bf1299f05ecd856bdb7dd"
+    static let clientSecret = "54d7307928f63414defd96399fc31ba847961ceaecef3a5fd93144e960c0e151"
+
     private let decoder = JSONDecoder()
 
     private static let tokenKey = "Tracker.kitsu.token"
@@ -56,7 +60,9 @@ extension KitsuApi {
         request.httpBody = [
             "grant_type": "password",
             "username": username,
-            "password": password
+            "password": password,
+            "client_id": Self.clientId,
+            "client_secret": Self.clientSecret
         ].percentEncoded()
 
         guard
@@ -82,7 +88,9 @@ extension KitsuApi {
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         request.httpBody = [
             "grant_type": "refresh_token",
-            "refresh_token": refresh
+            "refresh_token": refresh,
+            "client_id": Self.clientId,
+            "client_secret": Self.clientSecret
         ].percentEncoded()
 
         guard

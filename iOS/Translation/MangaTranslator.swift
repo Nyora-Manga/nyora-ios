@@ -11,6 +11,23 @@ actor MangaTranslator {
     private let googleTranslate = GoogleTranslate()
     private let byok = ByokTranslator()
 
+    // Per-page result cache (bounded LRU) so panning/zoom/scroll/layout doesn't re-run the whole
+    // OCR + MT pipeline for a page already translated (the reader re-invokes on every layout pass).
+    private var cache: [String: [TranslatedBlock]] = [:]
+    private var cacheOrder: [String] = []
+    private static let cacheLimit = 60
+
+    private func cachedBlocks(_ key: String) -> [TranslatedBlock]? { cache[key] }
+    private func storeBlocks(_ key: String, _ blocks: [TranslatedBlock]) {
+        if cache[key] == nil {
+            cacheOrder.append(key)
+            if cacheOrder.count > Self.cacheLimit {
+                cache.removeValue(forKey: cacheOrder.removeFirst())
+            }
+        }
+        cache[key] = blocks
+    }
+
     /// Optional bring-your-own-key config, passed through when the engine is `.byok`.
     struct ByokConfig {
         let endpoint: String
@@ -30,14 +47,32 @@ actor MangaTranslator {
         targetLang: String,
         engine: TranslationEngine = .google,
         useAppleIntelligence: Bool,
-        byokConfig: ByokConfig? = nil
+        byokConfig: ByokConfig? = nil,
+        pageKey: String = ""
     ) -> AsyncStream<[TranslatedBlock]> {
         AsyncStream { continuation in
-            Task {
+            let work = Task {
+                guard !Task.isCancelled else { continuation.finish(); return }
                 let targetCode = TranslationConfig.googleLangCode(for: targetLang)
+                // Do not include the API key itself, but do include all settings
+                // that can change a result.  This prevents an old BYOK provider
+                // or model result from being painted after the configuration changes.
+                let byokIdentity = byokConfig.map {
+                    "\(AIEndpointPolicy.cacheIdentity(for: $0.endpoint))|\($0.model.trimmingCharacters(in: .whitespacesAndNewlines))"
+                } ?? ""
+                let cacheKey = "\(pageKey)|\(sourceLang)|\(targetCode)|\(engine)|\(useAppleIntelligence)|\(byokIdentity)"
+
+                // Cached hit (same page + settings already translated) → paint instantly, no rework.
+                if !pageKey.isEmpty, let hit = await self.cachedBlocks(cacheKey), !hit.isEmpty {
+                    guard !Task.isCancelled else { continuation.finish(); return }
+                    continuation.yield(hit)
+                    continuation.finish()
+                    return
+                }
 
                 // 1) OCR → bubbles
                 let result = await ocr.runOcr(cgImage: cgImage, imageSize: imageSize, sourceLang: sourceLang)
+                guard !Task.isCancelled else { continuation.finish(); return }
                 if result.isEmpty { continuation.finish(); return }
                 let bubbles = mergeBlocksIntoBubbles(result.blocks)
 
@@ -76,6 +111,10 @@ actor MangaTranslator {
                     // produce the final, context-aware translation. If BYOK is
                     // misconfigured the draft (or original) is kept.
                     let draft = (try? await googleTranslate.translateBatch(originals, to: targetCode)) ?? originals
+                    // `try?` turns cancellation from the Google draft into a
+                    // fallback value; do not mistake that for permission to
+                    // begin a second (BYOK) network request for a recycled page.
+                    guard !Task.isCancelled else { continuation.finish(); return }
                     if let cfg = byokConfig {
                         mt = await byok.translate(
                             originals: originals,
@@ -87,6 +126,7 @@ actor MangaTranslator {
                         mt = draft
                     }
                 }
+                guard !Task.isCancelled else { continuation.finish(); return }
                 for i in blocks.indices where i < mt.count {
                     blocks[i].translatedText = mt[i]
                     blocks[i].state = .mt
@@ -99,14 +139,21 @@ actor MangaTranslator {
                 if useAppleIntelligence, effectiveEngine != .appleIntelligence, aiReady {
                     let polished = await AppleIntelligenceRefiner.shared.refine(
                         originals: originals, drafts: blocks.map(\.translatedText), targetLanguage: targetLang)
+                    guard !Task.isCancelled else { continuation.finish(); return }
                     for i in blocks.indices where i < polished.count {
                         if !polished[i].isEmpty { blocks[i].translatedText = polished[i] }
                         blocks[i].state = .refined
                     }
                     continuation.yield(blocks)
                 }
+                guard !Task.isCancelled else { continuation.finish(); return }
+                if !pageKey.isEmpty { await self.storeBlocks(cacheKey, blocks) }
                 continuation.finish()
             }
+            // A page cell is often recycled before OCR/network work completes.
+            // Tie that work to the stream lifetime so it cannot continue
+            // consuming CPU or sending requests after the reader moved on.
+            continuation.onTermination = { @Sendable _ in work.cancel() }
         }
     }
 
@@ -147,8 +194,6 @@ actor MangaTranslator {
                 }
                 
                 // Directional analysis
-                let angle = atan2(dy, dx) // -pi to pi
-                
                 // Buckets for N, NE, E, SE, S, SW, W, NW
                 // We check if the blocks are aligned along these axes and within a reasonable gap.
                 let hOverlap = max(0, min(a.maxX, b.maxX) - max(a.minX, b.minX))

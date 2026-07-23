@@ -31,11 +31,11 @@ struct SettingsAboutView: View {
             Section {
                 SettingView(setting: .init(
                     title: "Website",
-                    value: .link(.init(url: "https://nyora.pages.dev", external: true))
+                    value: .link(.init(url: "https://nyora.xyz", external: true))
                 ))
                 SettingView(setting: .init(
                     title: NSLocalizedString("GITHUB_REPO"),
-                    value: .link(.init(url: "https://github.com/Hasan72341/nyora-ios"))
+                    value: .link(.init(url: "https://github.com/Nyora-Manga/nyora-ios"))
                 ))
             }
 

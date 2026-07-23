@@ -15,7 +15,7 @@ struct SafariView: UIViewControllerRepresentable {
         let url = if let url, url.scheme == "http" || url.scheme == "https" {
             url
         } else {
-            URL(string: "https://nyora.pages.dev")!
+            URL(string: "https://nyora.xyz")!
         }
         return SFSafariViewController(url: url)
     }

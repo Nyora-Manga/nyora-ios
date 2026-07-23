@@ -553,9 +553,11 @@ extension ReaderTextViewController {
         loadingNext = true
 
         Task {
-            // Preload the next chapter's pages
-            await viewModel.preload(chapter: nextCh)
-            let newPages = viewModel.preloadedPages
+            // Fetch the next chapter's pages LIVE. `preload()` is a no-op and
+            // `preloadedPages` is permanently empty now that prefetch is disabled,
+            // so relying on it made infinite-scroll never append a chapter — the
+            // reader was stuck at the bottom transition forever.
+            let newPages = await viewModel.fetchPages(chapter: nextCh)
             guard !newPages.isEmpty else {
                 loadingNext = false
                 return
@@ -623,8 +625,8 @@ extension ReaderTextViewController {
         loadingPrevious = true
 
         Task {
-            await viewModel.preload(chapter: prevCh)
-            let newPages = viewModel.preloadedPages
+            // Fetch live — see appendNextChapter. preloadedPages is always empty.
+            let newPages = await viewModel.fetchPages(chapter: prevCh)
             guard !newPages.isEmpty else {
                 loadingPrevious = false
                 return

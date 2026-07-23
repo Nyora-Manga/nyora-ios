@@ -11,11 +11,18 @@
 import AidokuRunner
 import Foundation
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 @MainActor
 final class NyoraSyncClient: ObservableObject {
     static let shared = NyoraSyncClient()
 
     private let base = URL(string: "https://sync.nyora.xyz")!
+
+    private var autoSyncStarted = false
+    private var debounceTask: Task<Void, Never>?
 
     private enum Keys {
         static let access = "nyora.sync.access"
@@ -164,16 +171,76 @@ final class NyoraSyncClient: ObservableObject {
         return f
     }()
 
-    /// manga_id used on the server — globally unique across Aidoku sources.
-    private nonisolated static func mangaId(sourceId: String, mangaKey: String) -> String {
-        "\(sourceId)\u{1}\(mangaKey)"
+    /// The bare parser enum name (e.g. "MANGADEX") for an Aidoku source key — the token android &
+    /// web put in the cross-device `manga_id` `"<EnumName>|<url>"` and in `source_ref` `{"name":…}`.
+    /// Nyora sources store their parser id under UserDefaults `"<sourceKey>.parserSource"`
+    /// ("parser:MANGADEX"); other source types fall back to their own key.
+    nonisolated static func enumName(for sourceId: String) -> String {
+        if let parser = UserDefaults.standard.string(forKey: "\(sourceId).parserSource") {
+            return parser.hasPrefix("parser:") ? String(parser.dropFirst("parser:".count)) : parser
+        }
+        return sourceId
     }
 
-    private nonisolated static func splitMangaId(_ id: String) -> (sourceId: String, key: String) {
-        if let r = id.range(of: "\u{1}") {
+    /// Cross-device stable manga id — byte-identical to android (`"$sourceName|$url"`) and web, so
+    /// history/favourites merge across platforms instead of duplicating.
+    private nonisolated static func mangaId(sourceId: String, mangaKey: String) -> String {
+        "\(enumName(for: sourceId))|\(mangaKey)"
+    }
+
+    /// Split `"<EnumName>|<url>"` → (enumName, url), on the FIRST `|`.
+    private nonisolated static func splitMangaId(_ id: String) -> (name: String, key: String) {
+        if let r = id.range(of: "|") {
             return (String(id[..<r.lowerBound]), String(id[r.upperBound...]))
         }
         return ("", id)
+    }
+
+    /// enumName ("MANGADEX") → the installed Aidoku source key ("nyora.mangadex"), for resolving
+    /// pulled rows back to a local source. Built on the main actor before a CoreData background task.
+    private func installedSourceMap() -> [String: String] {
+        var map: [String: String] = [:]
+        for source in SourceManager.shared.sources {
+            let name = Self.enumName(for: source.id)
+            map[name] = source.id
+            // Also map the raw source id so iOS-origin rows (older composite/plain ids) still resolve.
+            map[source.id] = source.id
+        }
+        return map
+    }
+
+    /// Build a `nyora_manga` metadata row (android/web schema) from a local MangaObject, so history
+    /// and favourites carry title/cover/source and render on any device — even before the source is
+    /// installed. `source_ref` is `{"name":"<EnumName>"}` (bare name), matching android's decoder.
+    private nonisolated static func mangaRow(_ m: MangaObject, now: String) -> [String: Any] {
+        let name = enumName(for: m.sourceId)
+        let people = [m.author, m.artist]
+            .compactMap { $0 }
+            .flatMap { $0.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) } }
+            .filter { !$0.isEmpty }
+        let sourceRef = (try? String(
+            data: JSONSerialization.data(withJSONObject: ["name": name]),
+            encoding: .utf8
+        )) ?? "{\"name\":\"\"}"
+        return [
+            "id": mangaId(sourceId: m.sourceId, mangaKey: m.id),
+            "title": m.title,
+            "url": m.url ?? "",
+            "public_url": m.url ?? "",
+            "cover_url": m.cover ?? "",
+            "large_cover_url": m.cover ?? "",
+            "authors": jsonArrayString(people),
+            "tags": jsonArrayString(m.tags ?? []),
+            "description": m.desc ?? "",
+            "is_nsfw": m.nsfw != 0,
+            "content_rating": (m.nsfw != 0 ? "ADULT" : NSNull()) as Any,
+            "source_ref": sourceRef,
+            "updated_at": now
+        ]
+    }
+
+    private nonisolated static func jsonArrayString(_ arr: [String]) -> String {
+        (try? String(data: JSONSerialization.data(withJSONObject: arr), encoding: .utf8)) ?? "[]"
     }
 
     @discardableResult
@@ -185,24 +252,12 @@ final class NyoraSyncClient: ObservableObject {
         let library = CoreDataManager.shared.getLibraryManga()
         for entry in library {
             guard let m = entry.manga else { continue }
-            let mid = Self.mangaId(sourceId: m.sourceId, mangaKey: m.id)
-            mangaRows.append([
-                "id": mid,
-                "title": m.title,
-                "url": m.url ?? "",
-                "cover_url": m.cover ?? "",
-                "authors": jsonArray(m.author.map { [$0] } ?? []),
-                "tags": jsonArray(m.tags ?? []),
-                "description": m.desc ?? "",
-                "is_nsfw": m.nsfw != 0,
-                "source_ref": "{\"sourceKey\":\(jsonString(m.sourceId))}",
-                "updated_at": now
-            ])
+            mangaRows.append(Self.mangaRow(m, now: now))
             favRows.append([
-                "manga_id": mid,
-                "added_at": Self.iso.string(from: entry.dateAdded),
+                "manga_id": Self.mangaId(sourceId: m.sourceId, mangaKey: m.id),
                 "sort_key": 0,
-                "updated_at": now
+                "updated_at": Self.iso.string(from: entry.dateAdded),
+                "added_at": Self.iso.string(from: entry.dateAdded)
             ])
         }
 
@@ -220,6 +275,7 @@ final class NyoraSyncClient: ObservableObject {
             if let id = row["id"] as? String { mangaById[id] = row }
         }
         let favRows = try await select(table: "nyora_favourite", since: nil)
+        let sourceMap = installedSourceMap()
 
         var added = 0
         await CoreDataManager.shared.container.performBackgroundTask { context in
@@ -228,8 +284,10 @@ final class NyoraSyncClient: ObservableObject {
                     let mid = fav["manga_id"] as? String,
                     (fav["deleted_at"] as? String) == nil
                 else { continue }
-                let (sourceId, key) = Self.splitMangaId(mid)
-                guard !sourceId.isEmpty, SourceManager.shared.source(for: sourceId) != nil else { continue }
+                let (name, key) = Self.splitMangaId(mid)
+                // Resolve the cross-device enum name ("MANGADEX") to an installed source; skip if
+                // the source isn't installed (can't render a readable library entry for it).
+                guard let sourceId = sourceMap[name], !key.isEmpty else { continue }
                 if CoreDataManager.shared.hasLibraryManga(sourceId: sourceId, mangaId: key, context: context) {
                     continue
                 }
@@ -238,7 +296,7 @@ final class NyoraSyncClient: ObservableObject {
                     sourceKey: sourceId,
                     key: key,
                     title: (row?["title"] as? String) ?? "",
-                    cover: row?["cover_url"] as? String,
+                    cover: (row?["cover_url"] as? String) ?? (row?["large_cover_url"] as? String),
                     url: (row?["url"] as? String).flatMap { URL(string: $0) }
                 )
                 CoreDataManager.shared.addToLibrary(manga: manga, chapters: [], context: context)
@@ -404,29 +462,43 @@ final class NyoraSyncClient: ObservableObject {
     @discardableResult
     func pushHistory() async throws -> Int {
         let now = Self.iso.string(from: Date())
-        let rows: [[String: Any]] = await CoreDataManager.shared.container.performBackgroundTask { context in
-            CoreDataManager.shared.getHistory(context: context).compactMap { h in
-                guard !h.sourceId.isEmpty, !h.mangaId.isEmpty, !h.chapterId.isEmpty else { return nil }
-                let mid = Self.mangaId(sourceId: h.sourceId, mangaKey: h.mangaId)
-                let total = Int(h.total)
-                let page = max(Int(h.progress), 0)
-                let percent: Double = h.completed
-                    ? 1.0
-                    : (total > 0 && page > 0 ? min(Double(page) / Double(total), 1.0) : 0.0)
-                return [
-                    "manga_id": mid,
-                    "source_id": h.sourceId,
-                    "chapter_id": h.chapterId,
-                    "chapter_title": h.chapter?.title ?? "",
-                    "page": page,
-                    "scroll": h.scrollPosition?.doubleValue ?? 0.0,
-                    "percent": percent,
-                    "chapters_count": 0,
-                    "updated_at": h.dateRead.map { Self.iso.string(from: $0) } ?? now
-                ]
+        let (historyRows, mangaRows): ([[String: Any]], [[String: Any]]) =
+            await CoreDataManager.shared.container.performBackgroundTask { context in
+                var history: [[String: Any]] = []
+                var manga: [[String: Any]] = []
+                var seenManga = Set<String>()
+                for h in CoreDataManager.shared.getHistory(context: context) {
+                    guard !h.sourceId.isEmpty, !h.mangaId.isEmpty, !h.chapterId.isEmpty else { continue }
+                    let mid = Self.mangaId(sourceId: h.sourceId, mangaKey: h.mangaId)
+                    let total = Int(h.total)
+                    let page = max(Int(h.progress), 0)
+                    let percent: Double = h.completed
+                        ? 1.0
+                        : (total > 0 && page > 0 ? min(Double(page) / Double(total), 1.0) : 0.0)
+                    history.append([
+                        "manga_id": mid,
+                        "source_id": Self.enumName(for: h.sourceId),
+                        "chapter_id": h.chapterId,
+                        "chapter_title": h.chapter?.title ?? "",
+                        "page": page,
+                        "scroll": h.scrollPosition?.doubleValue ?? 0.0,
+                        "percent": percent,
+                        "chapters_count": 0,
+                        "updated_at": h.dateRead.map { Self.iso.string(from: $0) } ?? now
+                    ])
+                    // Carry each history item's manga metadata so it renders (title/cover/source)
+                    // on any device — even one where the manga isn't in the library.
+                    if !seenManga.contains(mid),
+                       let m = CoreDataManager.shared.getManga(sourceId: h.sourceId, mangaId: h.mangaId, context: context) {
+                        seenManga.insert(mid)
+                        manga.append(Self.mangaRow(m, now: now))
+                    }
+                }
+                return (history, manga)
             }
-        }
-        return try await upsert(table: "nyora_history", rows: rows)
+        let a = try await upsert(table: "nyora_manga", rows: mangaRows)
+        let b = try await upsert(table: "nyora_history", rows: historyRows)
+        return max(a, b)
     }
 
     /// Pulls `nyora_history` rows into local `HistoryObject`s, honoring soft-delete
@@ -436,6 +508,11 @@ final class NyoraSyncClient: ObservableObject {
     func pullHistory() async throws -> Int {
         let rows = try await select(table: "nyora_history", since: nil)
         guard !rows.isEmpty else { return 0 }
+        // Pull manga metadata too, so synced history shows title/cover without re-fetching the source.
+        let mangaRows = try await select(table: "nyora_manga", since: nil)
+        var mangaById: [String: [String: Any]] = [:]
+        for row in mangaRows where row["id"] is String { mangaById[row["id"] as! String] = row }
+        let sourceMap = installedSourceMap()
 
         var changed = 0
         await CoreDataManager.shared.container.performBackgroundTask { context in
@@ -444,9 +521,9 @@ final class NyoraSyncClient: ObservableObject {
                     let mid = row["manga_id"] as? String, !mid.isEmpty,
                     let chapterId = row["chapter_id"] as? String, !chapterId.isEmpty
                 else { continue }
-                let (splitSource, key) = Self.splitMangaId(mid)
-                let sourceId = (row["source_id"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? splitSource
-                guard !sourceId.isEmpty, !key.isEmpty else { continue }
+                let (name, key) = Self.splitMangaId(mid)
+                let resolveName = name.isEmpty ? ((row["source_id"] as? String) ?? "") : name
+                guard let sourceId = sourceMap[resolveName], !key.isEmpty else { continue }
 
                 let deleted = (row["deleted_at"] as? String).map { !$0.isEmpty } ?? false
                 let existing = CoreDataManager.shared.getHistory(
@@ -462,6 +539,19 @@ final class NyoraSyncClient: ObservableObject {
                         changed += 1
                     }
                     continue
+                }
+
+                // Seed the manga's metadata so History renders it without the source re-fetch.
+                if !CoreDataManager.shared.hasManga(sourceId: sourceId, mangaId: key, context: context),
+                   let mrow = mangaById[mid] {
+                    let seed = AidokuRunner.Manga(
+                        sourceKey: sourceId,
+                        key: key,
+                        title: (mrow["title"] as? String) ?? "",
+                        cover: (mrow["cover_url"] as? String) ?? (mrow["large_cover_url"] as? String),
+                        url: (mrow["url"] as? String).flatMap { URL(string: $0) }
+                    )
+                    _ = CoreDataManager.shared.getOrCreateManga(seed, context: context)
                 }
 
                 let obj = existing ?? CoreDataManager.shared.getOrCreateHistory(
@@ -482,6 +572,9 @@ final class NyoraSyncClient: ObservableObject {
                 changed += 1
             }
             try? context.save()
+        }
+        if changed > 0 {
+            NotificationCenter.default.post(name: .updateHistory, object: nil)
         }
         return changed
     }
@@ -582,6 +675,7 @@ final class NyoraSyncClient: ObservableObject {
         let rows = try await select(table: "nyora_manga_category", since: nil)
         guard !rows.isEmpty else { return 0 }
 
+        let sourceMap = installedSourceMap()
         var changed = 0
         await CoreDataManager.shared.container.performBackgroundTask { context in
             for row in rows {
@@ -589,8 +683,8 @@ final class NyoraSyncClient: ObservableObject {
                     let mid = row["manga_id"] as? String, !mid.isEmpty,
                     let title = row["category_id"] as? String, !title.isEmpty
                 else { continue }
-                let (sourceId, key) = Self.splitMangaId(mid)
-                guard !sourceId.isEmpty, !key.isEmpty else { continue }
+                let (name, key) = Self.splitMangaId(mid)
+                guard let sourceId = sourceMap[name], !key.isEmpty else { continue }
                 guard let libraryObject = CoreDataManager.shared.getLibraryManga(
                     sourceId: sourceId,
                     mangaId: key,
@@ -708,25 +802,123 @@ final class NyoraSyncClient: ObservableObject {
         let rows = try await select(table: "nyora_manga_prefs", since: nil)
         guard !rows.isEmpty else { return 0 }
 
+        let sourceMap = installedSourceMap()
         var changed = 0
         for row in rows {
             guard
                 let mid = row["manga_id"] as? String, !mid.isEmpty,
                 let mode = row["reader_mode"] as? String, !mode.isEmpty
             else { continue }
-            let (sourceId, key) = Self.splitMangaId(mid)
-            guard !sourceId.isEmpty, !key.isEmpty else { continue }
+            let (name, key) = Self.splitMangaId(mid)
+            guard let sourceId = sourceMap[name], !key.isEmpty else { continue }
             UserDefaults.standard.set(mode, forKey: Self.readingModeKey(sourceId: sourceId, mangaKey: key))
             changed += 1
         }
         return changed
     }
 
+    // MARK: - Bookmarks push / pull
+
+    /// Pushes page bookmarks (`NyoraBookmarkStore`) to `nyora_bookmark`, plus each bookmark's manga
+    /// metadata to `nyora_manga`, so a saved page shows title/cover on any device.
+    @discardableResult
+    func pushBookmarks() async throws -> Int {
+        let now = Self.iso.string(from: Date())
+        let bookmarks = NyoraBookmarkStore.shared.bookmarks
+        guard !bookmarks.isEmpty else { return 0 }
+
+        var bookmarkRows: [[String: Any]] = []
+        var mangaRows: [[String: Any]] = []
+        var seenManga = Set<String>()
+        for bm in bookmarks {
+            let mid = Self.mangaId(sourceId: bm.sourceId, mangaKey: bm.mangaId)
+            bookmarkRows.append([
+                "id": "\(mid):\(bm.chapterId):\(bm.page)",
+                "manga_id": mid,
+                "chapter_id": bm.chapterId,
+                "chapter_title": bm.chapterTitle ?? "",
+                "page": bm.page,
+                "scroll": 0,
+                "note": bm.note ?? "",
+                "image_url": bm.imageUrl ?? "",
+                "percent": 0,
+                "created_at": Self.iso.string(from: bm.createdAt),
+                "updated_at": now
+            ])
+            if !seenManga.contains(mid) {
+                seenManga.insert(mid)
+                let name = Self.enumName(for: bm.sourceId)
+                let sourceRef = (try? String(
+                    data: JSONSerialization.data(withJSONObject: ["name": name]),
+                    encoding: .utf8
+                )) ?? "{\"name\":\"\"}"
+                mangaRows.append([
+                    "id": mid,
+                    "title": bm.mangaTitle,
+                    "url": bm.mangaId,
+                    "public_url": bm.mangaId,
+                    "cover_url": bm.mangaCover ?? "",
+                    "large_cover_url": bm.mangaCover ?? "",
+                    "source_ref": sourceRef,
+                    "updated_at": now
+                ])
+            }
+        }
+        let a = try await upsert(table: "nyora_manga", rows: mangaRows)
+        let b = try await upsert(table: "nyora_bookmark", rows: bookmarkRows)
+        return max(a, b)
+    }
+
+    /// Pulls `nyora_bookmark` into the local store, resolving the source and title/cover, honoring
+    /// soft-delete tombstones.
+    @discardableResult
+    func pullBookmarks() async throws -> Int {
+        let rows = try await select(table: "nyora_bookmark", since: nil)
+        guard !rows.isEmpty else { return 0 }
+        let mangaRows = try await select(table: "nyora_manga", since: nil)
+        var mangaById: [String: [String: Any]] = [:]
+        for row in mangaRows where row["id"] is String { mangaById[row["id"] as! String] = row }
+        let sourceMap = installedSourceMap()
+
+        var merged: [NyoraBookmark] = []
+        var deletedIds = Set<String>()
+        for row in rows {
+            guard
+                let mid = row["manga_id"] as? String, !mid.isEmpty,
+                let chapterId = row["chapter_id"] as? String, !chapterId.isEmpty,
+                let page = (row["page"] as? NSNumber)?.intValue
+            else { continue }
+            let (name, key) = Self.splitMangaId(mid)
+            guard let sourceId = sourceMap[name], !key.isEmpty else { continue }
+            let localId = "\(sourceId)\u{1}\(key)\u{1}\(chapterId)\u{1}\(page)"
+
+            if (row["deleted_at"] as? String).map({ !$0.isEmpty }) ?? false {
+                deletedIds.insert(localId)
+                continue
+            }
+            let mrow = mangaById[mid]
+            let created = (row["created_at"] as? String).flatMap { Self.iso.date(from: $0) } ?? Date()
+            merged.append(NyoraBookmark(
+                sourceId: sourceId,
+                mangaId: key,
+                mangaTitle: (mrow?["title"] as? String) ?? key,
+                mangaCover: (mrow?["cover_url"] as? String) ?? (mrow?["large_cover_url"] as? String),
+                chapterId: chapterId,
+                chapterTitle: (row["chapter_title"] as? String).flatMap { $0.isEmpty ? nil : $0 },
+                page: page,
+                note: (row["note"] as? String).flatMap { $0.isEmpty ? nil : $0 },
+                imageUrl: (row["image_url"] as? String).flatMap { $0.isEmpty ? nil : $0 },
+                createdAt: created
+            ))
+        }
+        NyoraBookmarkStore.shared.mergeIn(merged)
+        NyoraBookmarkStore.shared.removeIDs(deletedIds)
+        return merged.count
+    }
+
     @discardableResult
     func syncNow() async throws -> (pushed: Int, pulled: Int) {
         // Pull first (LWW: remote → local), then push local state back.
-        // NOTE: iOS has no page-bookmark model, so `nyora_bookmark` is intentionally
-        // not synced from this client (Android owns that table).
         var pulled = 0
         var pushed = 0
 
@@ -734,6 +926,7 @@ final class NyoraSyncClient: ObservableObject {
         pulled += try await pullCategories()
         pulled += try await pullMangaCategories()
         pulled += try await pullHistory()
+        pulled += try await pullBookmarks()
         pulled += try await pullSourcePrefs()
         pulled += try await pullMangaPrefs()
         pulled += try await pullTracking()
@@ -742,11 +935,44 @@ final class NyoraSyncClient: ObservableObject {
         pushed += try await pushCategories()
         pushed += try await pushMangaCategories()
         pushed += try await pushHistory()
+        pushed += try await pushBookmarks()
         pushed += try await pushSourcePrefs()
         pushed += try await pushMangaPrefs()
         pushed += try await pushTracking()
 
         return (pushed, pulled)
+    }
+
+    // MARK: - Automatic sync
+
+    /// Start syncing automatically: shortly after the app foregrounds, and (debounced) whenever the
+    /// library or history changes. Mirrors android's on-change + periodic worker so reading a chapter
+    /// or favouriting a title actually propagates without pressing "Sync now". Idempotent.
+    func startAutoSync() {
+        guard !autoSyncStarted else { return }
+        autoSyncStarted = true
+        let center = NotificationCenter.default
+        for name in [Notification.Name.updateLibrary, .updateHistory, .historySet, .nyoraBookmarksChanged] {
+            center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.scheduleAutoSync() }
+            }
+        }
+        #if canImport(UIKit)
+        center.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.scheduleAutoSync(delay: 3) }
+        }
+        #endif
+    }
+
+    /// Debounce a full `syncNow()` so a burst of changes coalesces into one round-trip.
+    private func scheduleAutoSync(delay: TimeInterval = 20) {
+        guard isSignedIn else { return }
+        debounceTask?.cancel()
+        debounceTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            guard !Task.isCancelled, let self, self.isSignedIn else { return }
+            _ = try? await self.syncNow()
+        }
     }
 
     // MARK: - Helpers

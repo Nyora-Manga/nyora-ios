@@ -699,7 +699,7 @@ struct PreferencesOnboardingView: View {
     private func load() async {
         loading = true
         loadFailed = false
-        let entries = await NyoraCatalog.fetchAll(server: SourceManager.nyoraServer)
+        let entries = await NyoraCatalog.fetchAll()
         catalog = entries
         loadFailed = entries.isEmpty
         loading = false

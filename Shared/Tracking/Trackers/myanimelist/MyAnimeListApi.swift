@@ -13,10 +13,11 @@ actor MyAnimeListApi {
 
     let baseApiUrl = "https://api.myanimelist.net/v2"
 
-    // Registered under Skitty's MAL account
+    // Nyora MyAnimeList OAuth client — register your app (PKCE) at
+    // myanimelist.net/apiconfig with redirect nyora://myanimelist-auth.
     nonisolated let oauth = OAuthClient(
         id: "myanimelist",
-        clientId: "50cc1b37e2af29f668b087485ba46a46",
+        clientId: "f3fec032a062ca0ba0c37330ca63730a",
         baseUrl: "https://myanimelist.net/v1/oauth2",
         challengeMethod: .plain
     )

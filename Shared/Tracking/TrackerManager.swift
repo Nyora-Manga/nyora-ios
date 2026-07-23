@@ -31,8 +31,9 @@ actor TrackerManager {
     /// An instance of the Kitsu tracker.
     static let kitsu = KitsuTracker()
 
-    /// An array of the available trackers.
-    static let trackers: [Tracker] = [komga, kavita, anilist, myanimelist, mangabaka, shikimori, bangumi, kitsu]
+    /// An array of the available trackers. Komga/Kavita (self-hosted-server plugins) are excluded
+    /// from Nyora — their static instances remain only for defensive cleanup of any legacy links.
+    static let trackers: [Tracker] = [anilist, myanimelist, mangabaka, kitsu]
 
     /// A boolean indicating if there is a tracker that is currently logged in.
     static var hasAvailableTrackers: Bool {

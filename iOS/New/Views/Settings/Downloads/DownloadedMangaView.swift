@@ -143,6 +143,7 @@ struct DownloadedMangaView: View {
         HStack(spacing: 12) {
             MangaCoverView(
                 source: SourceManager.shared.source(for: viewModel.manga.sourceId),
+                sourceId: viewModel.manga.sourceId,
                 coverImage: viewModel.manga.coverUrl ?? "",
                 width: 56,
                 height: 56 * 3/2

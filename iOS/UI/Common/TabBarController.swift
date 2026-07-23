@@ -124,11 +124,14 @@ class TabBarController: UITabBarController {
         for state in [itemAppearance.normal, itemAppearance.selected, itemAppearance.focused, itemAppearance.disabled] {
             state.titleTextAttributes = [.font: NyoraTheme.poppins(10, .medium)]
         }
+        // The SELECTED label AND icon stay high-contrast (black in light / white in
+        // dark) via .label — on the iOS 26 glass pill the accent tint washed both out
+        // to near-illegible grey. Selection reads via the pill + bold weight instead.
         itemAppearance.selected.titleTextAttributes = [
             .font: NyoraTheme.poppins(10, .semibold),
-            .foregroundColor: accent
+            .foregroundColor: UIColor.label
         ]
-        itemAppearance.selected.iconColor = accent
+        itemAppearance.selected.iconColor = .label
         itemAppearance.normal.iconColor = .secondaryLabel
 
         if #available(iOS 26.0, *) {
@@ -138,7 +141,14 @@ class TabBarController: UITabBarController {
             // accent purely via the bar's tintColor (set above) + the accent asset.
             let appearance = UITabBarAppearance()
             appearance.configureWithDefaultBackground()
-            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.font: NyoraTheme.poppins(10, .semibold)]
+            // Pin the selected label AND icon to .label so they stay legible on the
+            // glass pill instead of inheriting the washed-out accent tint.
+            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+                .font: NyoraTheme.poppins(10, .semibold),
+                .foregroundColor: UIColor.label
+            ]
+            appearance.stackedLayoutAppearance.selected.iconColor = .label
+            appearance.stackedLayoutAppearance.normal.iconColor = .secondaryLabel
             appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.font: NyoraTheme.poppins(10, .medium)]
             tabBar.standardAppearance = appearance
             tabBar.scrollEdgeAppearance = appearance

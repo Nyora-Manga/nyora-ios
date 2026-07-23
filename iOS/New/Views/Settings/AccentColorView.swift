@@ -195,44 +195,64 @@ enum AccentColorApplier {
 }
 
 /// Inline horizontal picker of named accent palettes, shown in appearance settings.
+/// Rendered as preview cards (mirroring the Nyora web "Color scheme" picker): each
+/// card shows an "Abc" swatch + a mini UI preview in the accent, with the name below.
 struct AccentColorView: View {
     @State private var selected = AccentColor.current
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 ForEach(AccentColor.allCases) { accent in
-                    swatch(accent)
+                    card(accent)
                 }
             }
             .padding(.vertical, 4)
+            .padding(.horizontal, 2)
         }
     }
 
     @ViewBuilder
-    private func swatch(_ accent: AccentColor) -> some View {
+    private func card(_ accent: AccentColor) -> some View {
         let isSelected = accent == selected
-        VStack(spacing: 6) {
-            ZStack {
-                Circle()
-                    .fill(accent.color)
-                    .frame(width: 40, height: 40)
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(.white)
+        VStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .top) {
+                    Text("Abc")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(accent.color)
+                    Spacer(minLength: 4)
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 16))
+                            .foregroundStyle(accent.color)
+                    }
+                }
+                Spacer(minLength: 0)
+                // Mini UI preview: a neutral bar, an accent bar and an accent dot.
+                HStack(spacing: 6) {
+                    Capsule().fill(Color.primary.opacity(0.18)).frame(width: 26, height: 6)
+                    Capsule().fill(accent.color).frame(width: 20, height: 6)
+                    Circle().fill(accent.color).frame(width: 12, height: 12)
                 }
             }
-            .overlay(
-                Circle()
-                    .strokeBorder(
-                        isSelected ? Color.primary : Color.clear,
-                        lineWidth: 2
-                    )
-                    .padding(-3)
+            .padding(12)
+            .frame(width: 112, height: 92, alignment: .topLeading)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color(uiColor: .systemGray6))
             )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(
+                        isSelected ? accent.color : Color(uiColor: .separator).opacity(0.6),
+                        lineWidth: isSelected ? 2 : 1
+                    )
+            )
+
             Text(accent.title)
-                .font(.caption2)
+                .font(.caption)
+                .fontWeight(isSelected ? .semibold : .regular)
                 .foregroundStyle(isSelected ? Color.primary : Color.secondary)
                 .lineLimit(1)
         }

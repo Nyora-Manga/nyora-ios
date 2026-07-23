@@ -37,6 +37,11 @@ struct ShimmerSkeleton: View {
 
 struct SourceImageView: View {
     var source: AidokuRunner.Source?
+    /// Fallback source key. The source list loads asynchronously, so SwiftUI cover views that resolve
+    /// `source` synchronously in `body` get `nil` on first render and the hotlink Referer is dropped
+    /// (Nyora covers 403). Passing `sourceId` lets this view re-resolve the source AFTER the sources
+    /// finish loading, so covers come up correctly without a race.
+    var sourceId: String?
 
     let imageUrl: String
     var width: CGFloat?
@@ -107,10 +112,17 @@ struct SourceImageView: View {
             imageRequest = ImageRequest(url: fileUrl)
             return
         }
-        guard let source, let url, !url.isFileURL else {
+        // Prefer an explicitly-passed source; otherwise resolve by id AFTER the source list loads so
+        // the hotlink Referer is applied even on a cold-launch race (mirrors the UIKit cover cells).
+        var resolvedSource = source
+        if resolvedSource == nil, let sourceId, !sourceId.isEmpty {
+            await SourceManager.shared.waitForSourcesLoad()
+            resolvedSource = SourceManager.shared.source(for: sourceId)
+        }
+        guard let resolvedSource, let url, !url.isFileURL else {
             imageRequest = ImageRequest(url: url)
             return
         }
-        imageRequest = ImageRequest(urlRequest: await source.getModifiedImageRequest(url: url, context: nil))
+        imageRequest = ImageRequest(urlRequest: await resolvedSource.getModifiedImageRequest(url: url, context: nil))
     }
 }

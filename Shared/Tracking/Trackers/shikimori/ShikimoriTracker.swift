@@ -53,7 +53,7 @@ final class ShikimoriTracker: OAuthTracker {
         await api.oauth.getAuthenticationUrl(
             responseType: "code",
             path: "/oauth/authorize",
-            redirectUri: "aidoku://shikimori-auth",
+            redirectUri: "nyora://shikimori-auth",
             extraQueryItems: ["scope": "user_rates"]
         )
     }

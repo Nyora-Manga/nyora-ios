@@ -36,16 +36,7 @@ struct DownloadQueueView: View {
                             .buttonStyle(.borderless)
                         }
                         .padding(padding)
-                        .background(
-                            Color(uiColor: .init(dynamicProvider: { collection in
-                                if collection.userInterfaceStyle == .dark {
-                                    .init(red: 0.20, green: 0.12, blue: 0.15, alpha: 1)
-                                } else {
-                                    .init(red: 0.95, green: 0.87, blue: 0.91, alpha: 1)
-                                }
-                            }))
-                            .opacity(0.8)
-                        )
+                        .background(Color(uiColor: .secondarySystemGroupedBackground))
                         .listRowInsets(.zero)
                         .listRowSpacing(0)
                     }
@@ -56,7 +47,8 @@ struct DownloadQueueView: View {
                         ForEach(section.downloads) { download in
                             HStack {
                                 MangaCoverView(
-                                    source: nil,
+                                    source: SourceManager.shared.source(for: section.sourceId),
+                                    sourceId: section.sourceId,
                                     coverImage: download.manga.cover ?? "",
                                     width: 56,
                                     height: 56 * 3/2,
@@ -163,6 +155,9 @@ struct DownloadQueueView: View {
                 }
             }
             .task {
+                // Resume any persisted queue — it's only loaded lazily by the Library tab, so opening
+                // Downloads directly from Browse would otherwise show an empty queue.
+                await DownloadManager.shared.loadQueueState()
                 isPaused = await DownloadManager.shared.isQueuePaused()
                 let globalQueue = await DownloadManager.shared.getDownloadQueue()
                 var queue: [(String, [Download])] = []

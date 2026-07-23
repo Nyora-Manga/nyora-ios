@@ -2,11 +2,10 @@
 //  QuickActionsCard.swift
 //  Aidoku (iOS) — Nyora fork
 //
-//  Explore "quick actions": a flat tinted card holding a 2×2 grid of tall
-//  tonal buttons (Local / Bookmarks / Random / Downloads), ported from
-//  nyora-android's item_explore_buttons.xml. Purely presentational — each tile
-//  invokes a closure supplied by the host screen so navigation/data flow stay
-//  owned by BrowseViewController.
+//  Explore "quick actions": a flat tinted card holding a row of tall tonal buttons
+//  (Local / Bookmarks / Downloads), ported from nyora-android's item_explore_buttons.xml.
+//  Purely presentational — each tile invokes a closure supplied by the host screen so
+//  navigation/data flow stay owned by BrowseViewController.
 //
 
 import SwiftUI
@@ -14,37 +13,26 @@ import SwiftUI
 struct QuickActionsCard: View {
     var onLocal: () -> Void
     var onBookmarks: () -> Void
-    var onRandom: () -> Void
     var onDownloads: () -> Void
 
     var body: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 10) {
-                QuickActionTile(
-                    title: NSLocalizedString("LOCAL_FILES", comment: ""),
-                    systemImage: "folder",
-                    action: onLocal
-                )
-                QuickActionTile(
-                    title: NSLocalizedString("BOOKMARKS", comment: ""),
-                    systemImage: "bookmark",
-                    action: onBookmarks
-                )
-            }
-            HStack(spacing: 10) {
-                QuickActionTile(
-                    title: NSLocalizedString("RANDOM", comment: ""),
-                    systemImage: "dice",
-                    action: onRandom
-                )
-                QuickActionTile(
-                    title: NSLocalizedString("DOWNLOADS", comment: ""),
-                    systemImage: "arrow.down.circle",
-                    action: onDownloads
-                )
-            }
+        HStack(spacing: 10) {
+            QuickActionTile(
+                title: NSLocalizedString("LOCAL_FILES", comment: ""),
+                systemImage: "folder",
+                action: onLocal
+            )
+            QuickActionTile(
+                title: NSLocalizedString("BOOKMARKS", comment: ""),
+                systemImage: "bookmark",
+                action: onBookmarks
+            )
+            QuickActionTile(
+                title: NSLocalizedString("DOWNLOADS", comment: ""),
+                systemImage: "arrow.down.circle",
+                action: onDownloads
+            )
         }
-        .nyoraTintedCard(padding: 12)
         .padding(.horizontal, 16)
     }
 }
@@ -57,27 +45,29 @@ private struct QuickActionTile: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            VStack(spacing: 10) {
                 Image(systemName: systemImage)
-                    .font(.system(size: 22, weight: .semibold))
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(accentManager.color)
+                    .frame(width: 44, height: 44)
+                    .background(Circle().fill(accentManager.color.opacity(0.15)))
                 Text(title)
                     .font(.poppins(13, weight: .semibold))
-                    .foregroundStyle(accentManager.color)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 68)
+            .frame(height: 92)
             .background(
-                RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous)
-                    .fill(accentManager.color.opacity(0.12))
+                RoundedRectangle(cornerRadius: NyoraTheme.cornerCard, style: .continuous)
+                    .fill(Color.nyoraCardSurface)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous)
+                RoundedRectangle(cornerRadius: NyoraTheme.cornerCard, style: .continuous)
                     .strokeBorder(Color.nyoraCardOutline, lineWidth: 1)
             )
-            .contentShape(RoundedRectangle(cornerRadius: NyoraTheme.cornerCover, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: NyoraTheme.cornerCard, style: .continuous))
         }
         .buttonStyle(QuickActionTileButtonStyle())
     }
@@ -96,7 +86,6 @@ private struct QuickActionTileButtonStyle: ButtonStyle {
     QuickActionsCard(
         onLocal: {},
         onBookmarks: {},
-        onRandom: {},
         onDownloads: {}
     )
     .padding(.vertical)

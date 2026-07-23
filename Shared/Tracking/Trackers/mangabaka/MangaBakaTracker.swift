@@ -108,7 +108,7 @@ final class MangaBakaTracker: OAuthTracker {
 
     func getAuthenticationUrl() async -> URL? {
         await api.oauth.getAuthenticationUrl(
-            redirectUri: "aidoku://\(callbackHost)",
+            redirectUri: "nyora://\(callbackHost)",
             extraQueryItems: ["scope": "library.read+library.write+profile+offline_access+openid"]
         )
     }
@@ -117,7 +117,7 @@ final class MangaBakaTracker: OAuthTracker {
         if let authCode = url.queryParameters?["code"] {
             guard let oauth = await api.oauth.getAccessToken(
                 authCode: authCode,
-                redirectUri: "aidoku://\(callbackHost)"
+                redirectUri: "nyora://\(callbackHost)"
             ) else {
                 return
             }

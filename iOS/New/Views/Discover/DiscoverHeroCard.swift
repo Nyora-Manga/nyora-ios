@@ -2,97 +2,79 @@
 //  DiscoverHeroCard.swift
 //  Aidoku (iOS) — Nyora fork
 //
-//  ND-013 — Discover HERO card.
-//
-//  The signature full-width hero at the top of the Discover feed, ported from
-//  nyora-android's item_discover_hero.xml. A ~240pt tall card at the Nyora hero
-//  corner radius (24pt) with a full-bleed cover, a left→right dark gradient for
-//  legibility, and a bottom-left block carrying a Poppins-bold title, genre
-//  labels, and a white "Read" pill (NyoraPillButtonStyle .nyoraPillWhite) that
-//  opens the manga details.
+//  Discover HERO — the #1 trending title, redesigned 1:1 with nyora-web's
+//  `.discover-hero`: a rounded accent-tinted card with a heavily-blurred, low-opacity
+//  copy of the cover behind it, the real cover on the left (2:3), and on the right an
+//  uppercase accent "TRENDING" eyebrow, the title, a chip row (green score% + up to 3
+//  genres), and an accent "Read" pill. The whole card taps through to a title search.
 //
 
-import AidokuRunner
 import SwiftUI
 
 struct DiscoverHeroCard: View {
-    let source: AidokuRunner.Source?
-    let manga: AidokuRunner.Manga
-    /// When set, taps invoke this instead of opening source details directly.
-    /// Used by the AniList feed to run a universal search for the title.
-    var onSelect: ((AidokuRunner.Manga) -> Void)?
+    let item: DiscoverItem
+    let onSelect: (DiscoverItem) -> Void
 
-    static let height: CGFloat = 240
+    static let height: CGFloat = 208
 
-    @EnvironmentObject private var path: NavigationCoordinator
+    @ObservedObject private var accentManager = AccentManager.shared
 
-    private var genres: [String] {
-        Array((manga.tags ?? []).prefix(3))
-    }
+    private var genres: [String] { Array(item.genres.prefix(3)) }
+    private var accent: Color { accentManager.color }
 
     var body: some View {
-        Button(action: openDetails) {
-            ZStack(alignment: .bottomLeading) {
-                // Full-bleed cover
+        Button {
+            onSelect(item)
+        } label: {
+            HStack(spacing: 16) {
+                // Left: the real cover (2:3).
                 SourceImageView(
-                    source: source,
-                    imageUrl: manga.cover ?? "",
-                    downsampleWidth: 800,
+                    imageUrl: item.cover ?? "",
+                    downsampleWidth: 300,
                     contentMode: .fill,
                     showsLoadingIndicator: true
                 )
-                .frame(maxWidth: .infinity)
-                .frame(height: Self.height)
+                .frame(width: 116, height: 174)
                 .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
-                // Left→right dark gradient for legibility of the text block
-                LinearGradient(
-                    colors: [
-                        .black.opacity(0.78),
-                        .black.opacity(0.35),
-                        .clear
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
+                // Right: eyebrow / title / chips / Read pill.
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(NSLocalizedString("TRENDING", comment: ""))
+                        .font(.poppins(11, weight: .semibold))
+                        .tracking(1.2)
+                        .foregroundStyle(accent)
 
-                // Extra bottom darkening so genres/title stay readable
-                LinearGradient(
-                    colors: [.black.opacity(0.55), .clear],
-                    startPoint: .bottom,
-                    endPoint: .center
-                )
-
-                // Bottom-left content block
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(manga.title)
-                        .font(.poppins(24, weight: .bold))
-                        .foregroundStyle(.white)
+                    Text(item.title)
+                        .font(.poppins(20, weight: .bold))
+                        .foregroundStyle(.primary)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
 
-                    if !genres.isEmpty {
-                        Text(genres.joined(separator: "  •  "))
-                            .font(.poppins(12, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.85))
-                            .lineLimit(1)
-                    }
+                    chips
 
-                    // White "Read" pill — non-interactive here; the whole card taps
-                    // through to details, matching the Android hero behaviour.
-                    Text(NSLocalizedString("READ", comment: ""))
-                        .font(.poppins(15, weight: .semibold))
-                        .foregroundStyle(.black)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 10)
-                        .background(Color.white)
-                        .clipShape(Capsule())
-                        .padding(.top, 2)
+                    HStack(spacing: 6) {
+                        Image(systemName: "play.fill")
+                            .font(.system(size: 12, weight: .bold))
+                        Text(NSLocalizedString("READ", comment: ""))
+                            .font(.poppins(14, weight: .semibold))
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 9)
+                    .background(accent)
+                    .clipShape(Capsule())
+                    .padding(.top, 2)
+
+                    Spacer(minLength: 0)
                 }
-                .padding(20)
-                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Spacer(minLength: 0)
             }
+            .padding(16)
             .frame(height: Self.height)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(heroBackground)
             .clipShape(RoundedRectangle(cornerRadius: NyoraTheme.cornerHero, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: NyoraTheme.cornerHero, style: .continuous)
@@ -102,11 +84,50 @@ struct DiscoverHeroCard: View {
         .buttonStyle(.plain)
     }
 
-    private func openDetails() {
-        if let onSelect {
-            onSelect(manga)
-        } else if let source {
-            path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
+    @ViewBuilder
+    private var chips: some View {
+        HStack(spacing: 6) {
+            if let score = item.score {
+                Text("\(score)%")
+                    .font(.poppins(11, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color(hue: 0.41, saturation: 0.6, brightness: 0.75)) // green
+                    .clipShape(Capsule())
+            }
+            ForEach(genres, id: \.self) { genre in
+                Text(genre)
+                    .font(.poppins(11, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color.nyoraCardSurface)
+                    .clipShape(Capsule())
+                    .overlay(Capsule().strokeBorder(Color.nyoraCardOutline, lineWidth: 1))
+            }
+        }
+        .lineLimit(1)
+    }
+
+    // Accent-tinted base with a blurred, low-opacity copy of the cover/banner behind it.
+    private var heroBackground: some View {
+        ZStack {
+            LinearGradient(
+                colors: [accent.opacity(0.14), Color.nyoraCardSurface],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            SourceImageView(
+                imageUrl: (item.banner ?? item.cover) ?? "",
+                downsampleWidth: 240,
+                contentMode: .fill
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .clipped()
+            .blur(radius: 32)
+            .opacity(0.28)
+            .allowsHitTesting(false)
         }
     }
 }

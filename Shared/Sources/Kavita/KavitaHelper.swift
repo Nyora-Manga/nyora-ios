@@ -209,7 +209,7 @@ struct KavitaHelper: Sendable {
 
         url.queryParameters = [
             "apiKey": apiKey,
-            "pluginName": "Aidoku"
+            "pluginName": "Nyora"
         ]
 
         var request = URLRequest(url: url)

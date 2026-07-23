@@ -114,42 +114,8 @@ struct SettingsTrackingView: View {
                 }
             }
 
-            if !komgaSources.isEmpty || !kavitaSources.isEmpty {
-                Section {
-                    let items: [(tracker: Tracker, sources: [AidokuRunner.Source])] = [
-                        (TrackerManager.komga, komgaSources),
-                        (TrackerManager.kavita, kavitaSources)
-                    ]
-                    ForEach(items, id: \.tracker.id) { tracker, sources in
-                        if !sources.isEmpty {
-                            NavigationLink(destination: enhancedTrackerPage(name: tracker.name, sources: sources)) {
-                                HStack(spacing: 12) {
-                                    if let icon = tracker.icon {
-                                        Image(uiImage: icon)
-                                            .resizable()
-                                            .frame(width: iconSize, height: iconSize)
-                                            .clipShape(RoundedRectangle(cornerRadius: iconCornerRadius))
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: iconCornerRadius)
-                                                    .strokeBorder(Color(UIColor.quaternarySystemFill), lineWidth: 1)
-                                            )
-                                    }
-                                    Text(tracker.name)
-                                        .foregroundStyle(.primary)
-                                        .tint(.primary)
-
-                                    Spacer()
-                                }
-                            }
-                        }
-                    }
-                } header: {
-                    Text(NSLocalizedString("ENHANCED_TRACKERS"))
-                } footer: {
-                    Text(NSLocalizedString("ENHANCED_TRACKERS_INFO"))
-                        .padding(.bottom, 8) // fix tab bar being too close to text on ios 26
-                }
-            }
+            // Komga/Kavita "enhanced tracker" section removed — those self-hosted-server plugins
+            // are not part of Nyora.
         }
         .navigationTitle(NSLocalizedString("TRACKING"))
         .sheet(isPresented: $showLoginForm) {
@@ -316,7 +282,7 @@ extension SettingsTrackingView {
         }
         if let tracker = tracker as? OAuthTracker {
             guard let url = await tracker.getAuthenticationUrl() else { return }
-            let session = ASWebAuthenticationSession(url: url, callbackURLScheme: "aidoku") { callbackURL, error in
+            let session = ASWebAuthenticationSession(url: url, callbackURLScheme: "nyora") { callbackURL, error in
                 if let error {
                     LogManager.logger.error("Tracker authentication error: \(error.localizedDescription)")
                 }

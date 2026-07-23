@@ -10,14 +10,15 @@ import Foundation
 actor ShikimoriApi {
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
-    private let userAgent = "Aidoku"
+    private let userAgent = "Nyora"
     private let dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"
 
-    // Registered under Skitty's Shikimori account
+    // Nyora Shikimori OAuth client — register your app at shikimori.io with
+    // redirect nyora://shikimori-auth, then set the client id + secret.
     nonisolated let oauth = OAuthClient(
         id: "shikimori",
-        clientId: "0pRPZsB87w9mp0gQe1HZbSiGt7FfVzJohPGhJKjayW4",
-        clientSecret: "42vg9aoyPBnrvFoH1ey2GxbO24eVufOe8D0B6P756e8",
+        clientId: "YOUR_SHIKIMORI_CLIENT_ID",
+        clientSecret: "YOUR_SHIKIMORI_CLIENT_SECRET",
         baseUrl: "https://shikimori.io"
     )
 }
@@ -35,7 +36,7 @@ extension ShikimoriApi {
             "grant_type": "authorization_code",
             "client_id": oauth.clientId,
             "client_secret": oauth.clientSecret!,
-            "redirect_uri": "aidoku://shikimori-auth",
+            "redirect_uri": "nyora://shikimori-auth",
             "scope": "users_rate",
             "code": authCode
         ], boundary: boundary)

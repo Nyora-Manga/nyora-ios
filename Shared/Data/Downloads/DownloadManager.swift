@@ -419,9 +419,14 @@ extension DownloadManager {
                                 }
                             }
 
+                            // Prefer the downloaded cover.png so the thumbnail loads offline; fall
+                            // back to the (remote) Core Data cover only if it isn't on disk.
+                            let localCover = mangaDirectory.appendingPathComponent("cover.png")
                             let result = (
                                 title: mangaObject?.title,
-                                coverUrl: mangaObject?.cover,
+                                coverUrl: FileManager.default.fileExists(atPath: localCover.path)
+                                    ? localCover.absoluteString
+                                    : mangaObject?.cover,
                                 isInLibrary: isInLibrary,
                                 actualMangaId: mangaObject?.id ?? mangaId
                             )

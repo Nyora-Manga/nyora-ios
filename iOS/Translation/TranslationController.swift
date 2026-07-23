@@ -29,11 +29,24 @@ final class TranslationController {
         static let engine = "Reader.translateEngine"
         static let source = "Reader.translateSource"
         static let byokEndpoint = "Reader.translateByokEndpoint"
-        static let byokApiKey = "Reader.translateByokApiKey"
+        // Legacy plaintext preference.  It is migrated once into Keychain and
+        // then immediately removed; never add new credentials to UserDefaults.
+        static let legacyByokApiKey = "Reader.translateByokApiKey"
         static let byokModel = "Reader.translateByokModel"
     }
 
-    private init() {}
+    private static let byokKeychainAccount = "translation.byok.api-key"
+
+    private init() {
+        let defaults = UserDefaults.standard
+        if let legacy = defaults.string(forKey: Keys.legacyByokApiKey), !legacy.isEmpty,
+           KeychainSecretStore.value(for: Self.byokKeychainAccount) == nil {
+            _ = KeychainSecretStore.set(legacy, for: Self.byokKeychainAccount)
+        }
+        // Remove even when the Keychain is temporarily unavailable: leaving a
+        // plaintext credential behind is worse than asking the user to reenter it.
+        defaults.removeObject(forKey: Keys.legacyByokApiKey)
+    }
 
     private func postChanged() {
         NotificationCenter.default.post(name: .translationSettingsChanged, object: nil)
@@ -81,8 +94,16 @@ final class TranslationController {
     }
 
     var byokApiKey: String {
-        get { UserDefaults.standard.string(forKey: Keys.byokApiKey) ?? "" }
-        set { UserDefaults.standard.set(newValue, forKey: Keys.byokApiKey); postChanged() }
+        get { KeychainSecretStore.value(for: Self.byokKeychainAccount) ?? "" }
+        set {
+            let value = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            if value.isEmpty {
+                _ = KeychainSecretStore.remove(account: Self.byokKeychainAccount)
+            } else {
+                _ = KeychainSecretStore.set(value, for: Self.byokKeychainAccount)
+            }
+            postChanged()
+        }
     }
 
     var byokModel: String {
