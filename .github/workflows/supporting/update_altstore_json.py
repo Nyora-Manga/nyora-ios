@@ -6,10 +6,10 @@ import plistlib
 import io
 from datetime import datetime
 
-bundle_id = "app.aidoku.Aidoku"
-minimum_ios_version = "15.0"
+bundle_id = "com.nyora.ios"
+minimum_ios_version = "18.0"
 json_file_name = ".github/workflows/supporting/altstore/apps.json"
-github_repo = "Aidoku/Aidoku"
+github_repo = "Nyora-Manga/nyora-ios"
 
 def fetch_latest_release(repo):
     api_url = f"https://api.github.com/repos/{repo}/releases"
@@ -118,7 +118,7 @@ def update_json_file(json_file, repo):
         version_date = date_obj.strftime("%Y-%m-%d")
 
         description = latest_release["body"]
-        keypharse = "Aidoku Release Information"
+        keypharse = "Nyora Release Information"
         if keypharse in description:
             description = description.split(keypharse, 1)[1].strip()
 

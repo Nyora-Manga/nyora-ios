@@ -1,0 +1,58 @@
+name: Release IPA
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to build & publish (e.g. v2.1.8)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "26.0"
+
+      - name: Install Xcode platforms
+        run: |
+          xcrun simctl list > /dev/null # fixes next command sometimes failing
+          xcodebuild -downloadPlatform iOS
+
+      - name: Resolve tag / version
+        id: v
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build archive (unsigned)
+        run: |
+          xcodebuild -project Nyora.xcodeproj -scheme "Nyora (iOS)" \
+            -configuration Release archive -archivePath build/Nyora.xcarchive \
+            -skipPackagePluginValidation \
+            CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p Payload
+          cp -r build/Nyora.xcarchive/Products/Applications/Nyora.app Payload/
+          zip -qry "Nyora-${{ steps.v.outputs.version }}.ipa" Payload
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.v.outputs.tag }}
+          name: Nyora ${{ steps.v.outputs.version }}
+          files: Nyora-${{ steps.v.outputs.version }}.ipa
+          generate_release_notes: true
+          fail_on_unmatched_files: true

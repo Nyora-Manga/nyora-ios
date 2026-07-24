@@ -17,17 +17,21 @@ jobs:
           xcodebuild -downloadPlatform iOS
       - name: Get commit SHA
         id: commitinfo
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Build
-        run: xcodebuild -scheme "Aidoku (iOS)" -configuration Release archive -archivePath build/Aidoku.xcarchive -skipPackagePluginValidation CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+        run: |
+          xcodebuild -project Nyora.xcodeproj -scheme "Nyora (iOS)" \
+            -configuration Release archive -archivePath build/Nyora.xcarchive \
+            -skipPackagePluginValidation \
+            CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
       - name: Package ipa
         run: |
           mkdir Payload
-          cp -r build/Aidoku.xcarchive/Products/Applications/Aidoku.app Payload
-          zip -r Aidoku-iOS_nightly-${{ steps.commitinfo.outputs.sha_short }}.ipa Payload
+          cp -r build/Nyora.xcarchive/Products/Applications/Nyora.app Payload
+          zip -r "Nyora-iOS_nightly-${{ steps.commitinfo.outputs.sha_short }}.ipa" Payload
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Aidoku-iOS_nightly-${{ steps.commitinfo.outputs.sha_short }}.ipa
-          path: Aidoku-iOS_nightly-${{ steps.commitinfo.outputs.sha_short }}.ipa
+          name: Nyora-iOS_nightly-${{ steps.commitinfo.outputs.sha_short }}
+          path: Nyora-iOS_nightly-${{ steps.commitinfo.outputs.sha_short }}.ipa
           if-no-files-found: error
