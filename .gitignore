@@ -27,3 +27,7 @@ build/
 vendor/
 native-engine/
 DerivedData/
+
+# Python
+__pycache__/
+*.pyc
