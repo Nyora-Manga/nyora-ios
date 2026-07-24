@@ -58,3 +58,12 @@ jobs:
           files: Nyora-${{ steps.v.outputs.version }}.ipa
           generate_release_notes: true
           fail_on_unmatched_files: true
+
+  # Refresh the AltStore source after the release is published. A release created
+  # by CI's GITHUB_TOKEN does NOT fire the `release: published` event, so we chain
+  # the updater here instead of relying on that trigger.
+  update-altstore:
+    needs: release
+    uses: ./.github/workflows/update_altstore_source.yml
+    permissions:
+      contents: write
