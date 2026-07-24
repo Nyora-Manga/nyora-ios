@@ -1,0 +1,4 @@
+module NyoraNativeBridge {
+    header "NyoraNativeBridge.h"
+    export *
+}
