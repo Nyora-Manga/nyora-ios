@@ -19,6 +19,11 @@ struct BackupsView: View {
     @State private var showImportSheet = false
     @State private var showAutoBackupsSheet = false
     @State private var showImportFailAlert = false
+    @State private var showMihonImportSheet = false
+    @State private var mihonExportURL: URL?
+    @State private var mihonMessage: String?
+    @State private var mihonBusy = false
+    @State private var mihonMissingCount = 0
 
     @EnvironmentObject private var path: NavigationCoordinator
 
@@ -64,10 +69,16 @@ struct BackupsView: View {
             DocumentPickerView(
                 allowedContentTypes: [
                     .init(filenameExtension: "aib")!,
+                    .init(filenameExtension: MihonBackupManager.fileExtension)!,
                     .json
                 ],
                 onDocumentsPicked: { urls in
                     guard let url = urls.first else {
+                        return
+                    }
+                    // A .tachibk is a Mihon backup; anything else is the app's own format.
+                    if url.pathExtension.lowercased() == MihonBackupManager.fileExtension {
+                        importMihonBackup(from: url)
                         return
                     }
                     Task {
@@ -86,6 +97,41 @@ struct BackupsView: View {
         }
         .sheet(item: $targetRestoreBackup) { backup in
             BackupContentView(backup: backup)
+        }
+        .sheet(isPresented: $showMihonImportSheet) {
+            DocumentPickerView(
+                allowedContentTypes: [
+                    .init(filenameExtension: MihonBackupManager.fileExtension)!,
+                    .data
+                ],
+                onDocumentsPicked: { urls in
+                    guard let url = urls.first else { return }
+                    importMihonBackup(from: url)
+                }
+            )
+            .ignoresSafeArea()
+        }
+        .sheet(item: $mihonExportURL) { url in
+            ActivityViewController(activityItems: [url])
+                .ignoresSafeArea()
+        }
+        .alert(
+            NSLocalizedString("MIHON_BACKUP"),
+            isPresented: Binding(get: { mihonMessage != nil }, set: { if !$0 { mihonMessage = nil } })
+        ) {
+            if mihonMissingCount > 0 {
+                Button(NSLocalizedString("MIHON_VIEW_MISSING_SOURCE")) {
+                    mihonMessage = nil
+                    // Open the library filtered to the bucket of unbound entries.
+                    NotificationCenter.default.post(
+                        name: .openLibraryCategory,
+                        object: MihonBackupManager.missingSourceCategory
+                    )
+                }
+            }
+            Button(NSLocalizedString("OK"), role: .cancel) { mihonMessage = nil }
+        } message: {
+            Text(mihonMessage ?? "")
         }
         .alert(NSLocalizedString("IMPORT_FAIL"), isPresented: $showImportFailAlert) {
             Button(NSLocalizedString("OK"), role: .cancel) {}
@@ -144,6 +190,19 @@ struct BackupsView: View {
             } label: {
                 Label(NSLocalizedString("IMPORT_BACKUP"), systemImage: "square.and.arrow.down")
             }
+            Divider()
+            Button {
+                exportMihonBackup()
+            } label: {
+                Label(NSLocalizedString("EXPORT_MIHON_BACKUP"), systemImage: "arrow.up.doc")
+            }
+            .disabled(mihonBusy)
+            Button {
+                showMihonImportSheet = true
+            } label: {
+                Label(NSLocalizedString("IMPORT_MIHON_BACKUP"), systemImage: "arrow.down.doc")
+            }
+            .disabled(mihonBusy)
         } label: {
             Image(systemName: "plus")
         }
@@ -161,6 +220,79 @@ struct BackupsView: View {
         ToolbarItem(placement: .topBarTrailing) {
             createBackupButton
         }
+    }
+
+    // MARK: - Mihon (.tachibk) backup
+
+    /// Writes a Mihon-compatible backup and offers it via the share sheet.
+    ///
+    /// This is the migration path in and out of the app, so it is deliberately
+    /// reachable without any account or network: the file is produced locally and
+    /// handed straight to the system share sheet.
+    private func exportMihonBackup() {
+        mihonBusy = true
+        Task {
+            do {
+                let data = try await MihonBackupManager.shared.export()
+                let stamp = DateFormatter()
+                stamp.dateFormat = "yyyy-MM-dd_HH-mm"
+                let name = "nyora_\(stamp.string(from: Date())).\(MihonBackupManager.fileExtension)"
+                // The app shadows `temporaryDirectory` as optional; fall back to
+                // the documents directory so an export never silently fails.
+                let directory = FileManager.default.temporaryDirectory ?? FileManager.default.documentDirectory
+                let url = directory.appendingPathComponent(name)
+                try data.write(to: url, options: .atomic)
+                await MainActor.run {
+                    mihonBusy = false
+                    mihonExportURL = url
+                }
+            } catch {
+                await MainActor.run {
+                    mihonBusy = false
+                    mihonMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    /// Restores a Mihon backup by MERGING it into the library — nothing existing
+    /// is cleared, so importing can only ever add.
+    private func importMihonBackup(from url: URL) {
+        mihonBusy = true
+        Task {
+            let scoped = url.startAccessingSecurityScopedResource()
+            defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+            do {
+                let data = try Data(contentsOf: url)
+                let result = try await MihonBackupManager.shared.importBackup(data: data)
+                await MainActor.run {
+                    mihonBusy = false
+                    mihonMissingCount = result.missingSourceCount
+                    mihonMessage = Self.summary(for: result)
+                    NotificationCenter.default.post(name: .updateLibrary, object: nil)
+                }
+            } catch {
+                await MainActor.run {
+                    mihonBusy = false
+                    mihonMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private static func summary(for result: MihonImportResult) -> String {
+        var lines = [
+            String(format: NSLocalizedString("MIHON_IMPORT_SUMMARY"), result.manga, result.categories)
+        ]
+        if result.missingSourceCount > 0 {
+            lines.append(String(format: NSLocalizedString("MIHON_IMPORT_PENDING"), result.missingSourceCount))
+        }
+        if !result.unmatchedSources.isEmpty {
+            let names = result.unmatchedSources.prefix(5).joined(separator: ", ")
+            let extra = result.unmatchedSources.count > 5 ? "…" : ""
+            lines.append(String(format: NSLocalizedString("MIHON_IMPORT_UNMATCHED"), names + extra))
+        }
+        return lines.joined(separator: "\n\n")
     }
 
     func backupCell(url: URL, backup: Backup) -> some View {

@@ -50,6 +50,16 @@
 				<string>vnd.comicbook-rar</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Mihon Backup</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>app.mihon.tachibk</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
@@ -195,6 +205,28 @@
 			<string>public.url</string>
 			<key>UTTypeTagSpecification</key>
 			<dict/>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+				<string>public.archive</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Mihon Backup</string>
+			<key>UTTypeIdentifier</key>
+			<string>app.mihon.tachibk</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>tachibk</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/gzip</string>
+				</array>
+			</dict>
 		</dict>
 	</array>
 </dict>

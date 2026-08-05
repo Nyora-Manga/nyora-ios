@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1C87E4E79A5247B3A46BE9C8 /* MihonExportSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA998C77E6BC4B4EA72F9866 /* MihonExportSnapshot.swift */; };
+		463FCEBD9D4F477085F611C5 /* ActivityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4D326D0A6D245EBA27A673F /* ActivityViewController.swift */; };
+		93EBC7697D85404DA1350010 /* MihonBackupCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4585FE057D46A982FB49D4 /* MihonBackupCodec.swift */; };
+		C82CEDE0C47A4D69B61BD49A /* MihonBackupImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E5B9061E84A4E88AE1F8750 /* MihonBackupImport.swift */; };
+		99D47530D66340538419A5E9 /* MihonBackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10DCBB4556547F9864EF079 /* MihonBackupManager.swift */; };
+		378963FC95EA43F390EA0465 /* MihonBackupModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D017C3B6D9BE44888074038C /* MihonBackupModels.swift */; };
+		2A1E490B15EF461BA169D08B /* MihonGzip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780E5A6652CC4D9ABDE3B0CD /* MihonGzip.swift */; };
+		065BF79AB4924841B41FE8D4 /* MihonMemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58098C82EBD14C4F92D4725F /* MihonMemo.swift */; };
+		9707797569C9434DA4073A29 /* MihonProto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E1A5B15CAB144A5B92A9A0E /* MihonProto.swift */; };
+		341CB121F7A74692B64A49A9 /* MihonSourceBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F6054E4F8E4D3A8D1AAF49 /* MihonSourceBridge.swift */; };
+		66D0BA2B083248728DF10A56 /* MihonSourceBridgeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2738AA5B62A4ED79705BAAA /* MihonSourceBridgeData.swift */; };
+		FBC7058D03214F7884C122FC /* MihonSourceIds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26B8DE95E6FC4412BA61598D /* MihonSourceIds.swift */; };
 		002C0AC12EC0F44D0071CE82 /* LAPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002C0AC02EC0F44D0071CE82 /* LAPolicy.swift */; };
 		002C0AC22EC0F44D0071CE82 /* LAPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002C0AC02EC0F44D0071CE82 /* LAPolicy.swift */; };
 		01567DD342480215B95DE060 /* ReaderControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855E127D4FA3E40C740BF7A /* ReaderControl.swift */; };
@@ -705,6 +717,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AA998C77E6BC4B4EA72F9866 /* MihonExportSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihonExportSnapshot.swift; sourceTree = "<group>"; };
+		D4D326D0A6D245EBA27A673F /* ActivityViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityViewController.swift; sourceTree = "<group>"; };
+		1D4585FE057D46A982FB49D4 /* MihonBackupCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihonBackupCodec.swift; sourceTree = "<group>"; };
+		0E5B9061E84A4E88AE1F8750 /* MihonBackupImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihonBackupImport.swift; sourceTree = "<group>"; };
+		E10DCBB4556547F9864EF079 /* MihonBackupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihonBackupManager.swift; sourceTree = "<group>"; };
+		D017C3B6D9BE44888074038C /* MihonBackupModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihonBackupModels.swift; sourceTree = "<group>"; };
+		780E5A6652CC4D9ABDE3B0CD /* MihonGzip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihonGzip.swift; sourceTree = "<group>"; };
+		58098C82EBD14C4F92D4725F /* MihonMemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihonMemo.swift; sourceTree = "<group>"; };
+		0E1A5B15CAB144A5B92A9A0E /* MihonProto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihonProto.swift; sourceTree = "<group>"; };
+		62F6054E4F8E4D3A8D1AAF49 /* MihonSourceBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihonSourceBridge.swift; sourceTree = "<group>"; };
+		B2738AA5B62A4ED79705BAAA /* MihonSourceBridgeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihonSourceBridgeData.swift; sourceTree = "<group>"; };
+		26B8DE95E6FC4412BA61598D /* MihonSourceIds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MihonSourceIds.swift; sourceTree = "<group>"; };
 		002C0AC02EC0F44D0071CE82 /* LAPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LAPolicy.swift; sourceTree = "<group>"; };
 		04B48CF72CD6835D00F719D0 /* ShikimoriTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShikimoriTracker.swift; sourceTree = "<group>"; };
 		04B48CFA2CD6838600F719D0 /* ShikimoriApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShikimoriApi.swift; sourceTree = "<group>"; };
@@ -1290,6 +1314,39 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		80103F175EF842DBB5915AB7 /* Mihon */ = {
+			isa = PBXGroup;
+			children = (
+				AA998C77E6BC4B4EA72F9866 /* MihonExportSnapshot.swift */,
+			);
+			path = Mihon;
+			sourceTree = "<group>";
+		};
+		4D38F7D84E9249C596CD9AEA /* Mihon */ = {
+			isa = PBXGroup;
+			children = (
+				D4D326D0A6D245EBA27A673F /* ActivityViewController.swift */,
+			);
+			path = Mihon;
+			sourceTree = "<group>";
+		};
+		C8ECD8F51A4842648F3836E4 /* Mihon */ = {
+			isa = PBXGroup;
+			children = (
+				1D4585FE057D46A982FB49D4 /* MihonBackupCodec.swift */,
+				0E5B9061E84A4E88AE1F8750 /* MihonBackupImport.swift */,
+				E10DCBB4556547F9864EF079 /* MihonBackupManager.swift */,
+				D017C3B6D9BE44888074038C /* MihonBackupModels.swift */,
+				780E5A6652CC4D9ABDE3B0CD /* MihonGzip.swift */,
+				58098C82EBD14C4F92D4725F /* MihonMemo.swift */,
+				0E1A5B15CAB144A5B92A9A0E /* MihonProto.swift */,
+				62F6054E4F8E4D3A8D1AAF49 /* MihonSourceBridge.swift */,
+				B2738AA5B62A4ED79705BAAA /* MihonSourceBridgeData.swift */,
+				26B8DE95E6FC4412BA61598D /* MihonSourceIds.swift */,
+			);
+			path = Mihon;
+			sourceTree = "<group>";
+		};
 		04B48CF62CD6835700F719D0 /* shikimori */ = {
 			isa = PBXGroup;
 			children = (
@@ -2187,6 +2244,9 @@
 			children = (
 				FB72501127CAAC860037F1C9 /* Models */,
 				FB72500E27CAAC6F0037F1C9 /* BackupManager.swift */,
+				C8ECD8F51A4842648F3836E4 /* Mihon */,
+				4D38F7D84E9249C596CD9AEA /* Mihon */,
+				80103F175EF842DBB5915AB7 /* Mihon */,
 			);
 			path = Backup;
 			sourceTree = "<group>";
@@ -3279,6 +3339,18 @@
 				1739A2D00C7342B9BC596201 /* NyoraBookmarkStore.swift in Sources */,
 				194E29191BC05AC930C24914 /* AllBookmarksView.swift in Sources */,
 				E14DCA71EAC33C4F2F356C44 /* LocalLibraryView.swift in Sources */,
+				93EBC7697D85404DA1350010 /* MihonBackupCodec.swift in Sources */,
+				C82CEDE0C47A4D69B61BD49A /* MihonBackupImport.swift in Sources */,
+				99D47530D66340538419A5E9 /* MihonBackupManager.swift in Sources */,
+				378963FC95EA43F390EA0465 /* MihonBackupModels.swift in Sources */,
+				2A1E490B15EF461BA169D08B /* MihonGzip.swift in Sources */,
+				065BF79AB4924841B41FE8D4 /* MihonMemo.swift in Sources */,
+				9707797569C9434DA4073A29 /* MihonProto.swift in Sources */,
+				341CB121F7A74692B64A49A9 /* MihonSourceBridge.swift in Sources */,
+				66D0BA2B083248728DF10A56 /* MihonSourceBridgeData.swift in Sources */,
+				FBC7058D03214F7884C122FC /* MihonSourceIds.swift in Sources */,
+				463FCEBD9D4F477085F611C5 /* ActivityViewController.swift in Sources */,
+				1C87E4E79A5247B3A46BE9C8 /* MihonExportSnapshot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

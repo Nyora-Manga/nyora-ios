@@ -694,6 +694,15 @@
 "RESTORE" = "Restore";
 "CREATE_BACKUP" = "Create Backup";
 "IMPORT_BACKUP" = "Import Backup";
+
+/* Mihon-compatible (.tachibk) backups — the migration path in and out of Nyora */
+"MIHON_BACKUP" = "Mihon Backup";
+"EXPORT_MIHON_BACKUP" = "Export for Mihon (.tachibk)";
+"IMPORT_MIHON_BACKUP" = "Import from Mihon (.tachibk)";
+"MIHON_IMPORT_SUMMARY" = "Imported %d titles and %d categories. Nothing was removed — an import only adds.";
+"MIHON_IMPORT_PENDING" = "%d titles had no matching source. They keep their covers and reading progress, and are collected in the \"Missing Source\" category so you can migrate them.";
+"MIHON_VIEW_MISSING_SOURCE" = "View Missing Source";
+"MIHON_IMPORT_UNMATCHED" = "No matching source for: %@";
 "LIBRARY_ENTRIES" = "Library Entries";
 "SENSITIVE_SETTINGS" = "Sensitive Settings";
 "NAME" = "Name";

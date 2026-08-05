@@ -24,6 +24,9 @@ extension Notification.Name {
 
     // library
     static let updateLibrary = Self("updateLibrary")
+    /// Posted with a category title to open the library filtered to it — used by
+    /// the Mihon import to jump straight to entries with no matching source.
+    static let openLibraryCategory = Self("openLibraryCategory")
     static let addToLibrary = Self("addToLibrary")
     static let removeFromLibrary = Self("removeFromLibrary")
     static let migratedManga = Self("migratedManga")
