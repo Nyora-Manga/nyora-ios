@@ -10,18 +10,21 @@ jobs:
         with:
           lfs: true
 
-      # The parser engine lives in Nyora-Manga/nyora-ios-engine and is rebuilt there whenever
-      # nyora-data-driven's patches.json changes, so iOS inherits android's source fixes without
-      # a binary living in this repo. Falls back to the checked-in xcframework if the fetch fails,
-      # so a release is never blocked on the engine repo being reachable.
+      # The parser engine is rebuilt out-of-band (from the standalone engine source tree,
+      # refreshed whenever nyora-data-driven's patches.json changes) and published as the
+      # rolling `engine-latest` release on this same repo, so iOS inherits android's source
+      # fixes without a binary living in version control. Falls back to the checked-in
+      # xcframework if the fetch fails, so a release is never blocked on that asset existing.
       - name: Fetch the latest parser engine
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if curl -fsSL -o /tmp/engine.zip \
-              https://github.com/Nyora-Manga/nyora-ios-engine/releases/download/engine-latest/NyoraEngine.xcframework.zip; then
+          if gh release download engine-latest --repo ${{ github.repository }} \
+              --pattern 'NyoraEngine.xcframework.zip' --output /tmp/engine.zip --clobber; then
             rm -rf vendor/nyora-engine/NyoraEngine.xcframework
             mkdir -p vendor/nyora-engine
             unzip -q /tmp/engine.zip -d vendor/nyora-engine
-            echo "using engine-latest from nyora-ios-engine"
+            echo "using engine-latest from ${{ github.repository }}"
           else
             echo "::warning::could not fetch engine-latest - building against the checked-in xcframework"
           fi
