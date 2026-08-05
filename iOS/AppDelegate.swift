@@ -617,6 +617,31 @@ extension AppDelegate {
                     )
                 }
             }
+        } else if url.pathExtension.lowercased() == MihonBackupManager.fileExtension {
+            // A Mihon backup opened from Files / another app. Import is a MERGE:
+            // nothing already in the library is cleared, so this can only add.
+            Task {
+                let scoped = url.startAccessingSecurityScopedResource()
+                defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+                do {
+                    let data = try Data(contentsOf: url)
+                    let result = try await MihonBackupManager.shared.importBackup(data: data)
+                    NotificationCenter.default.post(name: .updateLibrary, object: nil)
+                    presentAlert(
+                        title: NSLocalizedString("MIHON_BACKUP", comment: ""),
+                        message: String(
+                            format: NSLocalizedString("MIHON_IMPORT_SUMMARY", comment: ""),
+                            result.manga,
+                            result.categories
+                        )
+                    )
+                } catch {
+                    presentAlert(
+                        title: NSLocalizedString("IMPORT_FAIL", comment: ""),
+                        message: error.localizedDescription
+                    )
+                }
+            }
         } else if url.pathExtension == "json" || url.pathExtension == "aib" {
             Task {
                 if await BackupManager.shared.importBackup(from: url) {
