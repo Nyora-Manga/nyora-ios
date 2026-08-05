@@ -25,8 +25,8 @@ NYORA_*_BACKLOG.md
 NYORA_TRACKING_SCHEMA.md
 build/
 vendor/
-native-engine/
 DerivedData/
+*.ipa
 
 # Python
 __pycache__/

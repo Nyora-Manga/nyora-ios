@@ -30,7 +30,9 @@ A fast, free, ad-free, open-source manga / manhwa / manhua reader for **iPhone &
 
 ## About
 
-**Nyora for iOS** is the iPhone / iPad edition of Nyora, built on the open-source [**Aidoku**](https://github.com/Aidoku/Aidoku) reader and rebuilt around the Nyora ecosystem. The device does **zero parsing** — it talks to the hosted **Nyora helper** (`api.nyora.xyz`, powered by the [data-driven engine](https://github.com/Nyora-Manga/nyora-data-driven) built on the [Kotatsu](https://github.com/KotatsuApp) parser family), so every source in the catalogue works without bundling fragile parsers into the app.
+**Nyora for iOS** is the iPhone / iPad edition of Nyora, built on the open-source [**Aidoku**](https://github.com/Aidoku/Aidoku) reader and rebuilt around the Nyora ecosystem. Parsing runs **on device**: the real [Kotatsu](https://github.com/KotatsuApp) parser engine (~960 sources, OkHttp + Jsoup + coroutines) is AOT-compiled to native ARM64 with **GraalVM Native Image**, so there is no hosted helper in the request path, no JavaScript bundle and no JIT — nothing is downloaded or interpreted at runtime. See [`native-engine/NATIVE_IOS.md`](native-engine/NATIVE_IOS.md).
+
+Running the engine locally also means iOS can clear a Cloudflare challenge itself, so it gets the same source coverage as the Android and desktop apps rather than the reduced set a shared cloud helper can serve.
 
 Sign in with a **Nyora Cloud** account (email + password) and your library, history and reading progress follow you to every other Nyora platform — or continue as a guest and read, no account required. It shares the Nyora design language with the Android app, so it feels like one product across every device.
 
@@ -59,7 +61,7 @@ Nyora for iOS is distributed as an **unsigned `.ipa`** for sideloading — the A
 
 ## Sources
 
-Sources are served by the hosted helper — no per-source app updates needed. The catalogue is powered by the **data-driven engine** ([`nyora-data-driven`](https://github.com/Nyora-Manga/nyora-data-driven)) with generic templates over the Kotatsu parser definitions. A companion **[Aidoku source list](https://github.com/Nyora-Manga/nyora-aidoku)** is also published if you prefer to use the sources in stock Aidoku:
+Sources are compiled into the app's parser engine ([`nyora-ios-engine`](https://github.com/Nyora-Manga/nyora-ios-engine)), which is rebuilt and published whenever the shared source fixes in [`nyora-data-driven`](https://github.com/Nyora-Manga/nyora-data-driven) change — so iOS tracks the same relocated domains and retired sources as the Android app. Adding a brand-new source still needs an app update, since the parsers ship in the binary rather than being fetched at runtime. A companion **[Aidoku source list](https://github.com/Nyora-Manga/nyora-aidoku)** is also published if you prefer to use the sources in stock Aidoku:
 
 ```
 https://raw.githubusercontent.com/Nyora-Manga/nyora-aidoku/main/index.min.json
@@ -107,8 +109,9 @@ Nyora is one manga reader across every platform, sharing a library and a look:
 Nyora for iOS stands on the work of several open-source projects:
 
 - **[Aidoku](https://github.com/Aidoku/Aidoku)** by Skittyblock and contributors — the iOS reader this app is forked from. Nyora is a derivative work under the same license; translation strings inherited from Aidoku remain under Apache-2.0.
-- **[Kotatsu](https://github.com/KotatsuApp) / [kotatsu-parsers](https://github.com/KotatsuApp/kotatsu-parsers)** — the parser family the source definitions derive from, powering the hosted helper.
-- **[nyora-data-driven](https://github.com/Nyora-Manga/nyora-data-driven)** — Nyora's data-driven catalogue engine (generic templates over Kotatsu parser definitions) that serves every source.
+- **[Kotatsu](https://github.com/KotatsuApp) / [kotatsu-parsers](https://github.com/KotatsuApp/kotatsu-parsers)** — the parser family the source definitions derive from, and the engine compiled into the app.
+- **[nyora-data-driven](https://github.com/Nyora-Manga/nyora-data-driven)** — Nyora's data-driven catalogue (generic templates over Kotatsu parser definitions) that defines every source.
+- **[GraalVM Native Image](https://www.graalvm.org/native-image/)** / **[Gluon Substrate](https://github.com/gluonhq/substrate)** — AOT-compile the JVM parser engine to native ARM64 so it runs on device.
 - **AI translation stack** — [Google ML Kit](https://developers.google.com/ml-kit) (on-device OCR, including vertical Japanese), [Apple Vision](https://developer.apple.com/documentation/vision) (OCR fallback ensemble), [Apple Intelligence / Foundation Models](https://developer.apple.com/apple-intelligence/) (on-device refinement), [Google Translate](https://translate.google.com), and any OpenAI-compatible endpoint via bring-your-own-key.
 
 Reader, sources and sync are part of the [Nyora](https://nyora.xyz) project.

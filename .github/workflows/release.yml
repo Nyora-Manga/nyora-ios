@@ -20,6 +20,22 @@ jobs:
         with:
           lfs: true
 
+      # The parser engine lives in Nyora-Manga/nyora-ios-engine and is rebuilt there whenever
+      # nyora-data-driven's patches.json changes, so iOS inherits android's source fixes without
+      # a binary living in this repo. Falls back to the checked-in xcframework if the fetch fails,
+      # so a release is never blocked on the engine repo being reachable.
+      - name: Fetch the latest parser engine
+        run: |
+          if curl -fsSL -o /tmp/engine.zip \
+              https://github.com/Nyora-Manga/nyora-ios-engine/releases/download/engine-latest/NyoraEngine.xcframework.zip; then
+            rm -rf vendor/nyora-engine/NyoraEngine.xcframework
+            mkdir -p vendor/nyora-engine
+            unzip -q /tmp/engine.zip -d vendor/nyora-engine
+            echo "using engine-latest from nyora-ios-engine"
+          else
+            echo "::warning::could not fetch engine-latest - building against the checked-in xcframework"
+          fi
+
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
