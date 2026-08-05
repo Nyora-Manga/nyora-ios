@@ -334,7 +334,7 @@ class ReaderPageViewController: BaseObservingViewController {
         // Tear down any translation overlay + cancel its OCR/MT task so a recycled controller
         // can't show the previous page's translated boxes (the host view lives inside imageView).
         pageView?.removeTranslationOverlay()
-        pageView?.removeColorization()
+        pageView?.removePageSource()
         pageView?.imageView.image = nil
         zoomView?.zoomEnabled = false
         imageAspectRatio = nil

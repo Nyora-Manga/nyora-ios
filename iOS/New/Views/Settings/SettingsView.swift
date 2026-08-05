@@ -309,8 +309,6 @@ extension SettingsView {
             SettingsTrackingView()
         } else if key == "Translation" {
             TranslationSettingsView()
-        } else if key == "Colorization" {
-            ColorizationSettingsView()
         } else if key == "About" {
             SettingsAboutView()
         } else if key == "Insights" {

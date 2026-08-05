@@ -183,21 +183,6 @@ class ReaderViewController: BaseObservingViewController {
         button.tintColor = translateOn ? .tintColor : nil
         return button
     }()
-    /// Shown only after the locally verified model is available. This keeps the
-    /// reader chrome compact for everyone else and, importantly, makes a page
-    /// turn incapable of initiating a surprise model download.
-    private lazy var colorizeButton: UIBarButtonItem = {
-        let colorizationOn = ColorizationController.shared.enabled
-        let button = UIBarButtonItem(
-            image: UIImage(systemName: colorizationOn ? "paintpalette.fill" : "paintpalette"),
-            style: .plain,
-            target: self,
-            action: #selector(toggleColorization(_:))
-        )
-        button.tintColor = colorizationOn ? .tintColor : nil
-        button.accessibilityLabel = "Colorize pages"
-        return button
-    }()
 
     // save current page to Photos (NP-032)
     private lazy var saveButton = UIBarButtonItem(
@@ -425,11 +410,6 @@ class ReaderViewController: BaseObservingViewController {
         }
         // customizable reader controls (NP-022)
         addObserver(forName: "Reader.controls") { [weak self] _ in
-            self?.applyReaderControls()
-        }
-        addObserver(forName: .colorizationSettingsChanged) { [weak self] _ in
-            // Download/delete/enable events can change whether this optional
-            // quick control belongs in the navbar at all.
             self?.applyReaderControls()
         }
         let reloadBlock: (Notification) -> Void = { [weak self] _ in
@@ -760,40 +740,6 @@ class ReaderViewController: BaseObservingViewController {
         sender.tintColor = on ? .tintColor : nil
     }
 
-    @objc private func toggleColorization(_ sender: UIBarButtonItem) {
-        let controller = ColorizationController.shared
-        if controller.enabled {
-            controller.setEnabled(false)
-            updateColorizationButton()
-            return
-        }
-        guard controller.isModelReady else {
-            let alert = UIAlertController(
-                title: "Colorization model needed",
-                message: "Download and verify the on-device colorization model in Settings before enabling this feature.",
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: NSLocalizedString("CANCEL"), style: .cancel))
-            alert.addAction(UIAlertAction(title: "Open Settings", style: .default) { [weak self] _ in
-                self?.navigationController?.pushViewController(
-                    UIHostingController(rootView: ColorizationSettingsView()),
-                    animated: true
-                )
-            })
-            present(alert, animated: true)
-            Task { await controller.refreshModelStatus() }
-            return
-        }
-        controller.setEnabled(true)
-        updateColorizationButton()
-    }
-
-    private func updateColorizationButton() {
-        let colorizationOn = ColorizationController.shared.enabled
-        colorizeButton.image = UIImage(systemName: colorizationOn ? "paintpalette.fill" : "paintpalette")
-        colorizeButton.tintColor = colorizationOn ? .tintColor : nil
-    }
-
     // MARK: - Orientation quick control (NP-016)
 
     private var currentOrientationSetting: String {
@@ -892,11 +838,6 @@ class ReaderViewController: BaseObservingViewController {
         )
 
         var right: [UIBarButtonItem] = [bookmarkButton, moreButton, settingsButton, translateButton]
-        let colorization = ColorizationController.shared
-        if colorization.isModelReady || colorization.enabled {
-            updateColorizationButton()
-            right.append(colorizeButton)
-        }
         // in-reader rotate / orientation-lock quick control (NP-016), iPhone only
         if UIDevice.current.userInterfaceIdiom != .pad && controls.contains(.screenRotation) {
             orientationButton.tintColor = currentOrientationSetting == "device" ? nil : .tintColor

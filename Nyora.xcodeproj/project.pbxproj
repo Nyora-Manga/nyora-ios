@@ -90,12 +90,8 @@
 		A03B7C25A6EC6519C9D51A2A /* Poppins-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E4E8285D41654FEE6D51441A /* Poppins-Black.ttf */; };
 		A0A9BB9C56C836C786EF4FA1 /* NyoraAltTitleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D50DB5E3F07D6265D54EDB /* NyoraAltTitleStore.swift */; };
 		A0E686023586C94CEFB8CDC1 /* AniListDiscoverClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15FF1D49449D16BDC3BED21 /* AniListDiscoverClient.swift */; };
-		A1C0B1D2E3F4012345678911 /* ColorizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0B1D2E3F4012345678901 /* ColorizationController.swift */; };
-		A1C0B1D2E3F4012345678912 /* MangaColorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0B1D2E3F4012345678902 /* MangaColorizer.swift */; };
-		A1C0B1D2E3F4012345678913 /* ColorizationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0B1D2E3F4012345678903 /* ColorizationSettingsView.swift */; };
 		A1C0B1D2E3F4012345678914 /* AIEndpointPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0B1D2E3F4012345678904 /* AIEndpointPolicy.swift */; };
 		A1C0B1D2E3F4012345678915 /* KeychainSecretStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0B1D2E3F4012345678905 /* KeychainSecretStore.swift */; };
-		A1C0B1D2E3F4012345678922 /* onnxruntime in Frameworks */ = {isa = PBXBuildFile; productRef = A1C0B1D2E3F4012345678921 /* onnxruntime */; };
 		A1D3D6D382085367109ED25B /* NyoraRatingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B622854854C3846D734AED79 /* NyoraRatingStore.swift */; };
 		A436FFEBDFA37033CE627BDA /* VolumeButtonHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501E78B384245931983B9C1C /* VolumeButtonHandler.swift */; };
 		A44ACA0A934B29B6627963CD /* NyoraSearchHeroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A898BE80227BE4599149D44D /* NyoraSearchHeroView.swift */; };
@@ -780,9 +776,6 @@
 		955F2F74E9E812227602DD9B /* AccentColorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccentColorView.swift; sourceTree = "<group>"; };
 		95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceRefiner.swift; sourceTree = "<group>"; };
 		99F77275470A8EB965A633EB /* NyoraTitleSearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraTitleSearchView.swift; sourceTree = "<group>"; };
-		A1C0B1D2E3F4012345678901 /* ColorizationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorizationController.swift; sourceTree = "<group>"; };
-		A1C0B1D2E3F4012345678902 /* MangaColorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaColorizer.swift; sourceTree = "<group>"; };
-		A1C0B1D2E3F4012345678903 /* ColorizationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorizationSettingsView.swift; sourceTree = "<group>"; };
 		A1C0B1D2E3F4012345678904 /* AIEndpointPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEndpointPolicy.swift; sourceTree = "<group>"; };
 		A1C0B1D2E3F4012345678905 /* KeychainSecretStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSecretStore.swift; sourceTree = "<group>"; };
 		A1E880AAAE669C883263D2A7 /* NyoraSource.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSource.swift; sourceTree = "<group>"; };
@@ -1283,7 +1276,6 @@
 				82C94C8FD099647C2BC1223C /* MLKitTextRecognitionJapanese in Frameworks */,
 				E4C179B175FF9B09485F8D6E /* MLKitTextRecognitionChinese in Frameworks */,
 				424FD969535DDB0837D0931A /* MLKitTextRecognitionKorean in Frameworks */,
-				A1C0B1D2E3F4012345678922 /* onnxruntime in Frameworks */,
 				ED4AAB7E0574C5C3CF2C6976 /* NyoraEngine.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1371,15 +1363,6 @@
 				482412592B771E060096788C /* MangaUpdateItemView.swift */,
 			);
 			path = Updates;
-			sourceTree = "<group>";
-		};
-		A1C0B1D2E3F4012345678910 /* Colorization */ = {
-			isa = PBXGroup;
-			children = (
-				A1C0B1D2E3F4012345678901 /* ColorizationController.swift */,
-				A1C0B1D2E3F4012345678902 /* MangaColorizer.swift */,
-			);
-			path = Colorization;
 			sourceTree = "<group>";
 		};
 		AE3573A46B8F4B55911C2650 /* Sync */ = {
@@ -1693,7 +1676,6 @@
 				FB1B4850277CE2300056D02C /* Info.plist */,
 				FB4EEBDE27A4F5AF005081A3 /* iOS.entitlements */,
 				25DB8FF2010354EDB5EEEC3A /* Translation */,
-				A1C0B1D2E3F4012345678910 /* Colorization */,
 				AE3573A46B8F4B55911C2650 /* Sync */,
 				AE52CE9473DEAF4F4F951162 /* Fonts */,
 			);
@@ -2268,7 +2250,6 @@
 				D24F8A39F262259490AAFB2F /* KitsuLoginView.swift */,
 				43E298DAD3D47DB5A4B144DE /* NavConfigView.swift */,
 				73BE4F64C74E0AEBBDB9717C /* TranslationSettingsView.swift */,
-				A1C0B1D2E3F4012345678903 /* ColorizationSettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -2659,7 +2640,6 @@
 				1C3FED744E0DF104F3DF7AEE /* MLKitTextRecognitionJapanese */,
 				A920027C72857EE0BD745A2A /* MLKitTextRecognitionChinese */,
 				D857FFF21189A3D3439336B5 /* MLKitTextRecognitionKorean */,
-				A1C0B1D2E3F4012345678921 /* onnxruntime */,
 			);
 			productName = "Nyora (iOS)";
 			productReference = FB1B4835277CE1920056D02C /* Nyora.app */;
@@ -2769,7 +2749,6 @@
 				FBAED40A2E3A762800B81E74 /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 				FB2C83972E43F074003CA85F /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 				93EF9F313883CA4C6CAF9149 /* XCRemoteSwiftPackageReference "google-mlkit-swiftpm" */,
-				A1C0B1D2E3F4012345678920 /* XCRemoteSwiftPackageReference "onnxruntime-swift-package-manager" */,
 			);
 			productRefGroup = FB1B4836277CE1920056D02C /* Products */;
 			projectDirPath = "";
@@ -3290,9 +3269,6 @@
 				7160A1C489F86E95ADECBFE2 /* ContinueReadingSection.swift in Sources */,
 				11B00ACE43F82B5252EB5FEF /* NyoraStartView.swift in Sources */,
 				C98F51A236079A753BCC1D84 /* ByokTranslator.swift in Sources */,
-				A1C0B1D2E3F4012345678911 /* ColorizationController.swift in Sources */,
-				A1C0B1D2E3F4012345678912 /* MangaColorizer.swift in Sources */,
-				A1C0B1D2E3F4012345678913 /* ColorizationSettingsView.swift in Sources */,
 				A1C0B1D2E3F4012345678914 /* AIEndpointPolicy.swift in Sources */,
 				A1C0B1D2E3F4012345678915 /* KeychainSecretStore.swift in Sources */,
 				C0DCE74C827ED31DDBD4DA40 /* TranslationSettingsView.swift in Sources */,
@@ -3776,14 +3752,6 @@
 				version = "9.0.0-1";
 			};
 		};
-		A1C0B1D2E3F4012345678920 /* XCRemoteSwiftPackageReference "onnxruntime-swift-package-manager" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/microsoft/onnxruntime-swift-package-manager.git";
-			requirement = {
-				kind = exactVersion;
-				version = 1.24.2;
-			};
-		};
 		FB171149296770CC00AD523D /* XCRemoteSwiftPackageReference "Nuke" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kean/Nuke";
@@ -3860,11 +3828,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 93EF9F313883CA4C6CAF9149 /* XCRemoteSwiftPackageReference "google-mlkit-swiftpm" */;
 			productName = MLKitTextRecognition;
-		};
-		A1C0B1D2E3F4012345678921 /* onnxruntime */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A1C0B1D2E3F4012345678920 /* XCRemoteSwiftPackageReference "onnxruntime-swift-package-manager" */;
-			productName = onnxruntime;
 		};
 		A920027C72857EE0BD745A2A /* MLKitTextRecognitionChinese */ = {
 			isa = XCSwiftPackageProductDependency;
