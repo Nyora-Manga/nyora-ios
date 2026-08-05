@@ -24,6 +24,14 @@ final class NyoraSyncClient: ObservableObject {
     private var autoSyncStarted = false
     private var debounceTask: Task<Void, Never>?
 
+    /// Serializes `syncNow()` the way android's `SupabaseSync.syncMutex` does: onboarding's
+    /// fire-and-forget kickoff, the debounced auto-sync, and a manual "Sync now" tap can all
+    /// land within the same few seconds. Without this, concurrent runs could both hit a 401
+    /// and race to refresh the token — the loser's `store(tokens:)` can stomp the winner's
+    /// freshly-rotated refresh token and sign the user back out. Overlapping callers instead
+    /// join the in-flight sync's result rather than starting a second one.
+    private var inFlightSync: Task<(pushed: Int, pulled: Int), Error>?
+
     private enum Keys {
         static let access = "nyora.sync.access"
         static let refresh = "nyora.sync.refresh"
@@ -916,8 +924,20 @@ final class NyoraSyncClient: ObservableObject {
         return merged.count
     }
 
+    /// Runs a full push/pull cycle, coalescing overlapping callers onto a single in-flight
+    /// task (see `inFlightSync`). Safe to call from multiple sites concurrently.
     @discardableResult
     func syncNow() async throws -> (pushed: Int, pulled: Int) {
+        if let inFlightSync {
+            return try await inFlightSync.value
+        }
+        let task = Task { try await self.performSync() }
+        inFlightSync = task
+        defer { inFlightSync = nil }
+        return try await task.value
+    }
+
+    private func performSync() async throws -> (pushed: Int, pulled: Int) {
         // Pull first (LWW: remote → local), then push local state back.
         var pulled = 0
         var pushed = 0
