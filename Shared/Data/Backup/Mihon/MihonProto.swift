@@ -150,7 +150,10 @@ struct ProtoReader {
         // "corrupt backup" alert — so this must go through `Int(exactly:)`
         // and throw like every other malformed-input path.
         guard let length = Int(exactly: try readVarint()) else { throw MalformedError() }
-        guard length >= 0, index + length <= data.endIndex else { throw MalformedError() }
+        // `index + length` can itself overflow Int and trap when `length` is a
+        // huge-but-representable value from a crafted backup (e.g. Int.max - 1);
+        // comparing via subtraction of two in-bounds indices cannot overflow.
+        guard length >= 0, length <= data.endIndex - index else { throw MalformedError() }
         let slice = data.subdata(in: index..<(index + length))
         index += length
         return slice
