@@ -126,6 +126,7 @@
 		D82B64BAB7C7EB52757C6D08 /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5638448380D73A97E952206F /* Poppins-Medium.ttf */; };
 		DC4F70CA47A4AFD3B3C0A0E0 /* ColorFilterProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0724DE86CCBF1987A523779A /* ColorFilterProcessor.swift */; };
 		DFA62BB8ADFA6C7D4AD53D2F /* GoogleTranslate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */; };
+		81C486201D05DC96E9C3C367 /* MTPolish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 577C14CF5F0C51FAAF83296E /* MTPolish.swift */; };
 		E02BB0548DF87A744D0F26C4 /* ReaderZoomMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763ADD6FC150FB34E07A909D /* ReaderZoomMode.swift */; };
 		E14DCA71EAC33C4F2F356C44 /* LocalLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7029F30A1B7AADE0C05E534D /* LocalLibraryView.swift */; };
 		E4C179B175FF9B09485F8D6E /* MLKitTextRecognitionChinese in Frameworks */ = {isa = PBXBuildFile; productRef = A920027C72857EE0BD745A2A /* MLKitTextRecognitionChinese */; };
@@ -737,6 +738,7 @@
 		08445594D90A53709E9CD7C5 /* LanguagePickerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LanguagePickerView.swift; sourceTree = "<group>"; };
 		0C807DDC27D47C2D0042EE7B /* CircularProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GoogleTranslate.swift; sourceTree = "<group>"; };
+		577C14CF5F0C51FAAF83296E /* MTPolish.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MTPolish.swift; sourceTree = "<group>"; };
 		182FEAFBF2A567E7315C454A /* NyoraSyncClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraSyncClient.swift; sourceTree = "<group>"; };
 		259AEEA262A257B43E68179D /* NavSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NavSection.swift; sourceTree = "<group>"; };
 		2709857F2ABDF9DD3137E33C /* NyoraCardStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NyoraCardStyle.swift; sourceTree = "<group>"; };
@@ -1372,6 +1374,7 @@
 			children = (
 				95B75954328A274BEBA21775 /* AppleIntelligenceRefiner.swift */,
 				10ED755030CE9858FAAD2C18 /* GoogleTranslate.swift */,
+				577C14CF5F0C51FAAF83296E /* MTPolish.swift */,
 				FC957E858BF86E567DE49FA4 /* MangaTranslator.swift */,
 				344A1286965DEF3002F0D97B /* OcrProvider.swift */,
 				91157E161122819CBE01C634 /* TranslationModels.swift */,
@@ -3278,6 +3281,7 @@
 				C410B501630CDA838A6409E8 /* NyoraSource.swift in Sources */,
 				E9906D9F543D99D683D909D0 /* AppleIntelligenceRefiner.swift in Sources */,
 				DFA62BB8ADFA6C7D4AD53D2F /* GoogleTranslate.swift in Sources */,
+				81C486201D05DC96E9C3C367 /* MTPolish.swift in Sources */,
 				892F2733E12D908A19A4197B /* MangaTranslator.swift in Sources */,
 				EC6804FB5AA04B797947D29D /* OcrProvider.swift in Sources */,
 				2954DCCC05A0E7F45A9DC37F /* TranslationModels.swift in Sources */,
