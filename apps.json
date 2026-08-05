@@ -1,0 +1,52 @@
+{
+  "name": "Nyora Source",
+  "identifier": "com.nyora.altstore",
+  "sourceURL": "https://raw.githubusercontent.com/Nyora-Manga/nyora-ios/refs/heads/altstore/apps.json",
+  "subtitle": "Nyora \u2014 free, open-source manga reader for iOS and iPadOS",
+  "description": "This is the AltStore Source for Nyora, a free and open-source manga / manhwa / manhua reader for iOS and iPadOS.\n\nFor full details, check the website: https://nyora.xyz/",
+  "website": "https://nyora.xyz/",
+  "featuredApps": [
+    "com.nyora.ios"
+  ],
+  "apps": [
+    {
+      "name": "Nyora",
+      "bundleIdentifier": "com.nyora.ios",
+      "developerName": "Nyora",
+      "subtitle": "Free and open-source manga reader for iOS and iPadOS",
+      "localizedDescription": "A fast, free, ad-free, open-source manga / manhwa / manhua reader for iPhone and iPadOS, with an in-reader AI translation overlay and cross-device library sync.",
+      "iconURL": "https://nyora.xyz/icon.png",
+      "tintColor": "ff4655",
+      "category": "entertainment",
+      "screenshots": [],
+      "appPermissions": {
+        "entitlements": [
+          "aps-environment",
+          "com.apple.developer.icloud-container-environment",
+          "com.apple.developer.icloud-container-identifiers",
+          "com.apple.developer.icloud-services",
+          "com.apple.developer.ubiquity-container-identifiers",
+          "com.apple.developer.ubiquity-kvstore-identifier",
+          "com.apple.developer.user-fonts"
+        ],
+        "privacy": {
+          "NSFaceIDUsageDescription": "Nyora needs FaceID permissions for user-defined settings",
+          "NSPhotoLibraryUsageDescription": "Nyora needs permission to save pages in your photo library",
+          "NSLocalNetworkUsageDescription": "Nyora needs permission to connect to local Komga servers"
+        }
+      },
+      "versions": [
+        {
+          "version": "2.7.3",
+          "date": "2026-08-05",
+          "localizedDescription": "Full Changelog: https://github.com/Nyora\u2022Manga/nyora\u2022ios/compare/v2.1.8...v2.7.3",
+          "downloadURL": "https://github.com/Nyora-Manga/nyora-ios/releases/download/v2.7.3/Nyora-2.7.3.ipa",
+          "size": 47097388,
+          "minOSVersion": "18.0",
+          "buildVersion": "12"
+        }
+      ]
+    }
+  ],
+  "news": []
+}
