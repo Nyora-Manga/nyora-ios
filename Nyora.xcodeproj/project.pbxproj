@@ -3571,7 +3571,7 @@
 				CODE_SIGN_ENTITLEMENTS = "iOS/iOS-sideload.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = Q444ZYRBTD;
 				ENABLE_PREVIEWS = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
@@ -3597,7 +3597,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.8;
+				MARKETING_VERSION = 2.7.3;
 				PRODUCT_MODULE_NAME = Aidoku;
 				PRODUCT_NAME = Nyora;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -3621,7 +3621,7 @@
 				CODE_SIGN_ENTITLEMENTS = "iOS/iOS-sideload.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = Q444ZYRBTD;
 				ENABLE_PREVIEWS = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
@@ -3647,7 +3647,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.8;
+				MARKETING_VERSION = 2.7.3;
 				PRODUCT_MODULE_NAME = Aidoku;
 				PRODUCT_NAME = Nyora;
 				PROVISIONING_PROFILE_SPECIFIER = "";
