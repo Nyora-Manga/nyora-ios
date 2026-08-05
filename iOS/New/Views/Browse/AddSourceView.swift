@@ -22,6 +22,9 @@ struct AddSourceView: View {
     @State private var loading = true
     @State private var loadFailed = false
     @State private var searchText = ""
+    // bumped whenever the language/content-rating filter changes, to force `filtered` /
+    // `recommendedEntries` (which read UserDefaults directly) to be recomputed
+    @State private var filterVersion = 0
 
     @Environment(\.dismiss) private var dismiss
 
@@ -29,10 +32,20 @@ struct AddSourceView: View {
         allExternalSources = externalSources
     }
 
+    /// Catalog entries visible under the user's selected browse languages / content ratings.
+    private var languageAndContentFiltered: [NyoraCatalogEntry] {
+        catalog.filter { entry in
+            SourceManager.isSourceVisibleInCatalogue(
+                languages: [entry.lang.isEmpty ? "multi" : entry.lang],
+                contentRating: entry.isNsfw ? .primarilyNsfw : .safe
+            )
+        }
+    }
+
     /// All not-installed catalog entries matching the current search, name-sorted.
     private var filtered: [NyoraCatalogEntry] {
         let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
-        return catalog
+        return languageAndContentFiltered
             .filter { !installedParserSources.contains($0.id) }
             .filter { q.isEmpty || $0.name.lowercased().contains(q) || $0.lang.lowercased().contains(q) }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
@@ -41,7 +54,7 @@ struct AddSourceView: View {
     /// Verified-working sources (in curated order) that aren't installed yet.
     private var recommendedEntries: [NyoraCatalogEntry] {
         let available = Dictionary(
-            catalog.filter { !installedParserSources.contains($0.id) }.map { ($0.id, $0) },
+            languageAndContentFiltered.filter { !installedParserSources.contains($0.id) }.map { ($0.id, $0) },
             uniquingKeysWith: { a, _ in a }
         )
         return NyoraCatalog.recommended.compactMap { available[$0] }
@@ -97,10 +110,16 @@ struct AddSourceView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     CloseButton { dismiss() }
                 }
+                ToolbarItem(placement: .primaryAction) {
+                    AddSourceFilterMenu()
+                }
             }
             .navigationTitle(NSLocalizedString("ADD_SOURCE"))
             .navigationBarTitleDisplayMode(.inline)
             .task { if catalog.isEmpty { await load() } }
+            .onReceive(NotificationCenter.default.publisher(for: .filterExternalSources)) { _ in
+                filterVersion += 1
+            }
         }
     }
 

@@ -31,6 +31,36 @@ class SourceManager {
         "multi", "en", "ca", "de", "es", "fr", "id", "it", "pl", "pt-br", "vi", "tr", "ru", "ar", "zh", "zh-hans", "ja", "ko"
     ]
 
+    /// Whether a catalogue source should be shown, given the user's `Browse.languages` /
+    /// `Browse.contentRatings` selections and the global `Sources.disableNsfw` toggle.
+    ///
+    /// Mirrors the language + content-type + NSFW gate the Android app applies when assembling
+    /// its source catalogue (`MangaSourcesRepository`): a source is hidden if its language isn't
+    /// one of the selected browse languages, or its content rating isn't one of the selected
+    /// content ratings, or NSFW sources are globally disabled and the source isn't `.safe`.
+    static func isSourceVisibleInCatalogue(
+        languages: [String],
+        contentRating: AidokuRunner.SourceContentRating
+    ) -> Bool {
+        // global "disable NSFW sources" toggle always wins, regardless of the content rating menu
+        if UserDefaults.standard.bool(forKey: "Sources.disableNsfw") && contentRating != .safe {
+            return false
+        }
+
+        let selectedRatings = UserDefaults.standard.stringArray(forKey: "Browse.contentRatings") ?? []
+        if !selectedRatings.isEmpty && !selectedRatings.contains(contentRating.stringValue) {
+            return false
+        }
+
+        let selectedLanguages = UserDefaults.standard.stringArray(forKey: "Browse.languages") ?? []
+        let sourceLanguages = languages.isEmpty ? ["multi"] : languages
+        if !selectedLanguages.isEmpty && !sourceLanguages.contains(where: { selectedLanguages.contains($0) }) {
+            return false
+        }
+
+        return true
+    }
+
     var sourceListsStrings: [String] {
         sourceListURLs.map { $0.absoluteString }
     }

@@ -22,7 +22,11 @@ struct AddSourceFilterMenu: View {
     @Environment(\.dismiss) private var dismiss
 
     init() {
-        var languageCodes = Array(SourceManager.shared.sourceListLanguages)
+        // legacy WASM source lists populate `sourceListLanguages`; fall back to the full known
+        // language set so the menu is still useful when browsing the Nyora catalog, which doesn't
+        // register itself there
+        let sourceListLanguages = SourceManager.shared.sourceListLanguages
+        var languageCodes = Array(sourceListLanguages.isEmpty ? Set(SourceManager.languageCodes) : sourceListLanguages)
 
         // sort alphabetically
         languageCodes.sort(by: {
