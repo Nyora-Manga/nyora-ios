@@ -75,6 +75,13 @@ actor MangaTranslator {
                 guard !Task.isCancelled else { continuation.finish(); return }
                 if result.isEmpty { continuation.finish(); return }
                 let bubbles = mergeBlocksIntoBubbles(result.blocks)
+                // The script OCR actually read wins over an "AUTO" setting. The MT
+                // layer needs a PINNED source language: `sl=auto` lets Google
+                // re-detect per request (so a bisected page can translate its two
+                // halves as different languages), and the honorific and sound-effect
+                // rules are keyed off it — they must not run on Chinese, where 殿 and
+                // 君 are ordinary words.
+                let mtSource = TranslationConfig.mtSourceCode(for: sourceLang, detected: result.language)
 
                 // 2) Initial blocks (TRANSLATING) with sampled bubble background colour
                 var blocks: [TranslatedBlock] = bubbles.enumerated().map { idx, b in
@@ -102,7 +109,7 @@ actor MangaTranslator {
                 let mt: [String]
                 switch effectiveEngine {
                 case .google:
-                    mt = (try? await googleTranslate.translateBatch(originals, to: targetCode)) ?? originals
+                    mt = await googleTranslate.translateBatch(originals, to: targetCode, from: mtSource)
                 case .appleIntelligence:
                     mt = await AppleIntelligenceRefiner.shared.translate(
                         originals, sourceLang: sourceLang, targetLanguage: targetLang)
@@ -110,10 +117,10 @@ actor MangaTranslator {
                     // Seed the LLM with a fast Google draft, then let the model
                     // produce the final, context-aware translation. If BYOK is
                     // misconfigured the draft (or original) is kept.
-                    let draft = (try? await googleTranslate.translateBatch(originals, to: targetCode)) ?? originals
-                    // `try?` turns cancellation from the Google draft into a
-                    // fallback value; do not mistake that for permission to
-                    // begin a second (BYOK) network request for a recycled page.
+                    let draft = await googleTranslate.translateBatch(originals, to: targetCode, from: mtSource)
+                    // The draft resolves to the originals on failure or
+                    // cancellation; do not mistake that for permission to begin a
+                    // second (BYOK) network request for a recycled page.
                     guard !Task.isCancelled else { continuation.finish(); return }
                     if let cfg = byokConfig {
                         mt = await byok.translate(

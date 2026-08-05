@@ -109,7 +109,7 @@ Nyora for iOS stands on the work of several open-source projects:
 - **[Aidoku](https://github.com/Aidoku/Aidoku)** by Skittyblock and contributors — the iOS reader this app is forked from. Nyora is a derivative work under the same license; translation strings inherited from Aidoku remain under Apache-2.0.
 - **[Kotatsu](https://github.com/KotatsuApp) / [kotatsu-parsers](https://github.com/KotatsuApp/kotatsu-parsers)** — the parser family the source definitions derive from, powering the hosted helper.
 - **[nyora-data-driven](https://github.com/Nyora-Manga/nyora-data-driven)** — Nyora's data-driven catalogue engine (generic templates over Kotatsu parser definitions) that serves every source.
-- **AI translation stack** — [Google ML Kit](https://developers.google.com/ml-kit) (on-device OCR), [ONNX Runtime](https://onnxruntime.ai) (speech-bubble detection & image models), [Apple Intelligence / Foundation Models](https://developer.apple.com/apple-intelligence/) (on-device refinement), [Google Translate](https://translate.google.com), and any OpenAI-compatible endpoint via bring-your-own-key.
+- **AI translation stack** — [Google ML Kit](https://developers.google.com/ml-kit) (on-device OCR, including vertical Japanese), [Apple Vision](https://developer.apple.com/documentation/vision) (OCR fallback ensemble), [Apple Intelligence / Foundation Models](https://developer.apple.com/apple-intelligence/) (on-device refinement), [Google Translate](https://translate.google.com), and any OpenAI-compatible endpoint via bring-your-own-key.
 
 Reader, sources and sync are part of the [Nyora](https://nyora.xyz) project.
 

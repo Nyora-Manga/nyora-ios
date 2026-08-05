@@ -109,6 +109,23 @@ enum TranslationConfig {
         "Polish", "Dutch", "Thai", "Indonesian",
     ]
 
+    /// The MT **source** code for a page: the reader's source-language setting
+    /// when it names a language, otherwise the script OCR actually read.
+    ///
+    /// Returned as a bare code (`ja`/`ko`/`zh`/`en`) rather than a Google code,
+    /// because `MTPolish` keys its Japanese- and Korean-only rules off it;
+    /// `GoogleTranslate` maps it to the endpoint's own codes.
+    static func mtSourceCode(for lang: String, detected: String) -> String {
+        switch lang.lowercased() {
+        case "japanese", "ja": return "ja"
+        case "korean", "ko": return "ko"
+        case "chinese", "zh": return "zh"
+        case "english", "en": return "en"
+        case "auto", "": return detected.isEmpty ? "auto" : detected
+        default: return googleLangCode(for: lang)
+        }
+    }
+
     /// Google Translate target code for a display language name.
     static func googleLangCode(for lang: String) -> String {
         switch lang.lowercased() {
